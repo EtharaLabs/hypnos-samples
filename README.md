@@ -60,15 +60,27 @@ Each bundle directory is a complete Harbor task: `task.toml` is the runner manif
 ## Cite
 
 ```bibtex
-@misc{hypnossamples,
-  title = {hypnos: samples}
+@misc{hypnos2026,
+  title        = {hypnos: Multilingual Issue-Resolving Terminal Tasks Replayed Before the Fix},
+  author       = {Ethara AI},
+  year         = {2026},
+  howpublished = {\url{https://github.com/EtharaOrion/hypnos}},
+  note         = {Corpus in preparation; no measured difficulty published at the time of writing}
 }
 ```
 
+The reference benchmark this corpus is built against is cited in [Related work](#related-work).
+
 ## License
 
-See the license of the repository that publishes this lane.
+Released under the MIT License. See [LICENSE](LICENSE).
+
+Each task bundle carries the license of the upstream repository its environment is built from, and that license governs the task's own contents.
 
 ## Contact
 
-[Ethara AI on GitHub](https://github.com/Ethara-Ai), [SECURITY.md](SECURITY.md) for a private report, and [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution route.
+The organization page is [Ethara AI on GitHub](https://github.com/Ethara-Ai).
+
+Report a vulnerability or a benchmark-integrity defect privately through the process in [SECURITY.md](SECURITY.md). Do not open a public issue for either.
+
+To propose a change, read [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution route and the sign-off it requires.
