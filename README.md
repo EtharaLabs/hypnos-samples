@@ -84,3 +84,9 @@ The organization page is [Ethara AI on GitHub](https://github.com/Ethara-Ai).
 Report a vulnerability or a benchmark-integrity defect privately through the process in [SECURITY.md](SECURITY.md). Do not open a public issue for either.
 
 To propose a change, read [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution route and the sign-off it requires.
+
+---
+
+## Copyright
+
+Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
