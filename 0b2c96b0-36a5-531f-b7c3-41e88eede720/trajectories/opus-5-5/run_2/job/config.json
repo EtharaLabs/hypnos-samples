@@ -1,0 +1,10 @@
+{
+    "job_name": "rescore_r2",
+    "jobs_dir": "/home/ec2-user/.cache/hypnos-nu/author/nushell/ctl/jobs",
+    "n_concurrent_trials": 1,
+    "tasks": [
+        {
+            "path": "/home/ec2-user/.cache/hypnos-nu/author/nushell/ctl/probes/rescore_r2"
+        }
+    ]
+}

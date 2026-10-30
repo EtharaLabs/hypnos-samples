@@ -1,0 +1,107 @@
+{
+  "reward": {
+    "kind": "group",
+    "score": 0.7576,
+    "aggregation": "weighted-mean",
+    "components": [
+      {
+        "name": "judge",
+        "weight": 3.0,
+        "detail": {
+          "score": 1.0,
+          "criteria": [
+            {
+              "id": "R8",
+              "name": "R8",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The change makes calls by declaration id behave as direct calls only for particular command names, converter names, or inputs, rather than for every custom command",
+              "reasoning": "The change applies direct-call behavior to every custom command called by declaration id. The new `eval_call_by_id` and `eval_call_frame` branch on `decl.block_id().is_some()`, which is true of all custom commands, not on particular command names, converter names, or inputs. The only name-based special case, `ignore`, predates the change and covers a builtin. So the fix is general, not limited to specific names or inputs.",
+              "negate": true
+            }
+          ],
+          "kind": "llm",
+          "judge": {
+            "model": "openai/claude-sonnet-5-5",
+            "reasoning_effort": "medium",
+            "timeout": 300,
+            "files": [
+              "/logs/verifier/submission.diff"
+            ],
+            "atif_trajectory": null,
+            "reference": null,
+            "mode": "batched"
+          },
+          "judge_output": "{\"score\": 0, \"reasoning\": \"The change makes calls by declaration id behave like direct calls for every custom command, not for particular names or inputs. The new `eval_call_by_id` and `eval_call_frame` keep the same semantics for any decl: the checks are gated only on `decl.block_id().is_some()`, which is true of all custom commands, and there are no special cases for particular command names, converter names, or inputs. The one name-based special case, `ignore`, existed before the change and applies to builtins. So the criterion, which describes a name- or input-specific fix, does not apply here.\"}\n\nWait, the score must be \"yes\" or \"no\" per the instructions. Corrected response:\n\n```json\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The change applies direct-call behavior to every custom command called by declaration id. The new `eval_call_by_id` and `eval_call_frame` branch on `decl.block_id().is_some()`, which is true of all custom commands, not on particular command names, converter names, or inputs. The only name-based special case, `ignore`, predates the change and covers a builtin. So the fix is general, not limited to specific names or inputs.\"\n}\n```"
+        }
+      },
+      {
+        "name": "test_output",
+        "weight": 30.0,
+        "detail": {
+          "score": 0.7333,
+          "criteria": [
+            {
+              "name": "R1",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 5.0,
+              "description": "R1: The upstream plugins::call_decl::call_custom_command test passes"
+            },
+            {
+              "name": "R2",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 3.0,
+              "description": "R2: The upstream save::custom_converter_binds_its_flags test passes"
+            },
+            {
+              "name": "R3",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 3.0,
+              "description": "R3: The upstream save::custom_converter_checks_its_input_type test passes"
+            },
+            {
+              "name": "R4",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 3.0,
+              "description": "R4: The upstream network::http::get::http_get_with_custom_converter test passes"
+            },
+            {
+              "name": "R5",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 3.0,
+              "description": "R5: The upstream repl::test_parser::percent_dynamic_dispatch_rejects_list_spread_without_rest test passes"
+            },
+            {
+              "name": "R6",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 5.0,
+              "description": "R6: Every authored fail-to-pass case (c01 to c04, c07 to c12, c14 to c21; 18 cases) produces the reference output"
+            },
+            {
+              "name": "R7",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 5.0,
+              "description": "R7: The frame passes, every upstream test that passed at base passing in every workspace test target"
+            },
+            {
+              "name": "R9",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 3.0,
+              "description": "R9: The authored pass-to-pass cases p01 to p04 (4 cases) produce the output the base commit produces"
+            }
+          ],
+          "kind": "programmatic"
+        }
+      }
+    ]
+  }
+}

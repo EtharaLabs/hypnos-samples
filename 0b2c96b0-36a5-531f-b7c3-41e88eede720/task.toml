@@ -1,0 +1,54 @@
+schema_version = "1.4"
+artifacts = ["/app/crates", "/app/src"]
+
+[task]
+name = "etharaorion/nushell-call-by-decl-id-as-direct-call"
+version = "1.0.0"
+description = "Make every call by declaration id, a plugin's call_decl, the open, http, and save converters, the highlighter and table renderer nushell picks, and %($cmd), behave as the same direct call for custom commands: arguments, flags, and defaults bound, input type checked, and $env contained unless def --env, while calls accepted today stay accepted."
+authors = [{ name = "adarsh.mishraint17", email = "adarsh.mishraint17@ethara.ai" }]
+keywords = ["rust", "nushell", "issue-resolution", "multi-swe-bench", "rewardkit"]
+
+[metadata]
+null_floor = 0.0
+discrimination_weight = 0.5
+platforms = ["linux/amd64", "linux/arm64"]
+
+[verifier]
+timeout_sec = 3000.0
+network_mode = "public"
+environment_mode = "separate"
+user = "0"
+env = { ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY}" }
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 1800.0
+cpus = 8
+memory_mb = 32768
+storage_mb = 122880
+gpus = 0
+
+[agent]
+timeout_sec = 7200.0
+network_mode = "no-network"
+user = "10001"
+
+[environment]
+network_mode = "no-network"
+build_timeout_sec = 1800.0
+cpus = 8
+memory_mb = 32768
+storage_mb = 122880
+gpus = 0
+docker_image = "localhost:5000/hypnos/nu19351-env@sha256:14cdb9439583f828aebf4018f4056d4adc3f49761b622adf1c3551dd0eb99dff"
+
+[upstream_provenance]
+origin = "original"
+provenance_date = "2026-10-30"
+source_kind = "public_repository"
+
+[upstream_provenance.source]
+canonical_repo = "github.com/nushell/nushell"
+fork_ancestry_digest = "sha256:08a81ba486d721552b1f62f22bb625fdcf24cc3821fc27aa68cd6722d22ff1c1"
+base_commit = "bdf52cd72abef109c2c35268d3ca79e12d89eafe"
+event_timestamp = "2025-11-03T19:19:14Z"
