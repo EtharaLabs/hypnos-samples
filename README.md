@@ -2,9 +2,9 @@
 
 # hypnos: samples
 
-<p align="center"><b>The samples lane: 0 of 30 Harbor task bundles.</b></p>
+<p align="center"><b>The samples lane: 1 of 30 Harbor task bundles.</b></p>
 
-<p align="center"><a href="#summary"><img src="https://img.shields.io/badge/bundles-0_of_30-845EF7" alt="bundles: 0 of 30"></a> <a href="#evidence-status"><img src="https://img.shields.io/badge/sealed-0-845EF7" alt="sealed: 0"></a> <a href="#difficulty-tiers"><img src="https://img.shields.io/badge/difficulty-measured-845EF7" alt="difficulty: measured"></a></p>
+<p align="center"><a href="#summary"><img src="https://img.shields.io/badge/bundles-1_of_30-845EF7" alt="bundles: 1 of 30"></a> <a href="#evidence-status"><img src="https://img.shields.io/badge/sealed-0-845EF7" alt="sealed: 0"></a> <a href="#difficulty-tiers"><img src="https://img.shields.io/badge/difficulty-measured-845EF7" alt="difficulty: measured"></a></p>
 
 <p align="center"><sub><a href="#abstract">Abstract</a> | <a href="#summary">Summary</a> | <a href="#difficulty-tiers">Difficulty tiers</a> | <a href="#evidence-status">Evidence status</a> | <a href="#coverage">Coverage</a> | <a href="#dataset-structure">Dataset structure</a> | <a href="#verification-and-quality-assurance">Verification and quality assurance</a> | <a href="#reproduction">Reproduction</a> | <a href="#cite">Cite</a> | <a href="#license">License</a> | <a href="#contact">Contact</a></sub></p>
 
@@ -18,11 +18,11 @@ Each bundle is one Harbor task in a directory named by its content-derived uuid5
 
 | Property | Value |
 | --- | --- |
-| Bundles | 0 of 30 |
-| Sealed | 0 of 0 |
-| Registrations | none |
-| Audit verdicts | none |
-| Harbor schema | none |
+| Bundles | 1 of 30 |
+| Sealed | 0 of 1 |
+| Registrations | unregistered (1) |
+| Audit verdicts | none (1) |
+| Harbor schema | 1.4 (1) |
 
 ## Difficulty tiers
 
@@ -32,19 +32,43 @@ Difficulty is measured by the signed pilot alone and never declared in a bundle,
 
 The verdict is the audit outcome recorded at the sealed digest, and `none` means no verdict has landed for that digest yet. Only an authoring run removes a bundle from this lane, so removal waits for the next one.
 
+| uuid | Verdict | Sealed digest | Stream |
+| --- | --- | --- | --- |
+| 0b2c96b0-36a5-531f-b7c3-41e88eede720 | none | absent | none |
+
 ## Coverage
 
-No resident bundle declares a keyword.
+| Keyword | Bundles |
+| --- | --- |
+| issue-resolution | 1 |
+| multi-swe-bench | 1 |
+| nushell | 1 |
+| rewardkit | 1 |
+| rust | 1 |
 
 ## Dataset structure
 
-No bundle is resident under `samples/`.
+| Bundle | Task | Keywords | Registration | Sealed at | Tier |
+| --- | --- | --- | --- | --- | --- |
+| [`0b2c96b0-36a5-531f-b7c3-41e88eede720`](0b2c96b0-36a5-531f-b7c3-41e88eede720/) | `etharaorion/nushell-call-by-decl-id-as-direct-call` | issue-resolution, multi-swe-bench, nushell, rewardkit, rust | unregistered | unsealed | - |
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#131a33","primaryTextColor":"#e8ecff","primaryBorderColor":"#845EF7","lineColor":"#22d3ee","fontFamily":"monospace"}}}%%
+flowchart LR
+    bundle["&lt;uuid&gt;/"]
+    bundle --> n0["task.toml<br/>runner manifest"]
+    bundle --> n1["instruction.md<br/>objective the agent reads"]
+    bundle --> n2["environment/<br/>agent sandbox image"]
+    bundle --> n3["tests/<br/>verifier, hidden from the agent"]
+    bundle --> n4["solution/<br/>private oracle"]
+    bundle --> n5["trajectories/"]
+```
 
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{"primaryColor":"#131a33","primaryTextColor":"#e8ecff","primaryBorderColor":"#845EF7","lineColor":"#22d3ee","fontFamily":"monospace"}}}%%
 flowchart LR
     staging["staging/"]
-    staging --> samples["samples/<br/>0 of 30"]
+    staging --> samples["samples/<br/>1 of 30"]
     samples --> delivery["delivery/<br/>0 of 10000"]
     delivery --> stock["stock/<br/>0 of 10000"]
 ```
@@ -86,3 +110,5 @@ The organization page is [Ethara AI on GitHub](https://github.com/Ethara-Ai).
 Report a vulnerability or a benchmark-integrity defect privately through the process in [SECURITY.md](SECURITY.md). Do not open a public issue for either.
 
 To propose a change, read [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution route and the sign-off it requires.
+
+Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
