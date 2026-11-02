@@ -1,5 +1,0 @@
-{
-  "context_digest": "sha256:2297fafdc8cda16e612264666332d7d537831e3b19dfc0be77a6064f0b56d550",
-  "image": "localhost:5000/hypnos/nu19351-env@sha256:14cdb9439583f828aebf4018f4056d4adc3f49761b622adf1c3551dd0eb99dff",
-  "schema": "trinity.image-lock/v1"
-}

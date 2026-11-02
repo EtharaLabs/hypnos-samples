@@ -1,3359 +1,0 @@
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ asciinema rec --stdin /logs/agent/recording.cast
-[?2004lbash: asciinema: command not found
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear
-[?2004l[H[J[3J[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ cd /app && git log --oneline -3 && git status --short | head
-[?2004lfatal: not a git repository (or any of the parent directories): .git
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "can't run custom command" crates/ src/ | head
-[?2004lcrates/nu-protocol/src/signature.rs:1066:            "Internal error: can't run custom command with 'run', use block_id",
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "CallDecl\|call_decl" crates/*/src --include=*.rs | grep -v '^crates/nu_plugin_example' | head -40
-[?2004lcrates/nu-command/src/misc/unlet.rs:40:        // only runs for an indirect call, like `%($name)` or a plugin's `call_decl`, which
-crates/nu-plugin-engine/src/context.rs:55:    fn call_decl(
-crates/nu-plugin-engine/src/context.rs:236:    fn call_decl(
-crates/nu-plugin-engine/src/context.rs:430:    fn call_decl(
-crates/nu-plugin-engine/src/context.rs:439:            msg: "call_decl not implemented for PluginGetDynamicCompletionContext".into(),
-crates/nu-plugin-engine/src/context.rs:542:    fn call_decl(
-crates/nu-plugin-engine/src/context.rs:551:            msg: "call_decl not implemented on bogus".into(),
-crates/nu-plugin-engine/src/interface/mod.rs:1435:        EngineCall::CallDecl {
-crates/nu-plugin-engine/src/interface/mod.rs:1442:            .call_decl(decl_id, call, input, redirect_stdout, redirect_stderr)
-crates/nu-plugin-protocol/src/lib.rs:618:    CallDecl {
-crates/nu-plugin-protocol/src/lib.rs:649:            EngineCall::CallDecl { .. } => "CallDecl",
-crates/nu-plugin-protocol/src/lib.rs:685:            EngineCall::CallDecl {
-crates/nu-plugin-protocol/src/lib.rs:691:            } => EngineCall::CallDecl {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:312:            engine.call_decl(
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:374:                EngineCall::CallDecl {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:497:fn sdk_completion_preserves_call_decl_list_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:508:fn sdk_completion_releases_dropped_call_decl_list_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:519:fn sdk_completion_preserves_call_decl_list_forwarding_redirected() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:530:fn sdk_completion_releases_dropped_call_decl_list_forwarding_redirected() -> Result<(), ShellError>
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:542:fn sdk_output_drop_preserves_call_decl_list_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:553:fn sdk_output_drop_releases_dropped_call_decl_list_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:564:fn sdk_output_drop_preserves_call_decl_list_forwarding_with_gc_disabled() -> Result<(), ShellError>
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:576:fn sdk_output_drop_releases_dropped_call_decl_list_forwarding_with_gc_disabled()
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:588:fn sdk_completion_preserves_call_decl_byte_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:599:fn sdk_completion_releases_dropped_call_decl_byte_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:604:fn sdk_completion_preserves_call_decl_byte_forwarding_redirected() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:615:fn sdk_completion_releases_dropped_call_decl_byte_forwarding_redirected() -> Result<(), ShellError>
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:627:fn sdk_output_drop_preserves_call_decl_byte_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:638:fn sdk_output_drop_releases_dropped_call_decl_byte_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:649:fn sdk_output_drop_preserves_call_decl_byte_forwarding_with_gc_disabled() -> Result<(), ShellError>
-crates/nu-plugin-test-support/src/spawn_fake_plugin/tests.rs:661:fn sdk_output_drop_releases_dropped_call_decl_byte_forwarding_with_gc_disabled()
-crates/nu-plugin/src/plugin/interface/mod.rs:971:    /// to [`.call_decl()`](Self::call_decl) to call other internal commands.
-crates/nu-plugin/src/plugin/interface/mod.rs:973:    /// See [`.call_decl()`](Self::call_decl) for an example.
-crates/nu-plugin/src/plugin/interface/mod.rs:1025:    ///     let commands = engine.call_decl(
-crates/nu-plugin/src/plugin/interface/mod.rs:1038:    pub fn call_decl(
-crates/nu-plugin/src/plugin/interface/mod.rs:1046:        let call = EngineCall::CallDecl {
-crates/nu-plugin/src/plugin/interface/mod.rs:1058:                msg: "Received unexpected response type for EngineCall::CallDecl".into(),
-crates/nu-plugin/src/plugin/interface/tests.rs:366:fn input_completion_does_not_truncate_call_decl_forwarding() -> Result<(), ShellError> {
-crates/nu-plugin/src/plugin/interface/tests.rs:378:        let result = caller.call_decl(
-crates/nu-plugin/src/plugin/interface/tests.rs:459:        caller.call_decl(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "fn eval_call\|fn eval_block_with_early_return\|fn bind_args\|check_input_types\|fn eval_decl" crates/nu-engine/src crates/nu--protocol/src | head -30
-[?2004lcrates/nu-engine/src/eval.rs:364:pub fn eval_call<D: DebugContext>(
-crates/nu-engine/src/eval.rs:633:pub fn eval_block_with_early_return<D: DebugContext>(
-crates/nu-engine/src/eval.rs:742:    fn eval_call<D: DebugContext>(
-crates/nu-engine/src/eval_ir.rs:1491:fn eval_call<D: DebugContext>(
-crates/nu-engine/src/eval_ir.rs:1524:            check_input_types(&input, &block.signature, head)?;
-crates/nu-engine/src/eval_ir.rs:1577:                check_input_types(&input, &decl.signature(), head)?;
-crates/nu-engine/src/eval_ir.rs:1911:fn check_input_types(
-crates/nu-protocol/src/eval_base.rs:363:    fn eval_call<D: DebugContext>(
-crates/nu-protocol/src/eval_const.rs:476:    fn eval_call<D: DebugContext>(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1480,1700p crates/nu-engine/src/eval_ir.rs
-[?2004l    };
-
-    ctx.put_reg(
-        lhs_dst,
-        PipelineExecutionData::from(PipelineData::value(result, None)),
-    );
-
-    Ok(InstructionResult::Continue)
-}
-
-/// Evaluate a call
-fn eval_call<D: DebugContext>(
-    ctx: &mut EvalContext<'_>,
-    decl_id: DeclId,
-    head: Span,
-    mut input: PipelineData,
-) -> Result<PipelineData, ShellError> {
-    let EvalContext {
-        engine_state,
-        stack: caller_stack,
-        args_base,
-        redirect_out,
-        redirect_err,
-        ..
-    } = ctx;
-
-    let args_len = caller_stack.arguments.get_len(*args_base);
-    let decl = engine_state.get_decl(decl_id);
-    // Commands such as `ignore --stderr` need errors as pipeline values so they can decide
-    // whether to suppress or rethrow.
-    let stderr_pipe_separate = matches!(
-        redirect_err.as_ref(),
-        Some(Redirection::Pipe(OutDest::PipeSeparate))
-    );
-
-    // Set up redirect modes
-    let mut caller_stack = caller_stack.push_redirection(redirect_out.take(), redirect_err.take());
-
-    let result = (|| {
-        if let Some(block_id) = decl.block_id() {
-            // If the decl is a custom command
-            let block = engine_state.get_block(block_id);
-
-            // check types after acquiring block to avoid unnecessarily cloning Signature
-            check_input_types(&input, &block.signature, head)?;
-
-            // Expand record spreads into named flags; drop null named values.
-            let args_len = normalize_call_arguments(
-                &block.signature,
-                &mut caller_stack,
-                *args_base,
-                args_len,
-            )?;
-
-            // Set up a callee stack with the captures and move arguments from the stack into variables
-            let mut callee_stack = caller_stack.gather_captures(engine_state, &block.captures);
-
-            gather_arguments(
-                engine_state,
-                block,
-                &mut caller_stack,
-                &mut callee_stack,
-                *args_base,
-                args_len,
-                head,
-            )?;
-
-            // Snapshot the call's return destination onto the callee stack. Intermediate
-            // expressions in the body may temporarily set OutDest::Value (e.g. `if (…)`);
-            // Stack::is_stdout_redirected / `is-redirected` read this frame instead.
-            // See Stack::with_invocation_stdout for details.
-            let mut callee_stack =
-                callee_stack.with_invocation_stdout(caller_stack.stdout().clone());
-
-            // Add one to the recursion count, so we don't recurse too deep. Stack overflows are not
-            // recoverable in Rust.
-            callee_stack.recursion_count += 1;
-
-            let result =
-                eval_block_with_early_return::<D>(engine_state, &mut callee_stack, block, input)
-                    .map(|p| p.body);
-
-            // Move environment variables back into the caller stack scope if requested to do so
-            if block.redirect_env {
-                redirect_env(engine_state, &mut caller_stack, &callee_stack);
-            }
-
-            result
-        } else {
-            // `ignore` intentionally handles upstream error values at command level.
-            // Skip early input-error propagation for the built-in `ignore` command so
-            // `run()` can apply `--stderr`/`--show-errors` semantics.
-            let allow_error_input = matches!(input, PipelineData::Value(Value::Error { .. }, ..))
-                && engine_state
-                    .find_decl(b"ignore", &[])
-                    .is_some_and(|ignore_decl_id| ignore_decl_id == decl_id);
-            if !allow_error_input {
-                check_input_types(&input, &decl.signature(), head)?;
-            }
-
-            // Expand record spreads into named flags; drop null named values.
-            let args_len = normalize_call_arguments(
-                &decl.signature(),
-                &mut caller_stack,
-                *args_base,
-                args_len,
-            )?;
-
-            // FIXME: precalculate this and save it somewhere
-            let span = Span::merge_many(
-                std::iter::once(head).chain(
-                    caller_stack
-                        .arguments
-                        .get_args(*args_base, args_len)
-                        .iter()
-                        .flat_map(|arg| arg.span()),
-                ),
-            );
-
-            let call = Call {
-                decl_id,
-                head,
-                span,
-                args_base: *args_base,
-                args_len,
-            };
-
-            // Make sure that iterating value itself can be interrupted.
-            // e.g: 0..inf | to md
-            if let PipelineData::Value(v, ..) = &mut input {
-                v.inject_signals(engine_state);
-            }
-            // Run the call
-            decl.run(engine_state, &mut caller_stack, &(&call).into(), input)
-        }
-    })();
-
-    drop(caller_stack);
-
-    // Important that this runs, to reset state post-call:
-    ctx.stack.arguments.leave_frame(ctx.args_base);
-    ctx.redirect_out = None;
-    ctx.redirect_err = None;
-
-    match result {
-        Err(err) if stderr_pipe_separate => Ok(PipelineData::Value(Value::error(err, head), None)),
-        result => result,
-    }
-}
-
-fn find_named_var_id(
-    sig: &Signature,
-    name: &[u8],
-    short: &[u8],
-    span: Span,
-) -> Result<VarId, ShellError> {
-    sig.named
-        .iter()
-        .find(|n| match (n.long_name(), n.short) {
-            (Some(long), _) => long.as_bytes() == name,
-            // Short-only flag: match on the short character
-            (None, Some(s)) => s.encode_utf8(&mut [0; 4]).as_bytes() == short,
-            (None, None) => false,
-        })
-        .ok_or_else(|| ShellError::IrEvalError {
-            msg: format!(
-                "block does not have an argument named `{}`",
-                String::from_utf8_lossy(name)
-            ),
-            span: Some(span),
-        })
-        .and_then(|flag| expect_named_var_id(flag, span))
-}
-
-pub(crate) fn expect_named_var_id(arg: &Flag, span: Span) -> Result<VarId, ShellError> {
-    arg.var_id.ok_or_else(|| ShellError::IrEvalError {
-        msg: format!(
-            "block signature is missing var id for named arg `{}`",
-            arg.long
-        ),
-        span: Some(span),
-    })
-}
-
-fn expect_positional_var_id(arg: &PositionalArg, span: Span) -> Result<VarId, ShellError> {
-    arg.var_id.ok_or_else(|| ShellError::IrEvalError {
-        msg: format!(
-            "block signature is missing var id for positional arg `{}`",
-            arg.name
-        ),
-        span: Some(span),
-    })
-}
-
-/// Normalize call arguments: expand record spreads into named flags; drop null
-/// named values unless the flag type accepts `nothing`.
-///
-/// Returns the new argument list length after rewriting the frame starting at `args_base`.
-fn normalize_call_arguments(
-    signature: &Signature,
-    stack: &mut Stack,
-    args_base: usize,
-    args_len: usize,
-) -> Result<usize, ShellError> {
-    let raw: Vec<Argument> = stack.arguments.drain_args(args_base, args_len).collect();
-    let expanded = normalize_engine_arguments(signature, raw)?;
-    let new_len = expanded.len();
-    for arg in expanded {
-        stack.arguments.push(arg);
-    }
-    Ok(new_len)
-}
-
-/// Move arguments from the stack into variables for a custom command
-fn gather_arguments(
-    engine_state: &EngineState,
-    block: &Block,
-    caller_stack: &mut Stack,
-    callee_stack: &mut Stack,
-    args_base: usize,
-    args_len: usize,
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1900,1990p crates/nu-engine/src/eval_ir.rs
-[?2004l            err = err.with_label(
-                format!("expected {expected}, got {actual}"),
-                assignment_span,
-            );
-
-            Err(ShellError::LabeledError(err.into()))
-        }
-    }
-}
-
-/// Type check pipeline input against command's input types
-fn check_input_types(
-    input: &PipelineData,
-    signature: &Signature,
-    head: Span,
-) -> Result<(), ShellError> {
-    let io_types = &signature.input_output_types;
-
-    // If a command doesn't have any input/output types, then treat command input type as any
-    if io_types.is_empty() {
-        return Ok(());
-    }
-
-    // If a command only has a nothing input type, then allow any input data
-    if io_types.iter().all(|(intype, _)| intype == &Type::Nothing) {
-        return Ok(());
-    }
-
-    match input {
-        // early return error directly if detected
-        PipelineData::Value(Value::Error { error, .. }, ..) => return Err(*error.clone()),
-        // A custom value may stand in for a list, table or record (it converts to its base value
-        // at runtime), so a command taking any of those, directly or inside a `oneof`, is left to
-        // decide at runtime, as `Type::is_assignable_to` does. Otherwise the custom value is
-        // checked like any other input, so `[nothing -> X, polars_dataframe -> X]` rejects some
-        // other plugin's custom value the same way `polars_dataframe -> X` does.
-        PipelineData::Value(Value::Custom { .. }, ..)
-            if io_types.iter().any(|(input_type, _)| {
-                let is_collection =
-                    |ty: &Type| matches!(ty, Type::List(_) | Type::Table(_) | Type::Record(_));
-                match input_type {
-                    Type::OneOf(oneof) => oneof.iter().any(is_collection),
-                    ty => is_collection(ty),
-                }
-            }) =>
-        {
-            return Ok(());
-        }
-        _ => (),
-    }
-
-    // Check if the input type is compatible with *any* of the command's possible input types
-    if io_types
-        .iter()
-        .any(|(command_type, _)| input.is_assignable_to(command_type))
-    {
-        return Ok(());
-    }
-
-    let input_types: Vec<Type> = io_types.iter().map(|(input, _)| input.clone()).collect();
-    let expected_string = combined_type_string(&input_types, "and");
-
-    match (input, expected_string) {
-        (PipelineData::Empty, _) => Err(ShellError::PipelineEmpty { dst_span: head }),
-        (_, Some(expected_string)) => Err(ShellError::OnlySupportsThisInputType {
-            exp_input_type: expected_string,
-            wrong_type: input.get_type().to_string(),
-            dst_span: head,
-            src_span: input.span().unwrap_or(head),
-        }),
-        // expected_string didn't generate properly, so we can't show the proper error
-        (_, None) => Err(ShellError::NushellFailed {
-            msg: "Command input type strings is empty, despite being non-zero earlier".to_string(),
-        }),
-    }
-}
-
-/// Get variable from [`Stack`] or [`EngineState`]
-fn get_var(ctx: &mut EvalContext<'_>, var_id: VarId, span: Span) -> Result<Value, ShellError> {
-    match var_id {
-        // $env
-        ENV_VARIABLE_ID => {
-            let env_vars = ctx.stack.get_env_vars(ctx.engine_state);
-            let env_columns = env_vars.keys();
-            let env_values = env_vars.values();
-
-            let mut pairs = env_columns
-                .map(|x| x.to_string())
-                .zip(env_values.cloned())
-                .collect::<Vec<(String, Value)>>();
-
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 220,300p crates/nu-plugin-engine/src/context.rs
-[?2004l        })?;
-
-        block.ir_block.clone().ok_or_else(|| {
-            ShellError::Generic(
-                GenericError::new(
-                    "Block has no IR",
-                    format!("Block {} was not compiled to IR", block_id.get()),
-                    self.call.head,
-                )
-                .with_help(
-                    "This block may be a declaration or built-in that has no IR representation",
-                ),
-            )
-        })
-    }
-
-    fn call_decl(
-        &mut self,
-        decl_id: DeclId,
-        call: EvaluatedCall,
-        input: PipelineData,
-        redirect_stdout: bool,
-        redirect_stderr: bool,
-    ) -> Result<PipelineData, ShellError> {
-        if decl_id.get() >= self.engine_state.num_decls() {
-            return Err(ShellError::Generic(GenericError::new(
-                "Plugin misbehaving",
-                format!("Tried to call unknown decl id: {}", decl_id.get()),
-                call.head,
-            )));
-        }
-
-        let decl = self.engine_state.get_decl(decl_id);
-
-        let stack = &mut self.stack.push_redirection(
-            redirect_stdout.then_some(Redirection::Pipe(OutDest::PipeSeparate)),
-            redirect_stderr.then_some(Redirection::Pipe(OutDest::PipeSeparate)),
-        );
-
-        let mut call_builder = ir::Call::build(decl_id, call.head);
-
-        for positional in call.positional {
-            call_builder.add_positional(stack, positional.span(), positional);
-        }
-
-        for (name, value) in call.named {
-            if let Some(value) = value {
-                call_builder.add_named(stack, &name.item, "", name.span, value);
-            } else {
-                call_builder.add_flag(stack, &name.item, "", name.span);
-            }
-        }
-
-        call_builder.with(stack, |stack, call| {
-            decl.run(&self.engine_state, stack, call, input)
-        })
-    }
-
-    fn boxed(&self) -> Box<dyn PluginExecutionContext + 'static> {
-        Box::new(PluginExecutionCommandContext {
-            identity: self.identity.clone(),
-            engine_state: Cow::Owned(self.engine_state.clone().into_owned()),
-            stack: self.stack.owned(),
-            call: self.call.to_owned(),
-        })
-    }
-}
-
-// Fetch the configuration for a plugin
-//
-// The `plugin` must match the registered name of a plugin.  For `plugin add nu_plugin_example` the
-// plugin config lookup uses `"example"`
-fn plugin_config(
-    config: Arc<Config>,
-    plugin_name: &str,
-    engine_state: &EngineState,
-    stack: &Stack,
-    head: Span,
-) -> Option<Value> {
-    config.plugins.get(plugin_name).cloned().map(|value| {
-        let span = value.span();
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1040,1080p crates/nu-protocol/src/signature.rs; sed -n 25,60p crates/nu-command/src/misc/unlet.rs
-[?2004l
-impl Command for BlockCommand {
-    fn name(&self) -> &str {
-        &self.signature.name
-    }
-
-    fn signature(&self) -> Signature {
-        self.signature.clone()
-    }
-
-    fn description(&self) -> &str {
-        &self.signature.description
-    }
-
-    fn extra_description(&self) -> &str {
-        &self.signature.extra_description
-    }
-
-    fn run(
-        &self,
-        _engine_state: &EngineState,
-        _stack: &mut Stack,
-        _call: &Call,
-        _input: PipelineData,
-    ) -> Result<crate::PipelineData, crate::ShellError> {
-        Err(ShellError::Generic(GenericError::new_internal(
-            "Internal error: can't run custom command with 'run', use block_id",
-            "",
-        )))
-    }
-
-    fn command_type(&self) -> CommandType {
-        CommandType::Custom
-    }
-
-    fn block_id(&self) -> Option<BlockId> {
-        Some(self.block_id)
-    }
-
-    fn attributes(&self) -> Vec<(String, Value)> {
-        self.attributes.clone()
-                "rest",
-                SyntaxShape::Any,
-                "The variables to delete (pass as $variable_name).",
-            )
-            .category(Category::Experimental)
-    }
-
-    fn run(
-        &self,
-        _engine_state: &EngineState,
-        _stack: &mut Stack,
-        call: &Call,
-        _input: PipelineData,
-    ) -> Result<PipelineData, ShellError> {
-        // The IR compiler turns a direct `unlet` call into instructions (`compile_unlet`). This
-        // only runs for an indirect call, like `%($name)` or a plugin's `call_decl`, which
-        // passes values rather than variables.
-        Err(GenericError::new(
-            "Can't call `unlet` indirectly",
-            "`unlet` deletes the variables written in its call, like `unlet $x`",
-            call.head,
-        )
-        .into())
-    }
-
-    fn examples(&self) -> Vec<Example<'_>> {
-        vec![
-            Example {
-                example: "let x = 42; unlet $x",
-                description: "Delete a variable from memory.",
-                result: None,
-            },
-            Example {
-                example: "let x = 1; let y = 2; unlet $x $y",
-                description: "Delete multiple variables from memory.",
-                result: None,
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1600,1660p crates/nu-engine/src/eval_ir.rs
-[?2004l                decl_id,
-                head,
-                span,
-                args_base: *args_base,
-                args_len,
-            };
-
-            // Make sure that iterating value itself can be interrupted.
-            // e.g: 0..inf | to md
-            if let PipelineData::Value(v, ..) = &mut input {
-                v.inject_signals(engine_state);
-            }
-            // Run the call
-            decl.run(engine_state, &mut caller_stack, &(&call).into(), input)
-        }
-    })();
-
-    drop(caller_stack);
-
-    // Important that this runs, to reset state post-call:
-    ctx.stack.arguments.leave_frame(ctx.args_base);
-    ctx.redirect_out = None;
-    ctx.redirect_err = None;
-
-    match result {
-        Err(err) if stderr_pipe_separate => Ok(PipelineData::Value(Value::error(err, head), None)),
-        result => result,
-    }
-}
-
-fn find_named_var_id(
-    sig: &Signature,
-    name: &[u8],
-    short: &[u8],
-    span: Span,
-) -> Result<VarId, ShellError> {
-    sig.named
-        .iter()
-        .find(|n| match (n.long_name(), n.short) {
-            (Some(long), _) => long.as_bytes() == name,
-            // Short-only flag: match on the short character
-            (None, Some(s)) => s.encode_utf8(&mut [0; 4]).as_bytes() == short,
-            (None, None) => false,
-        })
-        .ok_or_else(|| ShellError::IrEvalError {
-            msg: format!(
-                "block does not have an argument named `{}`",
-                String::from_utf8_lossy(name)
-            ),
-            span: Some(span),
-        })
-        .and_then(|flag| expect_named_var_id(flag, span))
-}
-
-pub(crate) fn expect_named_var_id(arg: &Flag, span: Span) -> Result<VarId, ShellError> {
-    arg.var_id.ok_or_else(|| ShellError::IrEvalError {
-        msg: format!(
-            "block signature is missing var id for named arg `{}`",
-            arg.long
-        ),
-        span: Some(span),
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "^fn \|^pub fn \|^pub(crate) fn " crates/nu-engine/src/eval_ir.rs | head -80
-[?2004l33:fn expand_external_glob_arg(val: Value) -> Value {
-49:pub fn eval_ir_block<D: DebugContext>(
-93:fn eval_ir_block_inner<D: DebugContext>(
-272:fn eval_ir_block_impl<D: DebugContext>(
-407:fn unwind_through_handlers(
-487:fn reset_signals_if_interrupted(ctx: &EvalContext<'_>, err: &ShellError) {
-494:fn prepare_error_handler(
-548:fn eval_instruction<D: DebugContext>(
-1304:fn load_literal(
-1327:fn literal_value(
-1407:fn binary_op(
-1491:fn eval_call<D: DebugContext>(
-1630:fn find_named_var_id(
-1654:pub(crate) fn expect_named_var_id(arg: &Flag, span: Span) -> Result<VarId, ShellError> {
-1664:fn expect_positional_var_id(arg: &PositionalArg, span: Span) -> Result<VarId, ShellError> {
-1678:fn normalize_call_arguments(
-1694:fn gather_arguments(
-1864:fn check_type(val: &Value, ty: &Type) -> Result<(), ShellError> {
-1878:fn check_assignment_type(
-1911:fn check_input_types(
-1978:fn get_var(ctx: &mut EvalContext<'_>, var_id: VarId, span: Span) -> Result<Value, ShellError> {
-2012:fn get_env_var<'a>(ctx: &'a mut EvalContext<'_>, key: &str) -> Option<&'a Value> {
-2049:fn collect(
-2090:fn try_collect(
-2113:fn collect_for_finally(ctx: &mut EvalContext<'_>, reg: RegId) -> Result<(), ShellError> {
-2140:fn drain(
-2193:fn drain_if_end(
-2220:fn open_file(ctx: &EvalContext<'_>, path: &Value, append: bool) -> Result<Arc<File>, ShellError> {
-2237:fn eval_redirection(
-2271:fn eval_iterate(
-2306:fn redirect_env(engine_state: &EngineState, caller_stack: &mut Stack, callee_stack: &Stack) {
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 355,420p crates/nu-engine/src/eval.rs
-[?2004l                self.callee_stack.add_var(var_id, value);
-            }
-        }
-
-        Ok(())
-    }
-}
-
-/// Evaluate a call to a command (builtin, custom or external)
-pub fn eval_call<D: DebugContext>(
-    engine_state: &EngineState,
-    caller_stack: &mut Stack,
-    call: &Call,
-    input: PipelineData,
-) -> Result<PipelineData, ShellError> {
-    engine_state.signals().check(&call.head)?;
-    let decl = engine_state.get_decl(call.decl_id);
-
-    if !decl.is_known_external() && call.named_iter().any(|(flag, _, _)| flag.item == "help") {
-        let help = get_full_help(decl, engine_state, caller_stack, call.head);
-        Ok(Value::string(help, call.head).into_pipeline_data())
-    } else if let Some(block_id) = decl.block_id() {
-        // call is a custom command
-        let block = engine_state.get_block(block_id);
-        let mut callee_stack = caller_stack.gather_captures(engine_state, &block.captures);
-
-        // Rust does not check recursion limits outside of const evaluation.
-        // But nu programs run in the same process as the shell.
-        // To prevent a stack overflow in user code from crashing the shell,
-        // we limit the recursion depth of function calls.
-        // Picked 50 arbitrarily, should work on all architectures.
-        let config = caller_stack
-            .config
-            .as_deref()
-            .unwrap_or(&engine_state.config);
-        let maximum_call_stack_depth: u64 = config.recursion_limit as u64;
-        callee_stack.recursion_count += 1;
-        if callee_stack.recursion_count > maximum_call_stack_depth {
-            callee_stack.recursion_count = 0;
-            return Err(ShellError::RecursionLimitReached {
-                recursion_limit: maximum_call_stack_depth,
-                span: block.span,
-            });
-        }
-
-        let mut call_eval = CallEval::new(
-            callee_stack,
-            call.head,
-            block.span.unwrap_or(Span::unknown()),
-            eval_block_with_early_return::<D>,
-        );
-        let signature = decl.signature();
-        // Walk all arguments in order so record/list spreads interleave with positionals/flags
-        // the same way the IR path does after normalize_call_arguments.
-        for arg in &call.arguments {
-            match arg {
-                AstArgument::Positional(expr) | AstArgument::Unknown(expr) => {
-                    let result = eval_expression::<D>(engine_state, caller_stack, expr)?;
-                    call_eval.add_positional(&signature, Cow::Owned(result))?;
-                }
-                AstArgument::Named((long, short, maybe_expr)) => {
-                    let result: Option<Cow<Value>> = if let Some(expr) = maybe_expr {
-                        let value = eval_expression::<D>(engine_state, caller_stack, expr)?;
-                        if value.is_nothing() {
-                            let accepts_nothing = signature
-                                .get_long_flag(&long.item)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "\.run(engine_state\|decl.run(\|\.run_const(\|get_decl(.*)\.run" crates/nu-command/src crates/nu-engine/src crates/nu-cmd-*/srrc | head -40
-[?2004lcrates/nu-command/src/filesystem/save.rs:342:            decl.run(engine_state, stack, &(&call).into(), input)
-crates/nu-command/src/misc/tutor.rs:726:                let result = decl.run(
-crates/nu-command/src/network/http/client.rs:1133:                decl.run(engine_state, stack, &Call::new(span), output)
-crates/nu-command/src/system/run_internal.rs:77:            decl.run(engine_state, stack, engine_call, input)
-crates/nu-engine/src/documentation.rs:126:    decl.run(
-crates/nu-engine/src/eval.rs:453:        let result = call_eval.run(engine_state, block, input);
-crates/nu-engine/src/eval.rs:464:        decl.run(engine_state, caller_stack, &call.into(), input)
-crates/nu-engine/src/eval.rs:516:    command.run(engine_state, stack, &(&call).into(), input)
-crates/nu-engine/src/eval_ir.rs:1613:            decl.run(engine_state, &mut caller_stack, &(&call).into(), input)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 420,530p crates/nu-engine/src/eval.rs
-[?2004l                                .get_long_flag(&long.item)
-                                .or_else(|| {
-                                    short
-                                        .as_ref()
-                                        .and_then(|s| s.item.chars().next())
-                                        .and_then(|c| signature.get_short_flag(c))
-                                })
-                                .is_some_and(|flag| flag_type_accepts_nothing(&flag));
-                            if !accepts_nothing {
-                                continue;
-                            }
-                        }
-                        Some(Cow::Owned(value))
-                    } else {
-                        None
-                    };
-                    call_eval.add_named(
-                        &signature,
-                        &long.item,
-                        short.as_ref().map(|s| s.item.clone()),
-                        result,
-                    )?;
-                }
-                // Light AST path: keep custom-command spreads aligned with IR gather/normalize
-                // semantics. Normal scripts use IR (`eval_block` → IR); this path still matters
-                // for residual AST `eval_call` consumers.
-                AstArgument::Spread(expr) => {
-                    let val = eval_expression::<D>(engine_state, caller_stack, expr)?;
-                    call_eval.add_spread(&signature, val, expr.span)?;
-                }
-            }
-        }
-
-        let result = call_eval.run(engine_state, block, input);
-
-        if block.redirect_env {
-            call_eval.redirect_env(engine_state, caller_stack);
-        }
-
-        result
-    } else {
-        // Builtin/plugin/external: normal scripts evaluate via IR, which runs
-        // `normalize_engine_arguments` for null omit and record flag spreads. This AST
-        // `eval_call` branch does not re-implement that path (IR-first).
-        decl.run(engine_state, caller_stack, &call.into(), input)
-    }
-}
-
-/// Redirect the environment from callee to the caller.
-pub fn redirect_env(engine_state: &EngineState, caller_stack: &mut Stack, callee_stack: &Stack) {
-    // Grab all environment variables from the callee
-    let caller_env_vars = caller_stack.get_env_var_names(engine_state);
-
-    // remove env vars that are present in the caller but not in the callee
-    // (the callee hid them)
-    for var in caller_env_vars.iter() {
-        if !callee_stack.has_env_var(engine_state, var) {
-            caller_stack.hide_env_var(engine_state, var);
-        }
-    }
-
-    // add new env vars from callee to caller
-    for (var, value) in callee_stack.get_stack_env_vars() {
-        caller_stack.add_env_var(var, value);
-    }
-
-    // set config to callee config, to capture any updates to that
-    caller_stack.config.clone_from(&callee_stack.config);
-}
-
-fn eval_external(
-    engine_state: &EngineState,
-    stack: &mut Stack,
-    head: &Expression,
-    args: &[ExternalArgument],
-    input: PipelineData,
-) -> Result<PipelineData, ShellError> {
-    let decl_id = engine_state
-        .find_decl("run-external".as_bytes(), &[])
-        .ok_or(ShellError::ExternalNotSupported {
-            span: head.span(&engine_state),
-        })?;
-
-    let command = engine_state.get_decl(decl_id);
-
-    let mut call = Call::new(head.span(&engine_state));
-
-    call.add_positional(head.clone());
-
-    for arg in args {
-        match arg {
-            ExternalArgument::Regular(expr) => call.add_positional(expr.clone()),
-            ExternalArgument::Spread(expr) => call.add_spread(expr.clone()),
-        }
-    }
-
-    command.run(engine_state, stack, &(&call).into(), input)
-}
-
-pub fn eval_expression<D: DebugContext>(
-    engine_state: &EngineState,
-    stack: &mut Stack,
-    expr: &Expression,
-) -> Result<Value, ShellError> {
-    let stack = &mut stack.start_collect_value();
-    <EvalRuntime as Eval>::eval::<D>(engine_state, stack, expr)
-}
-
-/// Checks the expression to see if it's a internal or external call. If so, passes the input
-/// into the call and gets out the result
-/// Otherwise, invokes the expression
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 290,360p crates/nu-command/src/filesystem/save.rs
-[?2004l    };
-    let Some(original_source) = read_toml_source_from_metadata(metadata.as_ref()) else {
-        return Ok(None);
-    };
-
-    match value {
-        Value::Record { .. } => preserve_toml_document(engine_state, value, &original_source, span)
-            .map(|document| Some(document.into_bytes())),
-        _ => Ok(None),
-    }
-}
-
-/// Extract extension for conversion.
-fn extract_extension<'e>(input: &PipelineData, path: &'e Path, raw: bool) -> Option<Cow<'e, str>> {
-    match (raw, input) {
-        (true, _)
-        | (_, PipelineData::ByteStream(..))
-        | (_, PipelineData::Value(Value::String { .. }, ..)) => None,
-        _ => path.extension().map(|name| name.to_string_lossy()),
-    }
-}
-
-/// Convert given data into content of file of specified extension if
-/// corresponding `to` command exists. Otherwise attempt to convert
-/// data to bytes as is. `path_span` is the file argument, which an error about the converter
-/// points at.
-fn convert_to_extension(
-    engine_state: &EngineState,
-    extension: &str,
-    stack: &mut Stack,
-    input: PipelineData,
-    span: Span,
-    path_span: Span,
-) -> Result<PipelineData, ShellError> {
-    if let Some(decl_id) = engine_state.find_decl(format!("to {extension}").as_bytes(), &[]) {
-        let decl = engine_state.get_decl(decl_id);
-        if let Some(alias) = decl.as_alias() {
-            let file = String::from_utf8_lossy(engine_state.get_span_contents(path_span));
-            Err(crate::formats::alias_converter_error(
-                engine_state,
-                alias,
-                "save",
-                "save file",
-                &format!("... | {{}} | save {file}"),
-                path_span,
-            ))
-        } else if let Some(block_id) = decl.block_id() {
-            let block = engine_state.get_block(block_id);
-            let eval_block = get_eval_block(engine_state);
-            eval_block(engine_state, stack, block, input).map(|p| p.body)
-        } else {
-            let call = ast::Call::new(span);
-            decl.run(engine_state, stack, &(&call).into(), input)
-        }
-    } else {
-        Ok(input)
-    }
-}
-
-/// Actionable error for when `save` receives structured data (a record, table,
-/// or other non-string value) but the destination has no matching
-/// `to <extension>` serializer, so the value can't be written as-is.
-///
-/// Filenames are only hints. Mirrors how `to json`/`to toml` report
-/// unserializable input: the failure is that `save` doesn't support this input
-/// for this file, not a low-level string coercion, so we raise
-/// [`ShellError::UnsupportedInput`] pointing at the explicit conversions rather
-/// than a bare "can't convert to string".
-fn cant_serialize_to_file(from_type: Type, value_span: Span, call_span: Span) -> ShellError {
-    ShellError::UnsupportedInput {
-        msg: format!(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1105,1145p crates/nu-command/src/network/http/client.rs
-[?2004l            .and_then(|name| {
-                PathBuf::from(name)
-                    .extension()
-                    .map(|name| name.to_string_lossy().to_string())
-            }),
-        _ => {
-            let subtype = content_type.subtype().as_str();
-            Some(subtype.strip_prefix("x-").unwrap_or(subtype).to_string())
-        }
-    };
-
-    let output = response_to_buffer(resp, engine_state, span);
-    if flags.raw {
-        Ok(output)
-    } else if let Some(ext) = ext {
-        match engine_state.find_decl(format!("from {ext}").as_bytes(), &[]) {
-            Some(converter_id) => {
-                let decl = engine_state.get_decl(converter_id);
-                if let Some(alias) = decl.as_alias() {
-                    return Err(crate::formats::alias_converter_error(
-                        engine_state,
-                        alias,
-                        "http",
-                        "convert the response",
-                        &format!("http ... --raw {requested_url} | {{}}"),
-                        span,
-                    ));
-                }
-                decl.run(engine_state, stack, &Call::new(span), output)
-            }
-            None => Ok(output),
-        }
-    } else {
-        Ok(output)
-    }
-}
-
-pub fn check_response_redirection(
-    redirect_mode: RedirectMode,
-    span: Span,
-    resp: &Response,
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1,140p crates/nu-command/src/system/run_internal.rs
-[?2004luse nu_engine::{CallExt, command_prelude::*, find_builtin_decl};
-use nu_protocol::ir;
-
-/// Internal command used by the `%($cmd)`/`%$cmd` dynamic builtin dispatch syntax.
-///
-/// The `%` sigil statically resolves a builtin at parse time. When the head is a runtime
-/// expression (`%($cmd)` or `%$cmd`), the parser defers resolution and the IR compiler
-/// rewrites the call as `run-internal <head-expr> ...args`. This command then looks up the
-/// target builtin at runtime and enforces that it is a `CommandType::Builtin`.
-#[derive(Clone)]
-pub struct RunInternal;
-
-impl Command for RunInternal {
-    fn name(&self) -> &str {
-        "run-internal"
-    }
-
-    fn description(&self) -> &str {
-        "Run a built-in command by name. Used internally by `%($cmd)` dynamic dispatch."
-    }
-
-    fn signature(&self) -> Signature {
-        Signature::build("run-internal")
-            .input_output_types(vec![(Type::Any, Type::Any)])
-            .required(
-                "name",
-                SyntaxShape::String,
-                "The name of the built-in command to run.",
-            )
-            .rest(
-                "args",
-                SyntaxShape::Any,
-                "Arguments to pass to the built-in command.",
-            )
-    }
-
-    fn run(
-        &self,
-        engine_state: &EngineState,
-        stack: &mut Stack,
-        call: &Call,
-        input: PipelineData,
-    ) -> Result<PipelineData, ShellError> {
-        let head = call.head;
-        let name: String = call.req(engine_state, stack, 0)?;
-
-        let decl_id = find_builtin_decl(engine_state, &name)
-            .ok_or(ShellError::CommandNotFound { span: head })?;
-
-        let decl = engine_state.get_decl(decl_id);
-        // Preserve spread markers here so `%($cmd) ...$args` forwards the same argument shape the
-        // target builtin would receive in a direct call.
-        let rest_args: Vec<(Value, bool)> = call.rest_preserving_spreads(engine_state, stack, 1)?;
-
-        // Build an IR call frame for the target builtin, preserving spread arguments.
-        let mut builder = ir::Call::build(decl_id, head);
-        for (val, is_spread) in rest_args {
-            if is_spread {
-                // Skip empty spreads so builtins with no-argument defaults (e.g. `ls`
-                // listing the cwd when called with no path) are not confused by an
-                // empty `...$args` forwarded as an empty list.
-                match val {
-                    Value::List { ref vals, .. } if vals.is_empty() => continue,
-                    Value::Nothing { .. } => continue,
-                    _ => {
-                        builder.add_spread(stack, head, val);
-                    }
-                }
-            } else {
-                builder.add_positional(stack, head, val);
-            }
-        }
-
-        // `builder.with` is a scoped guard: it registers temporary IR argument slots,
-        // calls the closure, then always deallocates those slots on exit.
-        builder.with(stack, |stack, engine_call| {
-            decl.run(engine_state, stack, engine_call, input)
-        })
-    }
-}
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "eval_call\|from \|converter" crates/nu-command/src/filesystem/open.rs | head -20
-[?2004l1:use nu_engine::{command_prelude::*, eval_call};
-32:        "Support to automatically parse files with an extension `.xyz` can be provided by a `from xyz` command in scope."
-77:            // try to use path from pipeline input if there were no positional or spread args
-187:                    // No content_type by default - Is added later if no converter is found
-207:                    let converter = exts_opt.and_then(|exts| {
-210:                                .find_decl(format!("from {ext}").as_bytes(), &[])
-215:                    match converter {
-216:                        Some((converter_id, ext)) => {
-217:                            // `open` runs the `from <ext>` converter by looking it up by name,
-221:                            if let Some(alias) = engine_state.get_decl(converter_id).as_alias() {
-225:                                return Err(crate::formats::alias_converter_error(
-236:                                decl_id: converter_id,
-242:                                eval_call::<WithDebug>(engine_state, stack, &open_call, stream)
-244:                                eval_call::<WithoutDebug>(engine_state, stack, &open_call, stream)
-251:                                            "Could not parse '{}' with `from {}`",
-258:                                        "Check out `help from {}` or `help from` for more options or open raw data with `open --raw '{}'`",
-267:                            // If no converter was found, add content-type metadata
-322:                example: r#"def "from ndjson" [] { from json -o }; open myfile.ndjson"#,
-328:    | where name starts-with "from "
-329:    | insert extension { get name | str replace -r "^from " "" | $"*.($in)" }
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 318,350p crates/nu-command/src/filesystem/save.rs
-[?2004l    extension: &str,
-    stack: &mut Stack,
-    input: PipelineData,
-    span: Span,
-    path_span: Span,
-) -> Result<PipelineData, ShellError> {
-    if let Some(decl_id) = engine_state.find_decl(format!("to {extension}").as_bytes(), &[]) {
-        let decl = engine_state.get_decl(decl_id);
-        if let Some(alias) = decl.as_alias() {
-            let file = String::from_utf8_lossy(engine_state.get_span_contents(path_span));
-            Err(crate::formats::alias_converter_error(
-                engine_state,
-                alias,
-                "save",
-                "save file",
-                &format!("... | {{}} | save {file}"),
-                path_span,
-            ))
-        } else if let Some(block_id) = decl.block_id() {
-            let block = engine_state.get_block(block_id);
-            let eval_block = get_eval_block(engine_state);
-            eval_block(engine_state, stack, block, input).map(|p| p.body)
-        } else {
-            let call = ast::Call::new(span);
-            decl.run(engine_state, stack, &(&call).into(), input)
-        }
-    } else {
-        Ok(input)
-    }
-}
-
-/// Actionable error for when `save` receives structured data (a record, table,
-/// or other non-string value) but the destination has no matching
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1110,1140p crates/nu-command/src/network/http/client.rs
-[?2004l        _ => {
-            let subtype = content_type.subtype().as_str();
-            Some(subtype.strip_prefix("x-").unwrap_or(subtype).to_string())
-        }
-    };
-
-    let output = response_to_buffer(resp, engine_state, span);
-    if flags.raw {
-        Ok(output)
-    } else if let Some(ext) = ext {
-        match engine_state.find_decl(format!("from {ext}").as_bytes(), &[]) {
-            Some(converter_id) => {
-                let decl = engine_state.get_decl(converter_id);
-                if let Some(alias) = decl.as_alias() {
-                    return Err(crate::formats::alias_converter_error(
-                        engine_state,
-                        alias,
-                        "http",
-                        "convert the response",
-                        &format!("http ... --raw {requested_url} | {{}}"),
-                        span,
-                    ));
-                }
-                decl.run(engine_state, stack, &Call::new(span), output)
-            }
-            None => Ok(output),
-        }
-    } else {
-        Ok(output)
-    }
-}
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 200,265p crates/nu-command/src/filesystem/open.rs
-[?2004l                            .file_name()
-                            .unwrap_or(std::ffi::OsStr::new(path))
-                            .to_string_lossy()
-                            .to_lowercase();
-                        Some(extract_extensions(path_str.as_str()))
-                    };
-
-                    let converter = exts_opt.and_then(|exts| {
-                        exts.iter().find_map(|ext| {
-                            engine_state
-                                .find_decl(format!("from {ext}").as_bytes(), &[])
-                                .map(|id| (id, ext.to_string()))
-                        })
-                    });
-
-                    match converter {
-                        Some((converter_id, ext)) => {
-                            // `open` runs the `from <ext>` converter by looking it up by name,
-                            // but an alias can't be run on its own. Rather than failing with an
-                            // internal error, point the user at a custom command, which `open`
-                            // can run (#18725).
-                            if let Some(alias) = engine_state.get_decl(converter_id).as_alias() {
-                                let file = String::from_utf8_lossy(
-                                    engine_state.get_span_contents(arg_span),
-                                );
-                                return Err(crate::formats::alias_converter_error(
-                                    engine_state,
-                                    alias,
-                                    "open",
-                                    "open file",
-                                    &format!("open --raw {file} | {{}}"),
-                                    arg_span,
-                                ));
-                            }
-
-                            let open_call = ast::Call {
-                                decl_id: converter_id,
-                                head: call_span,
-                                arguments: vec![],
-                                parser_info: HashMap::new(),
-                            };
-                            let command_output = if engine_state.is_debugging() {
-                                eval_call::<WithDebug>(engine_state, stack, &open_call, stream)
-                            } else {
-                                eval_call::<WithoutDebug>(engine_state, stack, &open_call, stream)
-                            };
-                            output.push(command_output.map_err(|inner| {
-                                ShellError::Generic(
-                                    GenericError::new(
-                                        format!("Error while parsing as {ext}"),
-                                        format!(
-                                            "Could not parse '{}' with `from {}`",
-                                            path.display(),
-                                            ext
-                                        ),
-                                        arg_span,
-                                    )
-                                    .with_help(format!(
-                                        "Check out `help from {}` or `help from` for more options or open raw data with `open --raw '{}'`",
-                                        ext,
-                                        path.display()
-                                    ))
-                                    .with_inner([inner]),
-                                )
-                            })?);
-                        }
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "pub fn \|pub struct\|impl " crates/nu-protocol/src/ir/call.rs | head -50
-[?2004l13:pub struct Call {
-29:impl Call {
-31:    pub fn build(decl_id: DeclId, head: Span) -> CallBuilder {
-44:    pub fn arguments<'a>(&self, stack: &'a Stack) -> &'a [Argument] {
-54:    pub fn arguments_span(&self) -> Span {
-60:    pub fn named_len(&self, stack: &Stack) -> usize {
-68:    pub fn named_iter<'a>(
-71:    ) -> impl Iterator<Item = (Spanned<&'a str>, Option<&'a Value>)> + 'a {
-105:    pub fn get_named_arg<'a>(&self, stack: &'a Stack, flag_name: &str) -> Option<&'a Value> {
-124:    pub fn positional_len(&self, stack: &Stack) -> usize {
-132:    pub fn positional_iter<'a>(&self, stack: &'a Stack) -> impl Iterator<Item = &'a Value> {
-140:    pub fn positional_nth<'a>(&self, stack: &'a Stack, index: usize) -> Option<&'a Value> {
-146:    pub fn positional_ast<'a>(
-163:    pub fn rest_iter<'a>(
-167:    ) -> impl Iterator<Item = (&'a Value, bool)> + 'a {
-180:    pub fn rest_iter_flattened(
-206:    pub fn get_parser_info<'a>(&self, stack: &'a Stack, name: &str) -> Option<&'a Expression> {
-220:    pub fn span(&self) -> Span {
-225:    pub fn leave(&self, stack: &mut Stack) {
-231:pub struct CallBuilder {
-235:impl CallBuilder {
-237:    pub fn add_argument(&mut self, stack: &mut Stack, argument: Argument) -> &mut Self {
-250:    pub fn add_positional(&mut self, stack: &mut Stack, span: Span, val: Value) -> &mut Self {
-262:    pub fn add_spread(&mut self, stack: &mut Stack, span: Span, vals: Value) -> &mut Self {
-274:    pub fn add_flag(
-277:        name: impl AsRef<str>,
-278:        short: impl AsRef<str>,
-294:    pub fn add_named(
-297:        name: impl AsRef<str>,
-298:        short: impl AsRef<str>,
-320:    pub fn finish(&self) -> Call {
-328:    pub fn with<T>(
-331:        f: impl FnOnce(&mut Stack, &engine::Call<'_>) -> T,
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1678,1720p crates/nu-engine/src/eval_ir.rs
-[?2004lfn normalize_call_arguments(
-    signature: &Signature,
-    stack: &mut Stack,
-    args_base: usize,
-    args_len: usize,
-) -> Result<usize, ShellError> {
-    let raw: Vec<Argument> = stack.arguments.drain_args(args_base, args_len).collect();
-    let expanded = normalize_engine_arguments(signature, raw)?;
-    let new_len = expanded.len();
-    for arg in expanded {
-        stack.arguments.push(arg);
-    }
-    Ok(new_len)
-}
-
-/// Move arguments from the stack into variables for a custom command
-fn gather_arguments(
-    engine_state: &EngineState,
-    block: &Block,
-    caller_stack: &mut Stack,
-    callee_stack: &mut Stack,
-    args_base: usize,
-    args_len: usize,
-    call_head: Span,
-) -> Result<(), ShellError> {
-    let mut positional_iter = block
-        .signature
-        .required_positional
-        .iter()
-        .map(|p| (p, true))
-        .chain(
-            block
-                .signature
-                .optional_positional
-                .iter()
-                .map(|p| (p, false)),
-        );
-
-    // Arguments that didn't get consumed by required/optional
-    let mut rest = vec![];
-    let mut rest_span: Option<Span> = None;
-
-    // If the rest param uses ExternalArgument shape (untyped `def --wrapped` or `known extern`),
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1720,1980p crates/nu-engine/src/eval_ir.rs
-[?2004l    // If the rest param uses ExternalArgument shape (untyped `def --wrapped` or `known extern`),
-    // tilde and ndots in bare glob values should be expanded, matching `run-external` behavior so
-    // that `$args | to nuon` shows expanded paths (e.g. `/home/user`) rather than `~`.
-    // We detect this via `allows_unknown_args`, which is set for all `def --wrapped` and
-    // `known extern` commands, and only affects `Value::Glob` values (explicit `[...rest: string]`
-    // produces `Value::String`, not `Value::Glob`, so those are unaffected).
-    let expand_glob_args = block.signature.allows_unknown_args;
-
-    // If we encounter a spread, all further positionals should go to rest
-    let mut always_spread = false;
-    let mut remaining_required = block.signature.required_positional.len();
-
-    for arg in caller_stack.arguments.drain_args(args_base, args_len) {
-        match arg {
-            Argument::Positional { span, val, .. } => {
-                // Don't check next positional arg if we encountered a spread previously
-                let next = (!always_spread).then(|| positional_iter.next()).flatten();
-                if let Some((positional_arg, required)) = next {
-                    let var_id = expect_positional_var_id(positional_arg, span)?;
-                    if required {
-                        // By checking the type of the bound variable rather than converting the
-                        // SyntaxShape here, we might be able to save some allocations and effort
-                        let variable = engine_state.get_var(var_id);
-                        check_type(&val, &variable.ty)?;
-                        remaining_required = remaining_required.saturating_sub(1);
-                    }
-                    callee_stack.add_var(var_id, val);
-                } else {
-                    // Use the argument's call-site span (not val.span()) so rest spans stay in
-                    // source order. Values may keep definition/origin spans (e.g. metadata).
-                    rest_span = Some(rest_span.map_or(span, |s| s.append(span)));
-                    let val = if expand_glob_args {
-                        expand_external_glob_arg(val)
-                    } else {
-                        val
-                    };
-                    rest.push(val);
-                }
-            }
-            Argument::Spread {
-                vals,
-                span: spread_span,
-                ..
-            } => match vals {
-                Value::List { vals, .. } => {
-                    // Dual-purpose `...$x`: a list before unfilled required positionals would
-                    // leave them unbound (list items go only to rest).
-                    if remaining_required > 0 && !always_spread {
-                        return Err(crate::named_flags::list_spread_before_required_error(
-                            spread_span,
-                        ));
-                    }
-                    rest.extend(vals);
-                    rest_span = Some(rest_span.map_or(spread_span, |s| s.append(spread_span)));
-                    always_spread = true;
-                }
-                Value::Nothing { .. } => {
-                    // Same rule as list spreads: null rest-mode before required positionals
-                    // would leave them unbound.
-                    if remaining_required > 0 && !always_spread {
-                        return Err(crate::named_flags::list_spread_before_required_error(
-                            spread_span,
-                        ));
-                    }
-                    rest_span = Some(rest_span.map_or(spread_span, |s| s.append(spread_span)));
-                    always_spread = true;
-                }
-                // Record spreads should already be expanded by `normalize_call_arguments`.
-                Value::Record { .. } => {
-                    return Err(ShellError::IrEvalError {
-                        msg: "internal error: unexpanded record spread in gather_arguments".into(),
-                        span: Some(spread_span),
-                    });
-                }
-                Value::Error { error, .. } => return Err(*error),
-                _ => return Err(ShellError::CannotSpreadAsList { span: vals.span() }),
-            },
-            Argument::Flag {
-                data,
-                name,
-                short,
-                span,
-            } => {
-                let var_id = find_named_var_id(&block.signature, &data[name], &data[short], span)?;
-                callee_stack.add_var(var_id, Value::bool(true, span))
-            }
-            Argument::Named {
-                data,
-                name,
-                short,
-                span,
-                val,
-                ..
-            } => {
-                // Null should already have been dropped in `normalize_call_arguments`
-                // when the flag type does not accept nothing. If still present, bind it.
-                let var_id = find_named_var_id(&block.signature, &data[name], &data[short], span)?;
-                callee_stack.add_var(var_id, val)
-            }
-            Argument::ParserInfo { .. } => (),
-        }
-    }
-
-    // Add the collected rest of the arguments if a spread argument exists
-    if let Some(rest_arg) = &block.signature.rest_positional {
-        let rest_span = rest_span.unwrap_or(call_head);
-        let var_id = expect_positional_var_id(rest_arg, rest_span)?;
-        callee_stack.add_var(var_id, Value::list(rest, rest_span));
-    }
-
-    // Check for arguments that haven't yet been set and set them to their defaults
-    for (positional_arg, _) in positional_iter {
-        let var_id = expect_positional_var_id(positional_arg, call_head)?;
-        callee_stack.add_var(
-            var_id,
-            positional_arg
-                .default_value
-                .clone()
-                .unwrap_or(Value::nothing(call_head)),
-        );
-    }
-
-    for named_arg in &block.signature.named {
-        if let Some(var_id) = named_arg.var_id {
-            // For named arguments, we do this check by looking to see if the variable was set yet on
-            // the stack. This assumes that the stack's variables was previously empty, but that's a
-            // fair assumption for a brand new callee stack.
-            if !callee_stack.vars.iter().any(|(id, _)| *id == var_id) {
-                let val = if named_arg.arg.is_none() {
-                    Value::bool(false, call_head)
-                } else if let Some(value) = &named_arg.default_value {
-                    value.clone()
-                } else {
-                    Value::nothing(call_head)
-                };
-                callee_stack.add_var(var_id, val);
-            }
-        }
-    }
-
-    Ok(())
-}
-
-/// Type check helper. Produces `CantConvert` error if `val` is not compatible with `ty`.
-fn check_type(val: &Value, ty: &Type) -> Result<(), ShellError> {
-    match val {
-        Value::Error { error, .. } => Err(*error.clone()),
-        _ if val.is_assignable_to(ty) => Ok(()),
-        _ => Err(ShellError::CantConvert {
-            to_type: ty.to_string(),
-            from_type: val.get_type().to_string(),
-            span: val.span(),
-            help: None,
-        }),
-    }
-}
-
-/// Type check and convert value for assignment.
-fn check_assignment_type(
-    val: Value,
-    target_ty: &Type,
-    assignment_span: Span,
-) -> Result<Value, ShellError> {
-    match val {
-        Value::Error { error, .. } => Err(*error),
-        _ if val.is_assignable_to(target_ty) => Ok(val), // No conversion needed, but compatible
-        _ => {
-            let expected = target_ty.to_string();
-            let actual = val.get_type().to_string();
-
-            let mut err = LabeledError::new("Type mismatch.");
-            err = err.with_code("nu::shell::type_mismatch");
-
-            // Some values, like `$env.CMD_DURATION_MS`, are generated internally and don't have
-            // spans that are relevant to users.
-            // We avoid incorrect error labels by checking for that here.
-            if !(val.span() == Span::unknown() || val.span() == Span::test_data()) {
-                err = err.with_label(format!("the value is a {actual}"), val.span());
-            }
-
-            err = err.with_label(
-                format!("expected {expected}, got {actual}"),
-                assignment_span,
-            );
-
-            Err(ShellError::LabeledError(err.into()))
-        }
-    }
-}
-
-/// Type check pipeline input against command's input types
-fn check_input_types(
-    input: &PipelineData,
-    signature: &Signature,
-    head: Span,
-) -> Result<(), ShellError> {
-    let io_types = &signature.input_output_types;
-
-    // If a command doesn't have any input/output types, then treat command input type as any
-    if io_types.is_empty() {
-        return Ok(());
-    }
-
-    // If a command only has a nothing input type, then allow any input data
-    if io_types.iter().all(|(intype, _)| intype == &Type::Nothing) {
-        return Ok(());
-    }
-
-    match input {
-        // early return error directly if detected
-        PipelineData::Value(Value::Error { error, .. }, ..) => return Err(*error.clone()),
-        // A custom value may stand in for a list, table or record (it converts to its base value
-        // at runtime), so a command taking any of those, directly or inside a `oneof`, is left to
-        // decide at runtime, as `Type::is_assignable_to` does. Otherwise the custom value is
-        // checked like any other input, so `[nothing -> X, polars_dataframe -> X]` rejects some
-        // other plugin's custom value the same way `polars_dataframe -> X` does.
-        PipelineData::Value(Value::Custom { .. }, ..)
-            if io_types.iter().any(|(input_type, _)| {
-                let is_collection =
-                    |ty: &Type| matches!(ty, Type::List(_) | Type::Table(_) | Type::Record(_));
-                match input_type {
-                    Type::OneOf(oneof) => oneof.iter().any(is_collection),
-                    ty => is_collection(ty),
-                }
-            }) =>
-        {
-            return Ok(());
-        }
-        _ => (),
-    }
-
-    // Check if the input type is compatible with *any* of the command's possible input types
-    if io_types
-        .iter()
-        .any(|(command_type, _)| input.is_assignable_to(command_type))
-    {
-        return Ok(());
-    }
-
-    let input_types: Vec<Type> = io_types.iter().map(|(input, _)| input.clone()).collect();
-    let expected_string = combined_type_string(&input_types, "and");
-
-    match (input, expected_string) {
-        (PipelineData::Empty, _) => Err(ShellError::PipelineEmpty { dst_span: head }),
-        (_, Some(expected_string)) => Err(ShellError::OnlySupportsThisInputType {
-            exp_input_type: expected_string,
-            wrong_type: input.get_type().to_string(),
-            dst_span: head,
-            src_span: input.span().unwrap_or(head),
-        }),
-        // expected_string didn't generate properly, so we can't show the proper error
-        (_, None) => Err(ShellError::NushellFailed {
-            msg: "Command input type strings is empty, despite being non-zero earlier".to_string(),
-        }),
-    }
-}
-
-/// Get variable from [`Stack`] or [`EngineState`]
-fn get_var(ctx: &mut EvalContext<'_>, var_id: VarId, span: Span) -> Result<Value, ShellError> {
-    match var_id {
-        // $env
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1,60p crates/nu-protocol/src/ir/call.rs; sed -n 225,360p crates/nu-protocol/src/ir/call.rs
-[?2004luse std::sync::Arc;
-
-use crate::{
-    DeclId, ShellError, Span, Spanned, Value,
-    ast::Expression,
-    engine::{self, Argument, Stack},
-};
-
-use super::DataSlice;
-
-/// Contains the information for a call being made to a declared command.
-#[derive(Debug, Clone)]
-pub struct Call {
-    /// The declaration ID of the command to be invoked.
-    pub decl_id: DeclId,
-    /// The span encompassing the command name, before the arguments.
-    pub head: Span,
-    /// The span encompassing the command name and all arguments.
-    pub span: Span,
-    /// The base index of the arguments for this call within the
-    /// [argument stack](crate::engine::ArgumentStack).
-    pub args_base: usize,
-    /// The number of [`Argument`]s for the call. Note that this just counts the number of
-    /// `Argument` entries on the stack, and has nothing to do with the actual number of positional
-    /// or spread arguments.
-    pub args_len: usize,
-}
-
-impl Call {
-    /// Build a new call with arguments.
-    pub fn build(decl_id: DeclId, head: Span) -> CallBuilder {
-        CallBuilder {
-            inner: Call {
-                decl_id,
-                head,
-                span: head,
-                args_base: 0,
-                args_len: 0,
-            },
-        }
-    }
-
-    /// Get the arguments for this call from the arguments stack.
-    pub fn arguments<'a>(&self, stack: &'a Stack) -> &'a [Argument] {
-        stack.arguments.get_args(self.args_base, self.args_len)
-    }
-
-    /// The span encompassing the arguments
-    ///
-    /// If there are no arguments the span covers where the first argument would exist
-    ///
-    /// If there are one or more arguments the span encompasses the start of the first argument to
-    /// end of the last argument
-    pub fn arguments_span(&self) -> Span {
-        let past = self.head.past();
-        Span::new(past.start, self.span.end)
-    }
-
-    /// The number of named arguments, with or without values.
-    pub fn named_len(&self, stack: &Stack) -> usize {
-    pub fn leave(&self, stack: &mut Stack) {
-        stack.arguments.leave_frame(self.args_base);
-    }
-}
-
-/// Utility struct for building a [`Call`] with arguments on the [`Stack`].
-pub struct CallBuilder {
-    inner: Call,
-}
-
-impl CallBuilder {
-    /// Add an argument to the [`Stack`] and reference it from the [`Call`].
-    pub fn add_argument(&mut self, stack: &mut Stack, argument: Argument) -> &mut Self {
-        if self.inner.args_len == 0 {
-            self.inner.args_base = stack.arguments.get_base();
-        }
-        self.inner.args_len += 1;
-        if let Some(span) = argument.span() {
-            self.inner.span = self.inner.span.merge(span);
-        }
-        stack.arguments.push(argument);
-        self
-    }
-
-    /// Add a positional argument to the [`Stack`] and reference it from the [`Call`].
-    pub fn add_positional(&mut self, stack: &mut Stack, span: Span, val: Value) -> &mut Self {
-        self.add_argument(
-            stack,
-            Argument::Positional {
-                span,
-                val,
-                ast: None,
-            },
-        )
-    }
-
-    /// Add a spread argument to the [`Stack`] and reference it from the [`Call`].
-    pub fn add_spread(&mut self, stack: &mut Stack, span: Span, vals: Value) -> &mut Self {
-        self.add_argument(
-            stack,
-            Argument::Spread {
-                span,
-                vals,
-                ast: None,
-            },
-        )
-    }
-
-    /// Add a flag (no-value named) argument to the [`Stack`] and reference it from the [`Call`].
-    pub fn add_flag(
-        &mut self,
-        stack: &mut Stack,
-        name: impl AsRef<str>,
-        short: impl AsRef<str>,
-        span: Span,
-    ) -> &mut Self {
-        let (data, name, short) = data_from_name_and_short(name.as_ref(), short.as_ref());
-        self.add_argument(
-            stack,
-            Argument::Flag {
-                data,
-                name,
-                short,
-                span,
-            },
-        )
-    }
-
-    /// Add a named argument to the [`Stack`] and reference it from the [`Call`].
-    pub fn add_named(
-        &mut self,
-        stack: &mut Stack,
-        name: impl AsRef<str>,
-        short: impl AsRef<str>,
-        span: Span,
-        val: Value,
-    ) -> &mut Self {
-        let (data, name, short) = data_from_name_and_short(name.as_ref(), short.as_ref());
-        self.add_argument(
-            stack,
-            Argument::Named {
-                data,
-                name,
-                short,
-                span,
-                val,
-                ast: None,
-            },
-        )
-    }
-
-    /// Produce the finished [`Call`] from the builder.
-    ///
-    /// The call should be entered / run before any other calls are constructed, because the
-    /// argument stack will be reset when they exit.
-    pub fn finish(&self) -> Call {
-        self.inner.clone()
-    }
-
-    /// Run a closure with the [`Call`] as an [`engine::Call`] reference, and then clean up the
-    /// arguments that were added to the [`Stack`] after.
-    ///
-    /// For convenience. Calls [`Call::leave`] after the closure ends.
-    pub fn with<T>(
-        self,
-        stack: &mut Stack,
-        f: impl FnOnce(&mut Stack, &engine::Call<'_>) -> T,
-    ) -> T {
-        let call = engine::Call::from(&self.inner);
-        let result = f(stack, &call);
-        self.inner.leave(stack);
-        result
-    }
-}
-
-fn data_from_name_and_short(name: &str, short: &str) -> (Arc<[u8]>, DataSlice, DataSlice) {
-    let data: Vec<u8> = name.bytes().chain(short.bytes()).collect();
-    let data: Arc<[u8]> = data.into();
-    let name = DataSlice {
-        start: 0,
-        len: name.len().try_into().expect("flag name too big"),
-    };
-    let short = DataSlice {
-        start: name.start.checked_add(name.len).expect("flag name too big"),
-        len: short.len().try_into().expect("flag short name too big"),
-    };
-    (data, name, short)
-}
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "pub fn" crates/nu-protocol/src/engine/argument.rs; cat crates/nu-engine/src/lib.rs
-[?2004l49:    pub fn span(&self) -> Option<Span> {
-62:    pub fn ast_expression(&self) -> Option<&Arc<Expression>> {
-87:    pub fn get_base(&self) -> usize {
-93:    pub fn get_len(&self, base: usize) -> usize {
-104:    pub fn push(&mut self, argument: Argument) {
-109:    pub fn leave_frame(&mut self, base: usize) {
-115:    pub fn get_args(&self, base: usize, len: usize) -> &[Argument] {
-121:    pub fn drain_args(&mut self, base: usize, len: usize) -> impl Iterator<Item = Argument> + '_ {
-#![doc = include_str!("../README.md")]
-mod call_ext;
-mod closure_eval;
-pub mod column;
-pub mod command_prelude;
-mod compile;
-pub mod documentation;
-pub mod env;
-mod eval;
-mod eval_helpers;
-mod eval_ir;
-pub mod exit;
-mod glob_from;
-mod named_flags;
-pub mod scope;
-
-#[cfg(test)]
-#[macro_use]
-extern crate nu_test_support;
-
-#[cfg(test)]
-use nu_test_support::harness::main;
-
-pub use call_ext::CallExt;
-pub use closure_eval::*;
-pub use column::get_columns;
-pub use compile::compile;
-pub use documentation::get_full_help;
-pub use env::*;
-pub use eval::{
-    CallEval, eval_block, eval_block_with_early_return, eval_call, eval_expression,
-    eval_expression_with_input, eval_subexpression, eval_variable, redirect_env,
-};
-pub use eval_helpers::*;
-pub use eval_ir::eval_ir_block;
-pub use glob_from::glob_from;
-pub use scope::find_builtin_decl;
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1800,1870p crates/nu-engine/src/eval_ir.rs
-[?2004l                short,
-                span,
-            } => {
-                let var_id = find_named_var_id(&block.signature, &data[name], &data[short], span)?;
-                callee_stack.add_var(var_id, Value::bool(true, span))
-            }
-            Argument::Named {
-                data,
-                name,
-                short,
-                span,
-                val,
-                ..
-            } => {
-                // Null should already have been dropped in `normalize_call_arguments`
-                // when the flag type does not accept nothing. If still present, bind it.
-                let var_id = find_named_var_id(&block.signature, &data[name], &data[short], span)?;
-                callee_stack.add_var(var_id, val)
-            }
-            Argument::ParserInfo { .. } => (),
-        }
-    }
-
-    // Add the collected rest of the arguments if a spread argument exists
-    if let Some(rest_arg) = &block.signature.rest_positional {
-        let rest_span = rest_span.unwrap_or(call_head);
-        let var_id = expect_positional_var_id(rest_arg, rest_span)?;
-        callee_stack.add_var(var_id, Value::list(rest, rest_span));
-    }
-
-    // Check for arguments that haven't yet been set and set them to their defaults
-    for (positional_arg, _) in positional_iter {
-        let var_id = expect_positional_var_id(positional_arg, call_head)?;
-        callee_stack.add_var(
-            var_id,
-            positional_arg
-                .default_value
-                .clone()
-                .unwrap_or(Value::nothing(call_head)),
-        );
-    }
-
-    for named_arg in &block.signature.named {
-        if let Some(var_id) = named_arg.var_id {
-            // For named arguments, we do this check by looking to see if the variable was set yet on
-            // the stack. This assumes that the stack's variables was previously empty, but that's a
-            // fair assumption for a brand new callee stack.
-            if !callee_stack.vars.iter().any(|(id, _)| *id == var_id) {
-                let val = if named_arg.arg.is_none() {
-                    Value::bool(false, call_head)
-                } else if let Some(value) = &named_arg.default_value {
-                    value.clone()
-                } else {
-                    Value::nothing(call_head)
-                };
-                callee_stack.add_var(var_id, val);
-            }
-        }
-    }
-
-    Ok(())
-}
-
-/// Type check helper. Produces `CantConvert` error if `val` is not compatible with `ty`.
-fn check_type(val: &Value, ty: &Type) -> Result<(), ShellError> {
-    match val {
-        Value::Error { error, .. } => Err(*error.clone()),
-        _ if val.is_assignable_to(ty) => Ok(()),
-        _ => Err(ShellError::CantConvert {
-            to_type: ty.to_string(),
-            from_type: val.get_type().to_string(),
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1905,1980p crates/nu-engine/src/eval_ir.rs
-[?2004l            Err(ShellError::LabeledError(err.into()))
-        }
-    }
-}
-
-/// Type check pipeline input against command's input types
-fn check_input_types(
-    input: &PipelineData,
-    signature: &Signature,
-    head: Span,
-) -> Result<(), ShellError> {
-    let io_types = &signature.input_output_types;
-
-    // If a command doesn't have any input/output types, then treat command input type as any
-    if io_types.is_empty() {
-        return Ok(());
-    }
-
-    // If a command only has a nothing input type, then allow any input data
-    if io_types.iter().all(|(intype, _)| intype == &Type::Nothing) {
-        return Ok(());
-    }
-
-    match input {
-        // early return error directly if detected
-        PipelineData::Value(Value::Error { error, .. }, ..) => return Err(*error.clone()),
-        // A custom value may stand in for a list, table or record (it converts to its base value
-        // at runtime), so a command taking any of those, directly or inside a `oneof`, is left to
-        // decide at runtime, as `Type::is_assignable_to` does. Otherwise the custom value is
-        // checked like any other input, so `[nothing -> X, polars_dataframe -> X]` rejects some
-        // other plugin's custom value the same way `polars_dataframe -> X` does.
-        PipelineData::Value(Value::Custom { .. }, ..)
-            if io_types.iter().any(|(input_type, _)| {
-                let is_collection =
-                    |ty: &Type| matches!(ty, Type::List(_) | Type::Table(_) | Type::Record(_));
-                match input_type {
-                    Type::OneOf(oneof) => oneof.iter().any(is_collection),
-                    ty => is_collection(ty),
-                }
-            }) =>
-        {
-            return Ok(());
-        }
-        _ => (),
-    }
-
-    // Check if the input type is compatible with *any* of the command's possible input types
-    if io_types
-        .iter()
-        .any(|(command_type, _)| input.is_assignable_to(command_type))
-    {
-        return Ok(());
-    }
-
-    let input_types: Vec<Type> = io_types.iter().map(|(input, _)| input.clone()).collect();
-    let expected_string = combined_type_string(&input_types, "and");
-
-    match (input, expected_string) {
-        (PipelineData::Empty, _) => Err(ShellError::PipelineEmpty { dst_span: head }),
-        (_, Some(expected_string)) => Err(ShellError::OnlySupportsThisInputType {
-            exp_input_type: expected_string,
-            wrong_type: input.get_type().to_string(),
-            dst_span: head,
-            src_span: input.span().unwrap_or(head),
-        }),
-        // expected_string didn't generate properly, so we can't show the proper error
-        (_, None) => Err(ShellError::NushellFailed {
-            msg: "Command input type strings is empty, despite being non-zero earlier".to_string(),
-        }),
-    }
-}
-
-/// Get variable from [`Stack`] or [`EngineState`]
-fn get_var(ctx: &mut EvalContext<'_>, var_id: VarId, span: Span) -> Result<Value, ShellError> {
-    match var_id {
-        // $env
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 2300,2340p crates/nu-engine/src/eval_ir.rs; sed -n 1,45p crates/nu-protocol/src/ir/call.rs; sed -n 220,232p crates/nu-protocol/ssrc/ir/call.rs
-[?2004l        );
-        eval_iterate(ctx, dst, stream, end_index, span)
-    }
-}
-
-/// Redirect environment from the callee stack to the caller stack
-fn redirect_env(engine_state: &EngineState, caller_stack: &mut Stack, callee_stack: &Stack) {
-    // TODO: make this more efficient
-    // Grab all environment variables from the callee
-    let caller_env_vars = caller_stack.get_env_var_names(engine_state);
-
-    // remove env vars that are present in the caller but not in the callee
-    // (the callee hid them)
-    for var in caller_env_vars.iter() {
-        if !callee_stack.has_env_var(engine_state, var) {
-            caller_stack.hide_env_var(engine_state, var);
-        }
-    }
-
-    // add new env vars from callee to caller
-    for (var, value) in callee_stack.get_stack_env_vars() {
-        caller_stack.add_env_var(var, value);
-    }
-
-    // set config to callee config, to capture any updates to that
-    caller_stack.config.clone_from(&callee_stack.config);
-}
-use std::sync::Arc;
-
-use crate::{
-    DeclId, ShellError, Span, Spanned, Value,
-    ast::Expression,
-    engine::{self, Argument, Stack},
-};
-
-use super::DataSlice;
-
-/// Contains the information for a call being made to a declared command.
-#[derive(Debug, Clone)]
-pub struct Call {
-    /// The declaration ID of the command to be invoked.
-    pub decl_id: DeclId,
-    /// The span encompassing the command name, before the arguments.
-    pub head: Span,
-    /// The span encompassing the command name and all arguments.
-    pub span: Span,
-    /// The base index of the arguments for this call within the
-    /// [argument stack](crate::engine::ArgumentStack).
-    pub args_base: usize,
-    /// The number of [`Argument`]s for the call. Note that this just counts the number of
-    /// `Argument` entries on the stack, and has nothing to do with the actual number of positional
-    /// or spread arguments.
-    pub args_len: usize,
-}
-
-impl Call {
-    /// Build a new call with arguments.
-    pub fn build(decl_id: DeclId, head: Span) -> CallBuilder {
-        CallBuilder {
-            inner: Call {
-                decl_id,
-                head,
-                span: head,
-                args_base: 0,
-                args_len: 0,
-            },
-        }
-    }
-
-    /// Get the arguments for this call from the arguments stack.
-    pub fn arguments<'a>(&self, stack: &'a Stack) -> &'a [Argument] {
-        stack.arguments.get_args(self.args_base, self.args_len)
-    pub fn span(&self) -> Span {
-        self.span
-    }
-
-    /// Resets the [`Stack`] to its state before the call was made.
-    pub fn leave(&self, stack: &mut Stack) {
-        stack.arguments.leave_frame(self.args_base);
-    }
-}
-
-/// Utility struct for building a [`Call`] with arguments on the [`Stack`].
-pub struct CallBuilder {
-    inner: Call,
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "recursion" crates/nu-engine/src/eval_ir.rs crates/nu-engine/src/eval.rs | head
-[?2004lcrates/nu-engine/src/eval_ir.rs:55:    // Rust does not check recursion limits outside of const evaluation.
-crates/nu-engine/src/eval_ir.rs:58:    // we limit the recursion depth of function calls.
-crates/nu-engine/src/eval_ir.rs:59:    // Read the stack's config so `$env.config.recursion_limit` set earlier in the same script
-crates/nu-engine/src/eval_ir.rs:62:    let maximum_call_stack_depth: u64 = config.recursion_limit as u64;
-crates/nu-engine/src/eval_ir.rs:63:    if stack.recursion_count > maximum_call_stack_depth {
-crates/nu-engine/src/eval_ir.rs:65:            recursion_limit: maximum_call_stack_depth,
-crates/nu-engine/src/eval_ir.rs:1554:            // Add one to the recursion count, so we don't recurse too deep. Stack overflows are not
-crates/nu-engine/src/eval_ir.rs:1556:            callee_stack.recursion_count += 1;
-crates/nu-engine/src/eval.rs:381:        // Rust does not check recursion limits outside of const evaluation.
-crates/nu-engine/src/eval.rs:384:        // we limit the recursion depth of function calls.
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "fn \|ShellError::" crates/nu-engine/src/named_flags.rs | head -60
-[?2004l[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "fn push_redirection\|fn gather_captures\|fn with_invocation_stdout" -A4 crates/nu-protocol/src/engine/stack.rs | head -30
-[?2004l746:    pub fn gather_captures(&self, engine_state: &EngineState, captures: &[(VarId, Span)]) -> Stack {
-747-        let mut vars = Vec::with_capacity(captures.len());
-748-
-749-        let fake_span = Span::new(0, 0);
-750-
---
-1240:    pub fn with_invocation_stdout(self, dest: OutDest) -> StackWithInvocation {
-1241-        StackWithInvocation::new(self, dest)
-1242-    }
-1243-
-1244-    /// Temporarily set the pipe stdout redirection to [`OutDest::Value`].
---
-1259:    pub fn push_redirection(
-1260-        &mut self,
-1261-        stdout: Option<Redirection>,
-1262-        stderr: Option<Redirection>,
-1263-    ) -> StackIoGuard<'_> {
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "ExtraPositional\|MissingPositional\|UnknownFlag\|MissingParameter\|BadArgument\|IncompatibleParametersSingle\|MissingFlagParaam\|CannotSpreadAsList" crates/nu-protocol/src/errors/shell_error/mod.rs | head -20
-[?2004l225:    MissingParameter {
-270:    IncompatibleParametersSingle {
-1385:    CannotSpreadAsList {
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "ExtraPositional\|UnknownFlag\|MissingPositional" crates/nu-protocol/src/errors/parse_error.rs | head
-[?2004l35:    ExtraPositional(String, #[label = "extra positional argument"] Span),
-475:    UnknownFlag(String, String, #[label = "unknown flag"] Span, String),
-558:    MissingPositional(String, #[label("missing {0}")] Span, String),
-821:            ParseError::ExtraPositional(_, s) => *s,
-865:            ParseError::UnknownFlag(_, _, s, _) => *s,
-878:            ParseError::MissingPositional(_, s, _) => *s,
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kls crates/nu-engine/src/named_flags* ; grep -rn "pub(crate) fn \|pub fn " crates/nu-engine/src/named_flags* | head -30
-[?2004lcrates/nu-engine/src/named_flags.rs
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 215,290p crates/nu-protocol/src/errors/shell_error/mod.rs
-[?2004l        span: Span,
-    },
-
-    /// An expected command parameter is missing.
-    ///
-    /// ## Resolution
-    ///
-    /// Add the expected parameter and try again.
-    #[error("Missing parameter: {param_name}.")]
-    #[diagnostic(code(nu::shell::missing_parameter))]
-    MissingParameter {
-        param_name: String,
-        #[label = "missing parameter: {param_name}"]
-        span: Span,
-    },
-
-    /// Two parameters conflict with each other or are otherwise mutually exclusive.
-    ///
-    /// ## Resolution
-    ///
-    /// Remove one of the parameters/options and try again.
-    #[error("Incompatible parameters.")]
-    #[diagnostic(code(nu::shell::incompatible_parameters))]
-    IncompatibleParameters {
-        left_message: String,
-        // Be cautious, as flags can share the same span, resulting in a panic (ex: `rm -pt`)
-        #[label("{left_message}")]
-        left_span: Span,
-        right_message: String,
-        #[label("{right_message}")]
-        right_span: Span,
-    },
-
-    /// There's some issue with number or matching of delimiters in an expression.
-    ///
-    /// ## Resolution
-    ///
-    /// Check your syntax for mismatched braces, RegExp syntax errors, etc, based on the specific error message.
-    #[error("Delimiter error")]
-    #[diagnostic(code(nu::shell::delimiter_error))]
-    DelimiterError {
-        msg: String,
-        #[label("{msg}")]
-        span: Span,
-    },
-
-    /// An operation received parameters with some sort of incompatibility
-    /// (for example, different number of rows in a table, incompatible column names, etc).
-    ///
-    /// ## Resolution
-    ///
-    /// Refer to the specific error message for details on what's incompatible and then fix your
-    /// inputs to make sure they match that way.
-    #[error("Incompatible parameters.")]
-    #[diagnostic(code(nu::shell::incompatible_parameters))]
-    IncompatibleParametersSingle {
-        msg: String,
-        #[label = "{msg}"]
-        span: Span,
-    },
-
-    /// You're trying to run an unsupported external command.
-    ///
-    /// ## Resolution
-    ///
-    /// Make sure there's an appropriate `run-external` declaration for this external command.
-    #[error("Running external commands not supported")]
-    #[diagnostic(code(nu::shell::external_commands))]
-    ExternalNotSupported {
-        #[label = "external not supported"]
-        span: Span,
-    },
-
-    // TODO: consider moving to a more generic error variant for invalid values
-    /// The given probability input is invalid. The probability must be between 0 and 1.
-    ///
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "UnknownFlag\|UnsupportedFlag\|ExtraArg\|TooMany\|extra positional\|unknown flag\|ParseError\|IncorrectValue {" crates/nu-protoocol/src/errors/shell_error/mod.rs | head -20
-[?2004l4:    ConfigError, FromValue, LabeledError, ParseError, Span, Spanned, Type, Value,
-173:    IncorrectValue {
-822:    DatetimeParseError {
-1277:    ParseErrorInConstant {
-1560:    pub fn wrap(self, working_set: &StateWorkingSet, span: Span) -> ParseError {
-1562:        ParseError::LabeledError(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "impl.*StackIoGuard\|impl.*StackWithInvocation" -A6 crates/nu-protocol/src/engine/stack.rs | head -40
-[?2004l[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; ls crates/nu-engine/src/ | head -40; ls crates/nu-engine/src/named_flags* 2>/dev/null
-[?2004l[H[J[3Jcall_ext.rs
-closure_eval.rs
-column.rs
-command_prelude.rs
-compile
-documentation.rs
-env.rs
-eval.rs
-eval_helpers.rs
-eval_ir.rs
-exit.rs
-glob_from.rs
-lib.rs
-named_flags.rs
-scope.rs
-crates/nu-engine/src/named_flags.rs
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "pub(crate) fn \|pub fn " crates/nu-engine/src/named_flags* | head -30
-[?2004l[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rln "struct StackIoGuard\|struct StackWithInvocation" crates/nu-protocol/src/
-[?2004lcrates/nu-protocol/src/engine/stack_out_dest.rs
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 220,235p crates/nu-protocol/src/errors/shell_error/mod.rs; grep -n "^    [A-Z][A-Za-z]* {" crates/nu-protocol/src/errors/shell_eerror/mod.rs | head -80
-[?2004l    /// ## Resolution
-    ///
-    /// Add the expected parameter and try again.
-    #[error("Missing parameter: {param_name}.")]
-    #[diagnostic(code(nu::shell::missing_parameter))]
-    MissingParameter {
-        param_name: String,
-        #[label = "missing parameter: {param_name}"]
-        span: Span,
-    },
-
-    /// Two parameters conflict with each other or are otherwise mutually exclusive.
-    ///
-    /// ## Resolution
-    ///
-    /// Remove one of the parameters/options and try again.
-32:    OperatorUnsupportedType {
-46:    OperatorIncompatibleTypes {
-68:    OperatorOverflow {
-84:    PipelineMismatch {
-103:    OnlySupportsThisInputType {
-119:    PipelineEmpty {
-132:    TypeMismatch {
-145:    RuntimeTypeMismatch {
-159:    InvalidValue {
-173:    IncorrectValue {
-188:    AssignmentRequiresVar {
-200:    AssignmentRequiresMutableVar {
-212:    UnknownOperator {
-225:    MissingParameter {
-238:    IncompatibleParameters {
-255:    DelimiterError {
-270:    IncompatibleParametersSingle {
-283:    ExternalNotSupported {
-296:    InvalidProbability {
-308:    InvalidRange {
-328:    NushellFailed { msg: String },
-343:    NushellFailedSpanned {
-358:    NushellFailedHelp {
-371:    VariableNotFoundAtRuntime {
-383:    EnvVarNotFoundAtRuntime {
-396:    ModuleNotFoundAtRuntime {
-409:    OverlayNotFoundAtRuntime {
-422:    NotFound {
-434:    CantConvert {
-450:    CantConvertToUnit {
-474:    EnvVarNotAString {
-493:    AutomaticEnvVarSetManually {
-509:    CannotHideConfigEnvVar {
-525:    CannotReplaceEnv {
-537:    DivisionByZero {
-551:    CannotCreateRange {
-563:    AccessBeyondEnd {
-576:    InsertAfterNextFreeIndex {
-589:    AccessEmptyContent {
-602:    AccessBeyondEndOfStream {
-614:    IncompatiblePathAccess {
-630:    CantFindColumn {
-645:    ColumnAlreadyExists {
-660:    NotAList {
-674:    ColumnDefinedTwice {
-689:    RecordColsValsMismatch {
-703:    ColumnDetectionFailure {
-717:    RelativeRangeOnInfiniteStream {
-729:    ExternalCommand {
-743:    NonZeroExitCode {
-757:    TerminatedBySignal {
-772:    CoreDumped {
-786:    UnsupportedInput {
-822:    DatetimeParseError {
-835:    NetworkFailure {
-848:    HttpError {
-868:    CommandNotFound {
-880:    AliasNotFound {
-892:    PluginRegistryDataInvalid {
-909:    PluginFailedToLoad { msg: String },
-918:    PluginFailedToEncode { msg: String },
-927:    PluginFailedToDecode { msg: String },
-937:    CustomValueIncorrectForPlugin {
-954:    CustomValueFailedToEncode {
-969:    CustomValueFailedToDecode {
-991:    DidYouMean {
-1004:    DidYouMeanCustom {
-1049:    InvalidConfig {
-1061:    MissingRequiredColumn {
-1074:    NeedsPositiveValue {
-1083:    GenericError {
-1102:    OutsideSpannedLabeledError {
-1115:    OutsideSource {
-1133:    OutsideSourceNoUrl {
-1158:    RemovedCommand {
-1175:    Break {
-1182:    Continue {
-1198:    Return {
-1212:    Exit { code: i32, abort: bool },
-1221:    RecursionLimitReached {
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; ls -d crates/nu-engine/src/named_flags*; grep -rn "fn " crates/nu-engine/src/named_flags* | head -30
-[?2004l[H[J[3Jcrates/nu-engine/src/named_flags.rs
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "struct StackIoGuard\|struct StackWithInvocation\|Deref for StackIoGuard\|Deref for StackWithInvocation\|DerefMut for StackWitthInvocation" crates/nu-protocol/src/ | head
-[?2004lcrates/nu-protocol/src/engine/stack_out_dest.rs:113:pub struct StackIoGuard<'a> {
-crates/nu-protocol/src/engine/stack_out_dest.rs:166:impl Deref for StackIoGuard<'_> {
-crates/nu-protocol/src/engine/stack_out_dest.rs:312:pub struct StackWithInvocation {
-crates/nu-protocol/src/engine/stack_out_dest.rs:326:impl Deref for StackWithInvocation {
-crates/nu-protocol/src/engine/stack_out_dest.rs:334:impl DerefMut for StackWithInvocation {
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 220,235p crates/nu-protocol/src/errors/shell_error/mod.rs; sed -n 780,800p crates/nu-protocol/src/errors/shell_error/mod.rs
-[?2004l    /// ## Resolution
-    ///
-    /// Add the expected parameter and try again.
-    #[error("Missing parameter: {param_name}.")]
-    #[diagnostic(code(nu::shell::missing_parameter))]
-    MissingParameter {
-        param_name: String,
-        #[label = "missing parameter: {param_name}"]
-        span: Span,
-    },
-
-    /// Two parameters conflict with each other or are otherwise mutually exclusive.
-    ///
-    /// ## Resolution
-    ///
-    /// Remove one of the parameters/options and try again.
-    ///
-    /// ## Resolution
-    ///
-    /// This error is fairly generic. Refer to the specific error message for further details.
-    #[error("Unsupported input")]
-    #[diagnostic(code(nu::shell::unsupported_input))]
-    UnsupportedInput {
-        msg: String,
-        input: String,
-        #[label("{msg}")]
-        msg_span: Span,
-        #[label("{input}")]
-        input_span: Span,
-    },
-
-    /// Failed to parse an input into a datetime value.
-    ///
-    /// ## Resolution
-    ///
-    /// Make sure your datetime input format is correct.
-    ///
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; ls -d crates/nu-engine/src/named_flags*; grep -rn "fn " crates/nu-engine/src/named_flags* > /tmp/nf.txt; wc -l /tmp/nf.txt; headd -30 /tmp/nf.txt
-[?2004l[H[J[3Jcrates/nu-engine/src/named_flags.rs
-0 /tmp/nf.txt
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n "StackIoGuard" crates/nu-protocol/src/engine/*.rs | head -5
-[?2004lcrates/nu-protocol/src/engine/stack.rs:7:        ScopeBindings, StackCallArgGuard, StackCollectValueGuard, StackIoGuard, StackOutDest,
-crates/nu-protocol/src/engine/stack.rs:1263:    ) -> StackIoGuard<'_> {
-crates/nu-protocol/src/engine/stack.rs:1264:        StackIoGuard::new(self, stdout, stderr)
-crates/nu-protocol/src/engine/stack_out_dest.rs:113:pub struct StackIoGuard<'a> {
-crates/nu-protocol/src/engine/stack_out_dest.rs:121:impl<'a> StackIoGuard<'a> {
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; wc -l crates/nu-engine/src/named_flags.rs; head -40 crates/nu-engine/src/named_flags.rs
-[?2004l[H[J[3J5 crates/nu-engine/src/named_flags.rs
-//! Re-exports signature-aware named flag helpers from `nu-protocol`.
-//!
-//! Kept as a thin module so existing `crate::named_flags::…` call sites stay stable.
-
-pub use nu_protocol::engine::named_flags::*;
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn "normalize_engine_arguments\|list_spread_before_required_error" crates/ --include=*.rs | grep -v '^crates/nu-engine/src/eval'  | head
-[?2004lcrates/nu-command/src/misc/run.rs:15:            list_spread_before_required_error, normalize_engine_arguments,
-crates/nu-command/src/misc/run.rs:386:                return Err(list_spread_before_required_error(*span));
-crates/nu-command/src/misc/run.rs:502:    ir_run_arguments(&normalize_engine_arguments(&Run.signature(), args)?)
-crates/nu-protocol/src/engine/named_flags.rs:152:pub fn list_spread_before_required_error(spread_span: Span) -> ShellError {
-crates/nu-protocol/src/engine/named_flags.rs:164:pub fn normalize_engine_arguments(
-crates/nu-protocol/src/eval_const.rs:11:        named_flags::normalize_engine_arguments,
-crates/nu-protocol/src/eval_const.rs:354:    let expanded = normalize_engine_arguments(signature, raw)?;
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 110,175p crates/nu-protocol/src/engine/stack_out_dest.rs
-[?2004l    }
-}
-
-pub struct StackIoGuard<'a> {
-    stack: &'a mut Stack,
-    old_pipe_stdout: Option<OutDest>,
-    old_pipe_stderr: Option<OutDest>,
-    old_parent_stdout: Option<OutDest>,
-    old_parent_stderr: Option<OutDest>,
-}
-
-impl<'a> StackIoGuard<'a> {
-    pub(crate) fn new(
-        stack: &'a mut Stack,
-        stdout: Option<Redirection>,
-        stderr: Option<Redirection>,
-    ) -> Self {
-        let out_dest = &mut stack.out_dest;
-
-        let (old_pipe_stdout, old_parent_stdout) = match stdout {
-            Some(Redirection::Pipe(stdout)) => {
-                let old = out_dest.pipe_stdout.replace(stdout);
-                (old, out_dest.parent_stdout.take())
-            }
-            Some(Redirection::File(file)) => {
-                let file = OutDest::from(file);
-                (
-                    out_dest.pipe_stdout.replace(file.clone()),
-                    out_dest.push_stdout(file),
-                )
-            }
-            None => (out_dest.pipe_stdout.take(), out_dest.parent_stdout.take()),
-        };
-
-        let (old_pipe_stderr, old_parent_stderr) = match stderr {
-            Some(Redirection::Pipe(stderr)) => {
-                let old = out_dest.pipe_stderr.replace(stderr);
-                (old, out_dest.parent_stderr.take())
-            }
-            Some(Redirection::File(file)) => (
-                out_dest.pipe_stderr.take(),
-                out_dest.push_stderr(file.into()),
-            ),
-            None => (out_dest.pipe_stderr.take(), out_dest.parent_stderr.take()),
-        };
-
-        StackIoGuard {
-            stack,
-            old_pipe_stdout,
-            old_parent_stdout,
-            old_pipe_stderr,
-            old_parent_stderr,
-        }
-    }
-}
-
-impl Deref for StackIoGuard<'_> {
-    type Target = Stack;
-
-    fn deref(&self) -> &Self::Target {
-        self.stack
-    }
-}
-
-impl DerefMut for StackIoGuard<'_> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; wc -l crates/nu-engine/src/named_flags.rs; grep -n 'fn\|^pub\|^use\|^mod' crates/nu-engine/src/named_flags.rs | head -30
-[?2004l[H[J[3J5 crates/nu-engine/src/named_flags.rs
-5:pub use nu_protocol::engine::named_flags::*;
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -rn 'fn normalize_engine_arguments\|fn list_spread_before_required_error' crates/ --include=*.rs
-[?2004lcrates/nu-protocol/src/engine/named_flags.rs:152:pub fn list_spread_before_required_error(spread_span: Span) -> ShellError {
-crates/nu-protocol/src/engine/named_flags.rs:164:pub fn normalize_engine_arguments(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; wc -l crates/nu-protocol/src/engine/named_flags.rs; grep -n 'fn ' crates/nu-protocol/src/engine/named_flags.rs | head -40
-[?2004l[H[J[3J232 crates/nu-protocol/src/engine/named_flags.rs
-16:pub fn flag_type_accepts_nothing(flag: &Flag) -> bool {
-20:pub fn find_signature_flag<'a>(
-35:pub fn data_from_name_and_short(name: &str, short: &str) -> (Arc<[u8]>, DataSlice, DataSlice) {
-59:pub fn expand_flag_record(
-138:pub fn can_rest_spread(signature: &Signature) -> bool {
-143:pub fn list_spread_without_rest_error(spread_span: Span) -> ShellError {
-152:pub fn list_spread_before_required_error(spread_span: Span) -> ShellError {
-164:pub fn normalize_engine_arguments(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 140,240p crates/nu-protocol/src/engine/named_flags.rs
-[?2004l}
-
-/// Error when a list is spread into a command that has no rest parameter to receive it.
-pub fn list_spread_without_rest_error(spread_span: Span) -> ShellError {
-    ShellError::Generic(GenericError::new(
-        "Cannot spread a list into this command",
-        "This command has no ...rest parameter to receive a list spread. Use a record to spread named flags, e.g. ...{flag: value}",
-        spread_span,
-    ))
-}
-
-/// Error when a list (or null rest-mode) is spread while required positionals remain unbound.
-pub fn list_spread_before_required_error(spread_span: Span) -> ShellError {
-    ShellError::Generic(GenericError::new(
-        "Cannot spread a list before required positional arguments are provided",
-        "List spreads fill rest arguments. Provide required positionals first, or use a record to spread named flags, e.g. ...{flag: value}",
-        spread_span,
-    ))
-}
-
-/// Apply signature-aware null handling and expand record spreads for engine [`Argument`]s.
-///
-/// List spreads are rejected when the command has no rest parameter (and does not allow
-/// unknown args), so `...$list` cannot be silently dropped on named-only commands.
-pub fn normalize_engine_arguments(
-    signature: &Signature,
-    args: Vec<Argument>,
-) -> Result<Vec<Argument>, ShellError> {
-    let mut expanded = Vec::with_capacity(args.len());
-
-    for arg in args {
-        match arg {
-            Argument::Named {
-                data,
-                name,
-                short,
-                span,
-                val: Value::Nothing { .. },
-                ast,
-            } => {
-                let accepts = find_signature_flag(signature, &data[name], &data[short])
-                    .is_some_and(flag_type_accepts_nothing);
-                if accepts {
-                    expanded.push(Argument::Named {
-                        data,
-                        name,
-                        short,
-                        span,
-                        val: Value::nothing(span),
-                        ast,
-                    });
-                }
-                // else: null → omit
-            }
-            Argument::Spread {
-                vals,
-                span: spread_span,
-                ast,
-            } => match vals {
-                Value::Record { val, .. } => {
-                    expanded.extend(expand_flag_record(
-                        signature,
-                        val.into_owned(),
-                        spread_span,
-                    )?);
-                }
-                Value::List { .. } => {
-                    if !can_rest_spread(signature) {
-                        return Err(list_spread_without_rest_error(spread_span));
-                    }
-                    expanded.push(Argument::Spread {
-                        vals,
-                        span: spread_span,
-                        ast,
-                    });
-                }
-                Value::Nothing { .. } | Value::Error { .. } => {
-                    expanded.push(Argument::Spread {
-                        vals,
-                        span: spread_span,
-                        ast,
-                    });
-                }
-                other => {
-                    return Err(ShellError::CannotSpreadAsList { span: other.span() });
-                }
-            },
-            other => expanded.push(other),
-        }
-    }
-
-    Ok(expanded)
-}
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; grep -n 'fn ' crates/nu-protocol/src/engine/named_flags.rs
-[?2004l[H[J[3J16:pub fn flag_type_accepts_nothing(flag: &Flag) -> bool {
-20:pub fn find_signature_flag<'a>(
-35:pub fn data_from_name_and_short(name: &str, short: &str) -> (Arc<[u8]>, DataSlice, DataSlice) {
-59:pub fn expand_flag_record(
-138:pub fn can_rest_spread(signature: &Signature) -> bool {
-143:pub fn list_spread_without_rest_error(spread_span: Span) -> ShellError {
-152:pub fn list_spread_before_required_error(spread_span: Span) -> ShellError {
-164:pub fn normalize_engine_arguments(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1,75p crates/nu-protocol/src/engine/named_flags.rs
-[?2004l//! Helpers for signature-aware named flag handling (null omit/pass-through and
-//! long-key record flag spreads).
-//!
-//! Used by IR evaluation before dispatch and by const evaluation when building
-//! IR-shaped calls.
-
-use std::sync::Arc;
-
-use crate::{
-    CompareTypes, Flag, Record, ShellError, Signature, Span, Value, engine::Argument,
-    ir::DataSlice, shell_error::generic::GenericError,
-};
-
-/// Whether a named flag's value type accepts `nothing`/`null`.
-#[inline]
-pub fn flag_type_accepts_nothing(flag: &Flag) -> bool {
-    flag.type_accepts_nothing()
-}
-
-pub fn find_signature_flag<'a>(
-    signature: &'a Signature,
-    long: &[u8],
-    short: &[u8],
-) -> Option<&'a Flag> {
-    signature.named.iter().find(|flag| {
-        (!long.is_empty() && flag.long.as_bytes() == long)
-            || (!short.is_empty()
-                && flag.short.is_some_and(|c| {
-                    let mut buf = [0u8; 4];
-                    c.encode_utf8(&mut buf).as_bytes() == short
-                }))
-    })
-}
-
-pub fn data_from_name_and_short(name: &str, short: &str) -> (Arc<[u8]>, DataSlice, DataSlice) {
-    let data: Vec<u8> = name.bytes().chain(short.bytes()).collect();
-    let data: Arc<[u8]> = data.into();
-    // Flag names are parser identifiers — never near u32::MAX.
-    #[allow(clippy::cast_possible_truncation)]
-    let name_len = name.len() as u32;
-    #[allow(clippy::cast_possible_truncation)]
-    let short_len = short.len() as u32;
-    let name = DataSlice {
-        start: 0,
-        len: name_len,
-    };
-    let short = DataSlice {
-        start: name_len,
-        len: short_len,
-    };
-    (data, name, short)
-}
-
-/// Expand a record into named/flag arguments for a call.
-///
-/// - `null` field values: passed through if the flag type accepts `nothing`, otherwise omitted
-/// - switch flags (`--flag` with no value): `true` sets the flag, `false`/`null` omit it
-/// - valued flags: non-null values become `--name value` (type-checked against the signature)
-pub fn expand_flag_record(
-    signature: &Signature,
-    record: Record,
-    spread_span: Span,
-) -> Result<Vec<Argument>, ShellError> {
-    let mut out = Vec::with_capacity(record.len());
-    for (key, val) in record {
-        let Some(flag) = signature.get_long_flag(&key) else {
-            return Err(ShellError::Generic(GenericError::new(
-                format!("Unknown flag `{key}` in spread record"),
-                format!("`{key}` is not a named argument of this command"),
-                spread_span,
-            )));
-        };
-
-        let short = flag
-            .short
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; mkdir -p /tmp/scripts && cat > /tmp/scripts/new.rs << 'EOF'
-[?2004l[?2004h> /// Run a call to `decl_id` whose arguments are on the argument frame of `caller_stack` at
-[?2004l[?2004h> /// `args_base`, binding them as a direct call does. With `check_args`, the arguments are first
-[?2004l[?2004h> /// checked against the signature, as the parser does for a direct call.
-[?2004l[?2004h> #[allow(clippy::too_many_arguments)]
-[?2004l[?2004h> fn run_call<D: DebugContext>(
-[?2004lr[?2004h>     engine_state: &EngineState,
-[?2004l[?2004h>     caller_stack: &mut Stack,
-[?2004l[?2004h>     decl_id: DeclId,
-[?2004l[?2004h>     head: Span,
-[?2004l[?2004h>     args_base: usize,
-[?2004l[?2004h>     args_len: usize,
-[?2004l[?2004h>     mut input: PipelineData,
-[?2004l[?2004h>     check_args: bool,
-[?2004l[?2004h> ) -> Result<PipelineData, ShellError> {
-[?2004l[?2004h>     let decl = engine_state.get_decl(decl_id);
-[?2004l[?2004h> 
-[?2004l[?2004h> @BODY@
-[?2004l[?2004h> }
-[?2004l[?2004h> 
-[?2004l[?2004h> /// Evaluate a call to a command by its declaration id, like a plugin's `call_decl` or the
-[?2004l[?2004h> /// `from <ext>` command `open` picks, the same way as a direct call to it: the input type and the
-[?2004l[?2004h> /// arguments are checked against the signature, a custom command's parameters are bound with
-[?2004l[?2004h> /// their defaults, and its `$env` changes are kept only if it's defined with `def --env`.
-[?2004l[?2004h> ///
-[?2004l[?2004h> /// The arguments are the ones added to `call`, which this removes from the stack again, so use it
-[?2004l[?2004h> /// in place of [`CallBuilder::with`](nu_protocol::ir::CallBuilder::with).
-[?2004l[?2004h> pub fn eval_call_by_decl_id(
-[?2004l[?2004h>     engine_state: &EngineState,
-[?2004l[?2004h>     stack: &mut Stack,
-[?2004l[?2004h>     call: nu_protocol::ir::CallBuilder,
-[?2004l[?2004h>     input: PipelineData,
-[?2004l[?2004h> ) -> Result<PipelineData, ShellError> {
-[?2004l[?2004h>     let call = call.finish();
-[?2004l[?2004h>     // A call without arguments doesn't know where its frame starts
-[?2004l[?2004h>     let args_base = if call.args_len == 0 {
-[?2004l[?2004h>         stack.arguments.get_base()
-[?2004l[?2004h>     } else {
-[?2004l[?2004h>         call.args_base
-[?2004l[?2004h>     };
-[?2004l[?2004h>     let result = if engine_state.is_debugging() {
-[?2004l[?2004h>         run_call::<nu_protocol::debugger::WithDebug>(
-[?2004l[?2004h>             engine_state,
-[?2004l[?2004h>             stack,
-[?2004l[?2004h>             call.decl_id,
-[?2004l[?2004h>             call.head,
-[?2004l[?2004h>             args_base,
-[?2004l[?2004h>             call.args_len,
-[?2004l[?2004h>             input,
-[?2004l[?2004h>             true,
-[?2004l[?2004h>         )
-[?2004l[?2004h>     } else {
-[?2004l[?2004h>         run_call::<nu_protocol::debugger::WithoutDebug>(
-[?2004l[?2004h>             engine_state,
-[?2004l[?2004h>             stack,
-[?2004l[?2004h>             call.decl_id,
-[?2004l[?2004h>             call.head,
-[?2004l[?2004h>             args_base,
-[?2004l[?2004h>             call.args_len,
-[?2004l[?2004h>             input,
-[?2004l[?2004h>             true,
-[?2004l[?2004h>         )
-[?2004l[?2004h>     };
-[?2004l[?2004h>     stack.arguments.leave_frame(args_base);
-[?2004l[?2004h>     result
-[?2004l[?2004h> }
-[?2004l[?2004h> 
-[?2004l[?2004h> /// Check the arguments of a call the parser didn't see against the signature, the way the parser
-[?2004l[?2004h> /// checks a direct call.
-[?2004l[?2004h> fn check_call_arguments(
-[?2004l[?2004h>     signature: &Signature,
-[?2004l[?2004h>     stack: &Stack,
-[?2004l[?2004h>     args_base: usize,
-[?2004l[?2004h>     args_len: usize,
-[?2004l[?2004h>     head: Span,
-[?2004l[?2004h> ) -> Result<(), ShellError> {
-[?2004l[?2004h>     // Wrapped commands and externs take any arguments
-[?2004l[?2004h>     if signature.allows_unknown_args {
-[?2004l[?2004h>         return Ok(());
-[?2004l[?2004h>     }
-[?2004l[?2004h> 
-[?2004l[?2004h>     let max_positional =
-[?2004l[?2004h>         signature.required_positional.len() + signature.optional_positional.len();
-[?2004l[?2004h>     let mut positional = 0;
-[?2004l[?2004h>     let mut spread = false;
-[?2004l[?2004h>     for arg in stack.arguments.get_args(args_base, args_len) {
-[?2004l[?2004h>         match arg {
-[?2004l[?2004h>             Argument::Positional { span, .. } => {
-[?2004l[?2004h>                 if positional >= max_positional && signature.rest_positional.is_none() {
-[?2004l[?2004h>                     return Err(ShellError::Generic(GenericError::new(
-[?2004l[?2004h>                         "Extra positional argument",
-[?2004l[?2004h>                         format!(
-[?2004l[?2004h>                             "`{}` takes at most {max_positional} positional arguments",
-[?2004l[?2004h>                             signature.name
-[?2004l[?2004h>                         ),
-[?2004l[?2004h>                         *span,
-[?2004l[?2004h>                     )));
-[?2004l[?2004h>                 }
-[?2004l[?2004h>                 positional += 1;
-[?2004l[?2004h>             }
-[?2004l[?2004h>             Argument::Spread { .. } => spread = true,
-[?2004l[?2004h>             Argument::Flag {
-[?2004l[?2004h>                 data,
-[?2004l[?2004h>                 name,
-[?2004l[?2004h>                 short,
-[?2004l[?2004h>                 span,
-[?2004l[?2004h>             }
-[?2004l[?2004h>             | Argument::Named {
-[?2004l[?2004h>                 data,
-[?2004l[?2004h>                 name,
-[?2004l[?2004h>                 short,
-[?2004l[?2004h>                 span,
-[?2004l[?2004h>                 ..
-[?2004l[?2004h>             } => {
-[?2004l[?2004h>                 let long = String::from_utf8_lossy(&data[*name]);
-[?2004l[?2004h>                 let short = String::from_utf8_lossy(&data[*short]);
-[?2004l[?2004h>                 let flag = if !long.is_empty() {
-[?2004l[?2004h>                     signature.get_long_flag(&long)
-[?2004l[?2004h>                 } else {
-[?2004l[?2004h>                     short.chars().next().and_then(|c| signature.get_short_flag(c))
-[?2004l[?2004h>                 };
-[?2004l[?2004h>                 if flag.is_none() && long != "help" {
-[?2004l[?2004h>                     let shown = if long.is_empty() {
-[?2004l[?2004h>                         format!("-{short}")
-[?2004l[?2004h>                     } else {
-[?2004l[?2004h>                         format!("--{long}")
-[?2004l[?2004h>                     };
-[?2004l[?2004h>                     return Err(ShellError::Generic(GenericError::new(
-[?2004l[?2004h>                         format!("Unknown flag `{shown}`"),
-[?2004l[?2004h>                         format!("`{}` has no flag `{shown}`", signature.name),
-[?2004l[?2004h>                         *span,
-[?2004l[?2004h>                     )));
-[?2004l[?2004h>                 }
-[?2004l[?2004h>             }
-[?2004l[?2004h>             Argument::ParserInfo { .. } => (),
-[?2004l[?2004h>         }
-[?2004l[?2004h>     }
-[?2004l[?2004h> 
-[?2004l[?2004h>     // Positionals after a spread go to the rest parameter, which `gather_arguments` checks
-[?2004l[?2004h>     if !spread && let Some(missing) = signature.required_positional.get(positional) {
-[?2004l[?2004h>         return Err(ShellError::MissingParameter {
-[?2004l[?2004h>             param_name: missing.name.clone(),
-[?2004l[?2004h>             span: head,
-[?2004l[?2004h>         });
-[?2004l[?2004h>     }
-[?2004l[?2004h> 
-[?2004l[?2004h>     Ok(())
-[?2004l[?2004h> }
-[?2004l[?2004h> EOF
-[?2004l[H[J[3J[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ cat > /tmp/scripts/p1.py << 'EOF'
-[?2004l[?2004h> import re
-[?2004l[?2004h> p = 'crates/nu-engine/src/eval_ir.rs'
-[?2004l[?2004h> s = open(p).read()
-[?2004l[?2004h> start = s.index('fn eval_call<D: DebugContext>(')
-[?2004l[?2004h> open_c = '    let result = (|| {\n'
-[?2004l[?2004h> close_c = '    })();\n'
-[?2004l[?2004h> a = s.index(open_c, start)
-[?2004l[?2004h> b = s.index(close_c, a)
-[?2004l[?2004h> body = s[a + len(open_c):b]
-[?2004l[?2004h> body = '\n'.join(l[4:] if l.startswith('    ') else l for l in body.split('\n'))
-[?2004l[?2004h> body = body.replace('*args_base', 'args_base').replace('&mut caller_stack', 'caller_stack')
-[?2004l[?2004h> pat = re.compile(r'( *)let args_len = normalize_call_arguments\(\n\s*(&block\.signature|&decl\.signature\(\)),\n[^;]*;\n')
-[?2004l[?2004h> def add_check(m):
-[?2004l[?2004h>     ind, sig = m.group(1), m.group(2)
-[?2004l[?2004h>     return (m.group(0) + ind + 'if check_args {\n' + ind + '    check_call_arguments(' + sig
-[?2004l[?2004h>             + ', caller_stack, args_base, args_len, head)?;\n' + ind + '}\n')
-[?2004l[?2004h> body, n = pat.subn(add_check, body)
-[?2004l[?2004h> assert n == 2, n
-[?2004l[?2004h> call = '''    let result = run_call::<D>(
-[?2004l[?2004h>         engine_state,
-[?2004l[?2004h>         &mut caller_stack,
-[?2004l[?2004h>         decl_id,
-[?2004l[?2004h>         head,
-[?2004l[?2004h>         *args_base,
-[?2004l[?2004h>         args_len,
-[?2004l[?2004h>         input,
-[?2004l[?2004h>         false,
-[?2004l[?2004h>     );
-[?2004l[?2004h> '''
-[?2004l[?2004h> s = s[:a] + call + s[b + len(close_c):]
-[?2004l[?2004h> old = '    let args_len = caller_stack.arguments.get_len(*args_base);\n    let decl = engine_state.get_decl(decl_id);\n'
-[?2004l[?2004h> assert old in s[start:]
-[?2004l[?2004h> s = s[:start] + s[start:].replace(old, '    let args_len = caller_stack.arguments.get_len(*args_base);\n', 1)
-[?2004l[?2004h> old = '    mut input: PipelineData,\n) -> Result<PipelineData, ShellError> {\n    let EvalContext {'
-[?2004l[?2004h> assert old in s
-[?2004l[?2004h> s = s.replace(old, old.replace('mut input', 'input'), 1)
-[?2004l[?2004h> new = open('/tmp/scripts/new.rs').read().replace('@BODY@', body.rstrip('\n'))
-[?2004l[?2004h> i = s.index('fn find_named_var_id(')
-[?2004l[?2004h> s = s[:i] + new + '\n' + s[i:]
-[?2004l[?2004h> open(p, 'w').write(s)
-[?2004l[?2004h> print('ok')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ cp crates/nu-engine/src/eval_ir.rs /tmp/scripts/eval_ir.rs.orig && python3 /tmp/scripts/p1.py
-[?2004lok
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -i 's/^pub use eval_ir::eval_ir_block;/pub use eval_ir::{eval_call_by_decl_id, eval_ir_block};/' crates/nu-engine/src/lib.rs && greep -n eval_ir crates/nu-engine/src/lib.rs
-[?2004l11:mod eval_ir;
-35:pub use eval_ir::{eval_call_by_decl_id, eval_ir_block};
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kcargo check -p nu-engine 2>&1 | grep -E '^(error|warning)|-->' | head -30; echo DONE
-[?2004lDONE
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; cargo check -p nu-engine 2>&1 | tail -5
-[?2004l[H[J[3Jbash: cargo: command not found
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n 'fn run_call\|fn eval_call_by_decl_id\|fn check_call_arguments\|run_call::<D>' crates/nu-engine/src/eval_ir.rs
-[?2004l1517:    let result = run_call::<D>(
-1545:fn run_call<D: DebugContext>(
-1668:pub fn eval_call_by_decl_id(
-1710:fn check_call_arguments(
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; echo "CARGO_HOME=$CARGO_HOME RUSTUP_HOME=$RUSTUP_HOME"; ls $CARGO_HOME/bin ~/.cargo/bin /usr/local/cargo/bin 2>/dev/null; commannd -v rustc; find / -name cargo -type f -perm -u+x 2>/dev/null | head -5
-[?2004l[H[J[3JCARGO_HOME=/usr/local/cargo RUSTUP_HOME=/usr/local/rustup
-/usr/local/cargo/bin:
-[0m[01;36mcargo[0m  [01;36mcargo-clippy[0m  [01;36mcargo-fmt[0m  [01;36mcargo-miri[0m  [01;36mclippy-driver[0m  [01;36mrls[0m  [01;36mrust-analyzer[0m  [01;36mrust-gdb[0m  [01;36mrust-gdbgui[0m  [01;36mrust-lldb[0m  [01;36mrustc[0m  [01;36mrustdoc[0m  [01;36mrustfmt[0m  [01;32mrustup[0m
-
-/usr/local/cargo/bin:
-[01;36mcargo[0m  [01;36mcargo-clippy[0m  [01;36mcargo-fmt[0m  [01;36mcargo-miri[0m  [01;36mclippy-driver[0m  [01;36mrls[0m  [01;36mrust-analyzer[0m  [01;36mrust-gdb[0m  [01;36mrust-gdbgui[0m  [01;36mrust-lldb[0m  [01;36mrustc[0m  [01;36mrustdoc[0m  [01;36mrustfmt[0m  [01;32mrustup[0m
-/usr/local/rustup/toolchains/1.97.1-aarch64-unknown-linux-gnu/bin/cargo
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; export PATH=/usr/local/cargo/bin:$PATH; cargo --version
-[?2004l[H[J[3Jcargo 1.97.1 (c980f4866 2026-06-30)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kcargo check --offline -p nu-engine > /tmp/check.log 2>&1; echo EXIT=$?
-[?2004lEXIT=0
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; grep -E '^warning|^error' -A5 /tmp/check.log | head -20; grep -n 'nu-engine' crates/nu-plugin-engine/Cargo.toml
-[?2004l[H[J[3J22:nu-engine = { workspace = true, features = ["plugin"] }
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kcat > /tmp/scripts/p2.py << 'EOF'
-[?2004l[?2004h> def patch(p, old, new, count=1):
-[?2004l[?2004h>     s = open(p).read()
-[?2004l[?2004h>     assert s.count(old) == count, (p, old[:60], s.count(old))
-[?2004l[?2004h>     s = s.replace(old, new)
-[?2004l[?2004h>     open(p, 'w').write(s)
-[?2004l[?2004h> 
-[?2004l[?2004h> # plugin call_decl
-[?2004l[?2004h> p = 'crates/nu-plugin-engine/src/context.rs'
-[?2004l[?2004h> patch(p, '        let decl = self.engine_state.get_decl(decl_id);\n\n        let stack = &mut self.stack.push_redirection(', '        let stack = &mut self.staack.push_redirection(')
-[?2004l[?2004h> patch(p, '''        call_builder.with(stack, |stack, call| {
-[?2004l[?2004h>             decl.run(&self.engine_state, stack, call, input)
-[?2004l[?2004h>         })''', '        nu_engine::eval_call_by_decl_id(&self.engine_state, stack, call_builder, input)')
-[?2004l[?2004h> 
-[?2004l[?2004h> # %($cmd)
-[?2004l[?2004h> p = 'crates/nu-command/src/system/run_internal.rs'
-[?2004l[?2004h> patch(p, 'use nu_engine::{CallExt, command_prelude::*, find_builtin_decl};', 'use nu_engine::{CallExt, command_prelude::*, eval_call_by_decl_id, find_builtin_ddecl};')
-[?2004l[?2004h> patch(p, '        let decl = engine_state.get_decl(decl_id);\n', '')
-[?2004l[?2004h> patch(p, '''        // `builder.with` is a scoped guard: it registers temporary IR argument slots,
-[?2004l[?2004h>         // calls the closure, then always deallocates those slots on exit.
-[?2004l[?2004h>         builder.with(stack, |stack, engine_call| {
-[?2004l[?2004h>             decl.run(engine_state, stack, engine_call, input)
-[?2004l[?2004h>         })''', '''        // Run it as a direct call would, checking the input and the arguments against the
-[?2004l[?2004h>         // signature. This also removes the argument slots `builder` added.
-[?2004l[?2004h>         eval_call_by_decl_id(engine_state, stack, builder, input)''')
-[?2004l[?2004h> 
-[?2004l[?2004h> # save
-[?2004l[?2004h> p = 'crates/nu-command/src/filesystem/save.rs'
-[?2004l[?2004h> patch(p, '''        } else if let Some(block_id) = decl.block_id() {
-[?2004l[?2004h>             let block = engine_state.get_block(block_id);
-[?2004l[?2004h>             let eval_block = get_eval_block(engine_state);
-[?2004l[?2004h>             eval_block(engine_state, stack, block, input).map(|p| p.body)
-[?2004l[?2004h>         } else {
-[?2004l[?2004h>             let call = ast::Call::new(span);
-[?2004l[?2004h>             decl.run(engine_state, stack, &(&call).into(), input)
-[?2004l[?2004h>         }''', '''        } else {
-[?2004l[?2004h>             nu_engine::eval_call_by_decl_id(
-[?2004l[?2004h>                 engine_state,
-[?2004l[?2004h>                 stack,
-[?2004l[?2004h>                 nu_protocol::ir::Call::build(decl_id, span),
-[?2004l[?2004h>                 input,
-[?2004l[?2004h>             )
-[?2004l[?2004h>         }''')
-[?2004l[?2004h> 
-[?2004l[?2004h> # http
-[?2004l[?2004h> p = 'crates/nu-command/src/network/http/client.rs'
-[?2004l[?2004h> patch(p, '                decl.run(engine_state, stack, &Call::new(span), output)\n', '''                nu_engine::eval_call_by_decl_id(
-[?2004l[?2004h>                     engine_state,
-[?2004l[?2004h>                     stack,
-[?2004l[?2004h>                     nu_protocol::ir::Call::build(converter_id, span),
-[?2004l[?2004h>                     output,
-[?2004l[?2004h>                 )\n''')
-[?2004l[?2004h> 
-[?2004l[?2004h> # open
-[?2004l[?2004h> p = 'crates/nu-command/src/filesystem/open.rs'
-[?2004l[?2004h> patch(p, '''                            let open_call = ast::Call {
-[?2004l[?2004h>                                 decl_id: converter_id,
-[?2004l[?2004h>                                 head: call_span,
-[?2004l[?2004h>                                 arguments: vec![],
-[?2004l[?2004h>                                 parser_info: HashMap::new(),
-[?2004l[?2004h>                             };
-[?2004l[?2004h>                             let command_output = if engine_state.is_debugging() {
-[?2004l[?2004h>                                 eval_call::<WithDebug>(engine_state, stack, &open_call, stream)
-[?2004l[?2004h>                             } else {
-[?2004l[?2004h>                                 eval_call::<WithoutDebug>(engine_state, stack, &open_call, stream)
-[?2004l[?2004h>                             };''', '''                            let command_output = eval_call_by_decl_id(
-[?2004l[?2004h>                                 engine_state,
-[?2004l[?2004h>                                 stack,
-[?2004l[?2004h>                                 nu_protocol::ir::Call::build(converter_id, call_span),
-[?2004l[?2004h>                                 stream,
-[?2004l[?2004h>                             );''')
-[?2004l[?2004h> patch(p, 'use nu_engine::{command_prelude::*, eval_call};', 'use nu_engine::{command_prelude::*, eval_call_by_decl_id};')
-[?2004l[?2004h> print('ok')
-[?2004l[?2004h> EOF
-[?2004l[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ for f in crates/nu-plugin-engine/src/context.rs crates/nu-command/src/system/run_internal.rs crates/nu-command/src/filesystem/save.rs ccrates/nu-command/src/network/http/client.rs crates/nu-command/src/filesystem/open.rs; do cp $f /tmp/scripts/$(basename $f).orig; done; python3 /tmp/scripts/p2.ppy
-[?2004lok
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kcargo check --offline -p nu-command -p nu-plugin-engine > /tmp/check2.log 2>&1; echo EXIT=$?; grep -E '^(error|warning)' -A6 /tmp/checkk2.log | head -60
-[?2004lEXIT=0
-warning: unused imports: `WithDebug`, `WithoutDebug`, and `ast`
- --> crates/nu-command/src/filesystem/open.rs:4:43
-  |
-4 |     DataSource, NuGlob, PipelineMetadata, ast,
-  |                                           ^^^
-5 |     debugger::{WithDebug, WithoutDebug},
-  |                ^^^^^^^^^  ^^^^^^^^^^^^
---
-warning: unused import: `collections::HashMap`
- --> crates/nu-command/src/filesystem/open.rs:9:5
-  |
-9 |     collections::HashMap,
-  |     ^^^^^^^^^^^^^^^^^^^^
-
-warning: unused import: `get_eval_block`
- --> crates/nu-command/src/filesystem/save.rs:3:37
-  |
-3 | use nu_engine::{command_prelude::*, get_eval_block};
-  |                                     ^^^^^^^^^^^^^^
-
-warning: unused import: `ast`
- --> crates/nu-command/src/filesystem/save.rs:6:71
-  |
-6 |     ByteStreamSource, DataSource, OutDest, PipelineMetadata, Signals, ast,
-  |                                                                       ^^^
-
-warning: `nu-command` (lib) generated 4 warnings (run `cargo fix --lib -p nu-command` to apply 4 suggestions)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 29.92s
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; head -15 crates/nu-command/src/filesystem/open.rs; echo ----; head -10 crates/nu-command/src/filesystem/save.rs
-[?2004l[H[J[3Juse nu_engine::{command_prelude::*, eval_call_by_decl_id};
-use nu_path::is_windows_device_path;
-use nu_protocol::{
-    DataSource, NuGlob, PipelineMetadata, ast,
-    debugger::{WithDebug, WithoutDebug},
-    shell_error::{self, generic::GenericError, io::IoError},
-};
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
-
-#[cfg(feature = "sqlite")]
-use crate::database::SQLiteDatabase;
-
-----
-use crate::formats::{preserve_toml_document, read_toml_source_from_metadata};
-use crate::progress_bar;
-use nu_engine::{command_prelude::*, get_eval_block};
-use nu_path::{expand_path_with, is_windows_device_path};
-use nu_protocol::{
-    ByteStreamSource, DataSource, OutDest, PipelineMetadata, Signals, ast,
-    byte_stream::copy_with_signals, process::ChildPipe, shell_error::generic::GenericError,
-    shell_error::io::IoError,
-};
-use std::{
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kgrep -n 'ast::\|HashMap\|WithDebug\|WithoutDebug\|get_eval_block' crates/nu-command/src/filesystem/open.rs crates/nu-command/src/filesyystem/save.rs
-[?2004lcrates/nu-command/src/filesystem/open.rs:5:    debugger::{WithDebug, WithoutDebug},
-crates/nu-command/src/filesystem/open.rs:9:    collections::HashMap,
-crates/nu-command/src/filesystem/save.rs:3:use nu_engine::{command_prelude::*, get_eval_block};
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; cat > /tmp/scripts/p3.py << 'EOF'
-[?2004l[?2004h> def patch(p, old, new):
-[?2004l[?2004h>     s = open(p).read()
-[?2004l[?2004h>     assert s.count(old) == 1, (p, old)
-[?2004l[?2004h>     open(p, 'w').write(s.replace(old, new))
-[?2004l[?2004h> 
-[?2004l[?2004h> p = 'crates/nu-command/src/filesystem/open.rs'
-[?2004l[?2004h> patch(p, '    DataSource, NuGlob, PipelineMetadata, ast,\n    debugger::{WithDebug, WithoutDebug},\n', '    DataSource, NuGlob, PipelineMetadata,\n')
-[?2004l[?2004h> patch(p, 'use std::{\n    collections::HashMap,\n    path::{Path, PathBuf},\n};', 'use std::path::{Path, PathBuf};')
-[?2004l[?2004h> p = 'crates/nu-command/src/filesystem/save.rs'
-[?2004l[?2004h> patch(p, 'use nu_engine::{command_prelude::*, get_eval_block};', 'use nu_engine::command_prelude::*;')
-[?2004l[?2004h> patch(p, 'PipelineMetadata, Signals, ast,\n', 'PipelineMetadata, Signals,\n')
-[?2004l[?2004h> print('ok')
-[?2004l[?2004h> EOF
-[?2004l[H[J[3J[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ python3 /tmp/scripts/p3.py
-[?2004lok
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ cargo check --offline -p nu-command -p nu-plugin-engine > /tmp/check3.log 2>&1; echo EXIT=$?; grep -E '^(error|warning)' -A6 /tmp/checkk3.log | head -40
-[?2004lEXIT=0
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; (cargo build --offline --bin nu -p nu_plugin_example > /tmp/build.log 2>&1; echo BUILD_EXIT=$? >> /tmp/build.log) &
-[?2004l[H[J[3J[1] 6784
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksleep 55; tail -3 /tmp/build.log
-[?2004l[1]+  Done                    ( cargo build --offline --bin nu -p nu_plugin_example > /tmp/build.log 2>&1; echo BUILD_EXIT=$? >> /tmp/build.log )
-help: available bin in `nu` package:
-    nu
-BUILD_EXIT=101
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; (cargo build --offline --bin nu > /tmp/build.log 2>&1 && cargo build --offline -p nu_plugin_example >> /tmp/build.log 2>&1; echoo BUILD_EXIT=$? >> /tmp/build.log) &
-[?2004l[H[J[3J[1] 6829
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksleep 55; tail -3 /tmp/build.log
-[?2004l   Compiling nu-cmd-extra v0.116.2 (/app/crates/nu-cmd-extra)
-   Compiling nu-command v0.116.2 (/app/crates/nu-command)
-   Compiling nu-mcp v0.116.2 (/app/crates/nu-mcp)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; cat > /tmp/scripts/t1.nu << 'EOF'
-[?2004l[?2004h> def "from foo" [--upper (-u), --suffix: string = "!"] : string -> string { if $upper { ($in | str upcase) + $suffix } else { $in + $suffix } }
-[?2004l[?2004h> def "to foo" [--suffix: string = "?"] : record -> string { $env.TOFOO = 1; ($in | to json -r) + $suffix }
-[?2004l[?2004h> def "to bar" [] : int -> string { $in | into string }
-[?2004l[?2004h> cd /tmp
-[?2004l[?2004h> 'hello' | save -f /tmp/x.foo --raw
-[?2004l[?2004h> print (open /tmp/x.foo)
-[?2004l[?2004h> {a: 1} | save -f /tmp/y.foo
-[?2004l[?2004h> print (open --raw /tmp/y.foo)
-[?2004l[?2004h> print ('TOFOO' in $env)
-[?2004l[?2004h> print (try { {a: 1} | save -f /tmp/z.bar; 'saved' } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> print (try { %('str length') ...[a b] } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> print (try { let c = 'ls'; %($c) ...['a'] ...['b'] | length } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> let c = 'str upcase'; print ('abc' | %($c))
-[?2004l[?2004h> print (try { let c = 'math sum'; 'abc' | %($c) } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> EOF
-[?2004l[H[J[3J[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ sleep 45; tail -3 /tmp/build.log
-[?2004l   Compiling nu-plugin-core v0.116.2 (/app/crates/nu-plugin-core)
-   Compiling nu-plugin v0.116.2 (/app/crates/nu-plugin)
-   Compiling nu_plugin_example v0.116.2 (/app/crates/nu_plugin_example)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; sleep 20; tail -3 /tmp/build.log
-[?2004l[H[J[3J[1]+  Done                    ( cargo build --offline --bin nu > /tmp/build.log 2>&1 && cargo build --offline -p nu_plugin_example >> /tmp/build.log 2>&1; echo BUILD_EXIT=$? >> /tmp/build.log )
-   Compiling nu_plugin_example v0.116.2 (/app/crates/nu_plugin_example)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 27.77s
-BUILD_EXIT=0
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; ./target/debug/nu --no-config-file /tmp/scripts/t1.nu 2>&1 | head -40
-[?2004l[H[J[3JWarning: nu::parser::deprecated
-
-  ! Command deprecated.
-   ,-[/tmp/scripts/t1.nu:1:95]
- 1 | def "from foo" [--upper (-u), --suffix: string = "!"] : string -> string { if $upper { ($in | str upcase) + $suffix } else { $in + $suffix } }
-   :                                                                                               ^^^^^|^^^^
-   :                                                                                                    `-- str upcase was deprecated in 0.114.0 and will be removed in a future release.
- 2 | def "to foo" [--suffix: string = "?"] : record -> string { $env.TOFOO = 1; ($in | to json -r) + $suffix }
-   `----
-  help: Use `str uppercase` instead.
-
-hello!
-{"a":1}?
-false
-error: Input type not supported.
-error: Pipeline empty.
-error: Not found
-ABC
-error: Input type not supported.
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; cat > /tmp/scripts/t2.nu << 'EOF'
-[?2004l[?2004h> print (try { let c = 'date now'; %($c) ...[1] | describe } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> def foo [] { 'FOO' }
-[?2004l[?2004h> print (example call-decl foo {})
-[?2004l[?2004h> def bar [x: int, ...rest, --flag, --n: int = 5] { {x: $x, rest: $rest, flag: $flag, n: $n} | to nuon }
-[?2004l[?2004h> print (example call-decl bar {} 1 2 3)
-[?2004l[?2004h> print (example call-decl bar {flag: true, n: 7} 1)
-[?2004l[?2004h> def baz []: int -> int { $in + 1 }
-[?2004l[?2004h> print (try { 'x' | example call-decl baz {} } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> print (2 | example call-decl baz {})
-[?2004l[?2004h> print (try { example call-decl bar {} } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> print (try { example call-decl foo {} 1 } catch {|e| $'error: ($e.msg)' })
-[?2004l[?2004h> print (example call-decl 'str length' {} | describe)
-[?2004l[?2004h> EOF
-[?2004l[H[J[3J[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ ./target/debug/nu --no-config-file --plugins '[target/debug/nu_plugin_example]' /tmp/scripts/t2.nu 2>&1 | head -40
-[?2004lerror: Cannot spread a list into this command
-FOO
-{x: 1, rest: [2, 3], flag: false, n: 5}
-{x: 1, rest: [], flag: true, n: 7}
-error: Input type not supported.
-3
-error: Missing parameter: x.
-error: Extra positional argument
-Error: nu::shell::pipeline_mismatch
-
-  x Pipeline empty.
-    ,-[/tmp/scripts/t2.nu:12:8]
- 11 | print (try { example call-decl foo {} 1 } catch {|e| $'error: ($e.msg)' })
- 12 | print (example call-decl 'str length' {} | describe)
-    :        ^^^^^^^^|^^^^^^^^
-    :                `-- no input value was piped in
-    `----
-
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; grep -rln 'call-decl\|call_decl' tests/ crates/*/tests 2>/dev/null | head; ls tests/; grep -rln 'run-internal\|%(\$' tests/ crattes/nu-command/tests 2>/dev/null | head
-[?2004l[H[J[3Jtests/plugins/call_decl.rs
-tests/plugins/mod.rs
-[0m[01;34massets[0m  [01;34mconst_[0m  [01;34meval[0m  [01;34mfixtures[0m  [01;34mhooks[0m  [01;34mintegration[0m  main.rs  [01;34mmodules[0m  [01;34moverlays[0m  [01;34mparsing[0m  [01;34mpath[0m  [01;34mplugin_persistence[0m  [01;34mplugins[0m  [01;34mrepl[0m  [01;34mscope[0m  [01;34mshell[0m
-tests/repl/test_parser.rs
-crates/nu-command/tests/commands/def.rs
-crates/nu-command/tests/commands/unlet.rs
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; (cargo test --offline -p nu-engine > /tmp/t_engine.log 2>&1; echo EXIT=$? >> /tmp/t_engine.log; cargo test --offline --test mainn -- plugins::call_decl repl::test_parser > /tmp/t_main.log 2>&1; echo EXIT=$? >> /tmp/t_main.log) &
-[?2004l[H[J[3J[1] 23345
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksleep 55; tail -3 /tmp/t_engine.log; tail -3 /tmp/t_main.log 2>/dev/null
-[?2004l[1]+  Done                    ( cargo test --offline -p nu-engine > /tmp/t_engine.log 2>&1; echo EXIT=$? >> /tmp/t_engine.log; cargo test --offline --test main -- plugins::call_decl repl::test_parser > /tmp/t_main.log 2>&1; echo EXIT=$? >> /tmp/t_main.log )
-
-all doctests ran in 1.56s; merged doctests compilation took 1.55s
-EXIT=0
-help: available test in `nu-plugin-test-support` package:
-    main
-EXIT=101
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; (cargo test --offline -p nu --test main -- plugins::call_decl repl::test_parser > /tmp/t_main.log 2>&1; echo EXIT=$? >> /tmp/t_mmain.log) &
-[?2004l[H[J[3J[1] 30453
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksleep 55; tail -5 /tmp/t_main.log
-[?2004l[1]+  Done                    ( cargo test --offline -p nu --test main -- plugins::call_decl repl::test_parser > /tmp/t_main.log 2>&1; echo EXIT=$? >> /tmp/t_main.log )
-help: available test in `nu-cmd-lang` package:
-    main
-help: available test in `nu-plugin-test-support` package:
-    main
-EXIT=101
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; grep -n '^\[package\]' -A3 Cargo.toml; grep -n '\[\[test\]\]' -A4 Cargo.toml; head -8 /tmp/t_main.log
-[?2004l[H[J[3J8:[package]
-9-authors.workspace = true
-10-edition.workspace = true
-11-rust-version.workspace = true
-24:[[test]]
-25-name = "tests"
-26-path = "tests/main.rs"
-27-harness = false
-28-
-error: no test target named `main` in `nu` package
-help: available test in `nu-json` package:
-    main
-help: available test in `nu-cmd-lang` package:
-    main
-help: available test in `nu-plugin-test-support` package:
-    main
-EXIT=101
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; (cargo test --offline -p nu --test tests -- call_decl > /tmp/t_main.log 2>&1; echo EXIT=$? >> /tmp/t_main.log) &
-[?2004l[H[J[3J[1] 30525
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksleep 55; tail -15 /tmp/t_main.log
-[?2004l   Compiling nu-table v0.116.2 (/app/crates/nu-table)
-   Compiling nu-parser v0.116.2 (/app/crates/nu-parser)
-   Compiling nu-cmd-plugin v0.116.2 (/app/crates/nu-cmd-plugin)
-   Compiling nu-cmd-base v0.116.2 (/app/crates/nu-cmd-base)
-   Compiling nuon v0.116.2 (/app/crates/nuon)
-   Compiling nu-explore v0.116.2 (/app/crates/nu-explore)
-   Compiling nu-std v0.116.2 (/app/crates/nu-std)
-   Compiling nu-dap v0.116.2 (/app/crates/nu-dap)
-   Compiling nu-command v0.116.2 (/app/crates/nu-command)
-   Compiling nu-cmd-lang v0.116.2 (/app/crates/nu-cmd-lang)
-   Compiling nu-mcp v0.116.2 (/app/crates/nu-mcp)
-   Compiling nu-cli v0.116.2 (/app/crates/nu-cli)
-   Compiling nu-tui v0.116.2 (/app/crates/nu-tui)
-   Compiling nu-lsp v0.116.2 (/app/crates/nu-lsp)
-   Compiling nu v0.116.2 (/app)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; sleep 50; tail -15 /tmp/t_main.log
-[?2004l[H[J[3J[1]+  Done                    ( cargo test --offline -p nu --test tests -- call_decl > /tmp/t_main.log 2>&1; echo EXIT=$? >> /tmp/t_main.log )
-
-required binary `nu_plugin_example`: ensuring it is built
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.21s
-[1;32m   Preloaded[0m `nu_plugin_example@0.116.2` with 17 signatures
-
-running 3 tests
-
-group deps[nu_plugin_example], running 3 tests
-test plugins::call_decl::call_to_json ... ok
-test plugins::call_decl::call_reduce ... ok
-test plugins::call_decl::call_scope_variables ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 filtered out; across 1 groups, finished in 0.04s
-
-EXIT=0
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; cargo test --offline -p nu --test tests -- repl:: eval:: plugins:: > /tmp/t_root.log 2>&1; echo EXIT=$?; grep -E 'test result|FAAILED|failed|panicked' /tmp/t_root.log | head -30
-[?2004l[H[J[3JEXIT=0
-test repl::test_signatures::oneof_positional_named::case_18_failed_attempt_compile_error::__destruct_1_2______value_______value___ ... ok
-test repl::test_signatures::oneof_failed_attempt_scope::case_1_later_definition ... ok
-test repl::test_signatures::oneof_failed_attempt_scope::case_2_name_in_same_argument ... ok
-test repl::test_signatures::oneof_positional_named::case_18_failed_attempt_compile_error::__destruct_1_1____value________ ... ok
-test result: ok. 1398 passed; 0 failed; 6 ignored; 0 filtered out; across 22 groups, finished in 4.17s
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; (cargo test --offline -p nu-command > /tmp/t_cmd.log 2>&1; echo EXIT=$? >> /tmp/t_cmd.log) &
-[?2004l[H[J[3J[1] 43440
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksleep 55; tail -3 /tmp/t_cmd.log
-[?2004l   Compiling nu-std v0.116.2 (/app/crates/nu-std)
-   Compiling nu-cmd-lang v0.116.2 (/app/crates/nu-cmd-lang)
-   Compiling nu-command v0.116.2 (/app/crates/nu-command)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; sleep 55; tail -3 /tmp/t_cmd.log
-[?2004l[H[J[3J[1]+  Done                    ( cargo test --offline -p nu-command > /tmp/t_cmd.log 2>&1; echo EXIT=$? >> /tmp/t_cmd.log )
-Caused by:
-  process didn't exit successfully: `/app/target/debug/deps/tests-8723b15b09545f10` (exit status: 1)
-EXIT=1
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; grep -E 'test result|FAILED|\.\.\. FAILED' /tmp/t_cmd.log | head -40
-[?2004l[H[J[3Jtest result: ok. 897 passed; 0 failed; 2 ignored; 0 filtered out; across 4 groups, finished in 2.36s
-test commands::network::http::get::http_get_ipv6_literal ... FAILED
-test result: FAILED. 4528 passed; 1 failed; 35 ignored; 0 filtered out; across 33 groups, finished in 33.88s
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; grep -n 'http_get_ipv6_literal' /tmp/t_cmd.log | head; awk '/---- .*http_get_ipv6_literal/{f=1} f{print; n++} n>40{exit}' /tmp/tt_cmd.log
-[?2004l[H[J[3J1446:test commands::network::http::get::http_get_ipv6_literal ... FAILED
-5670:---- commands::network::http::get::http_get_ipv6_literal stdout ----
-5677:    commands::network::http::get::http_get_ipv6_literal
----- commands::network::http::get::http_get_ipv6_literal stdout ----
-
-thread 'kitest-worker-12' (15) panicked at crates/nu-command/tests/commands/network/http/get.rs:177:22:
-called `Result::unwrap()` on an `Err` value: Error { kind: ServerFailure, context: Some("receiving on a closed channel") }
-
-
-failures:
-    commands::network::http::get::http_get_ipv6_literal
-
-test result: FAILED. 4528 passed; 1 failed; 35 ignored; 0 filtered out; across 33 groups, finished in 33.88s
-
-error: test failed, to rerun pass `-p nu-command --test tests`
-
-Caused by:
-  process didn't exit successfully: `/app/target/debug/deps/tests-8723b15b09545f10` (exit status: 1)
-EXIT=1
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kcat /proc/net/if_inet6 2>/dev/null | head -3; echo IF6_EXIT=$?; python3 -I -c "import socket; s=socket.socket(socket.AF_INET6); s.bind((('::1',0)); print('ipv6 loopback ok')"
-[?2004lIF6_EXIT=0
-Traceback (most recent call last):
-  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
-    import socket; s=socket.socket(socket.AF_INET6); [31ms.bind[0m[1;31m(('::1',0))[0m; print('ipv6 loopback ok')
-                                                     [31m~~~~~~[0m[1;31m^^^^^^^^^^^[0m
-[1;35mOSError[0m: [35m[Errno 99] Cannot assign requested address[0m
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; cargo test --offline -p nu --test tests > /tmp/t_root_all.log 2>&1; echo EXIT=$?; grep -E 'test result|\.\.\. FAILED|panicked' //tmp/t_root_all.log | head -30
-[?2004l[H[J[3JEXIT=0
-test result: ok. 2421 passed; 0 failed; 21 ignored; 0 filtered out; across 40 groups, finished in 19.50s
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; (cargo test --offline -p nu-plugin-engine -p nu-plugin -p nu-plugin-test-support -p nu-cmd-lang > /tmp/t_plug.log 2>&1; echo EXIIT=$? >> /tmp/t_plug.log) &
-[?2004l[H[J[3J[1] 56747
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksleep 55; tail -3 /tmp/t_plug.log
-[?2004l
-all doctests ran in 1.88s; merged doctests compilation took 1.87s
-   Doc-tests nu_plugin
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; sleep 30; grep -E 'test result|\.\.\. FAILED|panicked|^EXIT' /tmp/t_plug.log | tail -20
-[?2004l[H[J[3J[1]+  Done                    ( cargo test --offline -p nu-plugin-engine -p nu-plugin -p nu-plugin-test-support -p nu-cmd-lang > /tmp/t_plug.log 2>&1; echo EXIT=$? >> /tmp/t_plug.log )
-test result: ok. 31 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.04s
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
-test result: ok. 61 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 52 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 40 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-EXIT=0
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; rustfmt --check --edition 2024 crates/nu-engine/src/eval_ir.rs crates/nu-engine/src/lib.rs crates/nu-plugin-engine/src/context.rrs crates/nu-command/src/system/run_internal.rs crates/nu-command/src/filesystem/save.rs crates/nu-command/src/filesystem/open.rs crates/nu-command/src/network/hhttp/client.rs > /tmp/fmt.log 2>&1; echo FMT_EXIT=$?; head -40 /tmp/fmt.log
-[?2004l[H[J[3JFMT_EXIT=1
-error: 'rustfmt' is not installed for the toolchain '1.97.1-aarch64-unknown-linux-gnu'.
-help: run `rustup component add rustfmt` to install it
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kcargo clippy --offline -p nu-engine -p nu-command -p nu-plugin-engine > /tmp/clippy.log 2>&1; echo EXIT=$?; grep -E '^(warning|error)'  -A8 /tmp/clippy.log | head -40
-[?2004lEXIT=1
-error: 'cargo-clippy' is not installed for the toolchain '1.97.1-aarch64-unknown-linux-gnu'.
-help: run `rustup component add clippy` to install it
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; sed -n 1510,1600p crates/nu-engine/src/eval_ir.rs
-[?2004l[H[J[3J        redirect_err.as_ref(),
-        Some(Redirection::Pipe(OutDest::PipeSeparate))
-    );
-
-    // Set up redirect modes
-    let mut caller_stack = caller_stack.push_redirection(redirect_out.take(), redirect_err.take());
-
-    let result = run_call::<D>(
-        engine_state,
-        &mut caller_stack,
-        decl_id,
-        head,
-        *args_base,
-        args_len,
-        input,
-        false,
-    );
-
-    drop(caller_stack);
-
-    // Important that this runs, to reset state post-call:
-    ctx.stack.arguments.leave_frame(ctx.args_base);
-    ctx.redirect_out = None;
-    ctx.redirect_err = None;
-
-    match result {
-        Err(err) if stderr_pipe_separate => Ok(PipelineData::Value(Value::error(err, head), None)),
-        result => result,
-    }
-}
-
-/// Run a call to `decl_id` whose arguments are on the argument frame of `caller_stack` at
-/// `args_base`, binding them as a direct call does. With `check_args`, the arguments are first
-/// checked against the signature, as the parser does for a direct call.
-#[allow(clippy::too_many_arguments)]
-fn run_call<D: DebugContext>(
-    engine_state: &EngineState,
-    caller_stack: &mut Stack,
-    decl_id: DeclId,
-    head: Span,
-    args_base: usize,
-    args_len: usize,
-    mut input: PipelineData,
-    check_args: bool,
-) -> Result<PipelineData, ShellError> {
-    let decl = engine_state.get_decl(decl_id);
-
-    if let Some(block_id) = decl.block_id() {
-        // If the decl is a custom command
-        let block = engine_state.get_block(block_id);
-
-        // check types after acquiring block to avoid unnecessarily cloning Signature
-        check_input_types(&input, &block.signature, head)?;
-
-        // Expand record spreads into named flags; drop null named values.
-        let args_len = normalize_call_arguments(
-            &block.signature,
-            caller_stack,
-            args_base,
-            args_len,
-        )?;
-        if check_args {
-            check_call_arguments(&block.signature, caller_stack, args_base, args_len, head)?;
-        }
-
-        // Set up a callee stack with the captures and move arguments from the stack into variables
-        let mut callee_stack = caller_stack.gather_captures(engine_state, &block.captures);
-
-        gather_arguments(
-            engine_state,
-            block,
-            caller_stack,
-            &mut callee_stack,
-            args_base,
-            args_len,
-            head,
-        )?;
-
-        // Snapshot the call's return destination onto the callee stack. Intermediate
-        // expressions in the body may temporarily set OutDest::Value (e.g. `if (…)`);
-        // Stack::is_stdout_redirected / `is-redirected` read this frame instead.
-        // See Stack::with_invocation_stdout for details.
-        let mut callee_stack =
-            callee_stack.with_invocation_stdout(caller_stack.stdout().clone());
-
-        // Add one to the recursion count, so we don't recurse too deep. Stack overflows are not
-        // recoverable in Rust.
-        callee_stack.recursion_count += 1;
-
-        let result =
-            eval_block_with_early_return::<D>(engine_state, &mut callee_stack, block, input)
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kclear; python3 -I -c "p='crates/nu-engine/src/eval_ir.rs'; s=open(p).read(); o='        let mut callee_stack =\n            callee_stacck.with_invocation_stdout(caller_stack.stdout().clone());\n'; assert s.count(o)==1, s.count(o); open(p,'w').write(s.replace(o,'        let mut callee_stack = calllee_stack.with_invocation_stdout(caller_stack.stdout().clone());\n')); print('ok')"
-[?2004l[H[J[3Jok
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Ksed -n 1555,1640p crates/nu-engine/src/eval_ir.rs
-[?2004l    let decl = engine_state.get_decl(decl_id);
-
-    if let Some(block_id) = decl.block_id() {
-        // If the decl is a custom command
-        let block = engine_state.get_block(block_id);
-
-        // check types after acquiring block to avoid unnecessarily cloning Signature
-        check_input_types(&input, &block.signature, head)?;
-
-        // Expand record spreads into named flags; drop null named values.
-        let args_len = normalize_call_arguments(
-            &block.signature,
-            caller_stack,
-            args_base,
-            args_len,
-        )?;
-        if check_args {
-            check_call_arguments(&block.signature, caller_stack, args_base, args_len, head)?;
-        }
-
-        // Set up a callee stack with the captures and move arguments from the stack into variables
-        let mut callee_stack = caller_stack.gather_captures(engine_state, &block.captures);
-
-        gather_arguments(
-            engine_state,
-            block,
-            caller_stack,
-            &mut callee_stack,
-            args_base,
-            args_len,
-            head,
-        )?;
-
-        // Snapshot the call's return destination onto the callee stack. Intermediate
-        // expressions in the body may temporarily set OutDest::Value (e.g. `if (…)`);
-        // Stack::is_stdout_redirected / `is-redirected` read this frame instead.
-        // See Stack::with_invocation_stdout for details.
-        let mut callee_stack = callee_stack.with_invocation_stdout(caller_stack.stdout().clone());
-
-        // Add one to the recursion count, so we don't recurse too deep. Stack overflows are not
-        // recoverable in Rust.
-        callee_stack.recursion_count += 1;
-
-        let result =
-            eval_block_with_early_return::<D>(engine_state, &mut callee_stack, block, input)
-                .map(|p| p.body);
-
-        // Move environment variables back into the caller stack scope if requested to do so
-        if block.redirect_env {
-            redirect_env(engine_state, caller_stack, &callee_stack);
-        }
-
-        result
-    } else {
-        // `ignore` intentionally handles upstream error values at command level.
-        // Skip early input-error propagation for the built-in `ignore` command so
-        // `run()` can apply `--stderr`/`--show-errors` semantics.
-        let allow_error_input = matches!(input, PipelineData::Value(Value::Error { .. }, ..))
-            && engine_state
-                .find_decl(b"ignore", &[])
-                .is_some_and(|ignore_decl_id| ignore_decl_id == decl_id);
-        if !allow_error_input {
-            check_input_types(&input, &decl.signature(), head)?;
-        }
-
-        // Expand record spreads into named flags; drop null named values.
-        let args_len = normalize_call_arguments(
-            &decl.signature(),
-            caller_stack,
-            args_base,
-            args_len,
-        )?;
-        if check_args {
-            check_call_arguments(&decl.signature(), caller_stack, args_base, args_len, head)?;
-        }
-
-        // FIXME: precalculate this and save it somewhere
-        let span = Span::merge_many(
-            std::iter::once(head).chain(
-                caller_stack
-                    .arguments
-                    .get_args(args_base, args_len)
-                    .iter()
-                    .flat_map(|arg| arg.span()),
-            ),
-        );
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [Kcargo check --offline -p nu-engine > /tmp/check4.log 2>&1; echo EXIT=$?; grep -E '^(error|warning)' -A6 /tmp/check4.log | head -20
-[?2004lEXIT=0
-[?2004h[01;32msolver@79208191d95b[00m:[01;34m/app[00m$ [K

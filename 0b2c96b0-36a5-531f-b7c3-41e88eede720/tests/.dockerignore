@@ -1,8 +1,0 @@
-*
-!grading/
-!grading/**
-!rewardkit.lock
-!test.sh
-!test_output.py
-!judge.toml
-!reward.toml

@@ -1,8 +1,0 @@
-{
-    "task": {
-        "path": "/home/ec2-user/.cache/hypnos-nu/author/nushell/ctl/probes/rescore_r1-rerun8"
-    },
-    "trial_name": "rescore_r1-rerun8__mt4G9p7",
-    "trials_dir": "/home/ec2-user/.cache/hypnos-nu/author/nushell/ctl/jobs/rescore_r1-rerun8",
-    "job_id": "b0a33a0d-c125-450b-ac1d-b2c4365713d3"
-}

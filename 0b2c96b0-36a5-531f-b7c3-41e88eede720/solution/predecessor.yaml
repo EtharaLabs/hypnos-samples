@@ -1,6 +1,0 @@
-schema: trinity.predecessor/v1
-lineage_id: fc2abd36-d0ce-5e1d-bda1-6539f3f2e094
-predecessor_uuid: fc2abd36-d0ce-5e1d-bda1-6539f3f2e094
-predecessor_digest: f17d2d1b8b5630f1e269a2bc169cd546d310d87b43ffea034a7a9ac484a9f013
-predecessor_relation: retained
-attempt: 2
