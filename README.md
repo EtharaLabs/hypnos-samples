@@ -6,13 +6,33 @@
 
 <p align="center"><a href="#tasks"><img src="https://img.shields.io/badge/tasks-5-845EF7" alt="tasks: 5"></a> <a href="#rollouts"><img src="https://img.shields.io/badge/rollouts-5-845EF7" alt="rollouts: 5"></a> <a href="#agent"><img src="https://img.shields.io/badge/agent-codex_%7C_gpt--6.1--sol-845EF7" alt="agent: codex | gpt-6.1-sol"></a> <a href="#summary"><img src="https://img.shields.io/badge/AHT-690_min-845EF7" alt="AHT: 690 min"></a></p>
 
-<p align="center"><sub><a href="#about">About</a> | <a href="#summary">Summary</a> | <a href="#tasks">Tasks</a> | <a href="#rollouts">Rollouts</a> | <a href="#rewards">Rewards</a> | <a href="#agent">Agent</a> | <a href="#dataset-structure">Dataset structure</a> | <a href="#cite">Cite</a> | <a href="#contact">Contact</a></sub></p>
+<p align="center"><sub><a href="#about">About</a> | <a href="#target-benchmark">Target benchmark</a> | <a href="#summary">Summary</a> | <a href="#tasks">Tasks</a> | <a href="#rollouts">Rollouts</a> | <a href="#scores">Scores</a> | <a href="#agent">Agent</a> | <a href="#dataset-structure">Dataset structure</a> | <a href="#cite">Cite</a> | <a href="#contact">Contact</a></sub></p>
 
 ## About
 
-Hypnos is Ethara AI's corpus of multilingual, issue-resolving terminal tasks for coding agents. Each task puts the agent inside a real open-source repository pinned at a fixed base commit, describes a defect the way a user would report it, and grades the agent's patch with the project's own test suite plus held-out tests the agent never sees.
+Hypnos is Ethara AI's corpus of multilingual, issue-resolving terminal tasks for coding agents. Each task puts the agent inside a real open-source repository pinned at a fixed base commit, describes a defect the way a user would report it, and grades the agent's patch with the project's own test suite plus held-out tests the agent never sees. It targets [Multi-SWE-bench](https://arxiv.org/abs/2504.02605) (arXiv:2504.02605). [Target benchmark](#target-benchmark) explains how Hypnos tasks compare with it.
 
 This repository is the samples lane of that corpus: a small set of complete tasks you can read end to end. Each task directory is a self-contained Harbor task, and it also holds the recorded rollout of one agent run with the verifier's grading output.
+
+## Target benchmark
+
+Hypnos targets [Multi-SWE-bench](https://arxiv.org/abs/2504.02605) (arXiv:2504.02605), ByteDance Seed's multilingual benchmark for issue resolving. Multi-SWE-bench extends the SWE-bench task beyond Python. The model receives a repository at the base commit of a merged pull request, together with the issue that pull request fixed, and must produce a patch that resolves the issue.
+
+The benchmark has 1,632 instances from 39 repositories in Java, TypeScript, JavaScript, Go, Rust, C and C++. They were kept from 2,456 candidates after 68 annotators reviewed them, with two annotators per instance. An instance counts as resolved when every test that the merged fix makes pass, and every test it keeps passing, passes. The headline metric is the resolved rate.
+
+Hypnos keeps that task shape but changes how tasks are built and scored:
+
+| Aspect | Multi-SWE-bench | Hypnos samples |
+| --- | --- | --- |
+| Task | Resolve one GitHub issue, taken from its merged pull request | Resolve a reported defect, often covering several related reported cases in one task |
+| Languages | Java, TypeScript, JavaScript, Go, Rust, C, C++ | Rust and Java in this sample |
+| Repositories | 39 | 4, none of them among Multi-SWE-bench's 39 |
+| Environment | Docker image per pull request, at its base commit | Docker image at a pinned base commit, with no network and dependencies baked in |
+| Hidden tests | The merged pull request's test patch | A held-out test diff applied to the project's own test suite |
+| Regression check | Tests that already passed must still pass | The frame: every test that passed at the base commit must still pass |
+| Grading | Binary: resolved or not | Continuous score from 0.0 to 1.0: gated rubric items plus an LLM-judged check against special-cased fixes |
+| Headline metric | Resolved rate (%) | Mean score |
+| Format | Multi-SWE-bench instance | Harbor task, schema 1.4 |
 
 ## Summary
 
@@ -22,11 +42,12 @@ This repository is the samples lane of that corpus: a small set of complete task
 | Upstream repositories | 4: `biomejs/biome`, `fabric8io/kubernetes-client`, `oxc-project/oxc`, `swc-project/swc` |
 | Languages | Rust (4 tasks), Java (1 task) |
 | Task format | Harbor task, schema 1.4 |
-| Reward type | Bounded continuous, 0.0 to 1.0 |
+| Target benchmark | [Multi-SWE-bench](https://arxiv.org/abs/2504.02605) (arXiv:2504.02605) |
+| Score type | Bounded continuous, 0.0 to 1.0 |
 | Rollouts | 5 (one per task) |
 | Agent | Codex CLI 0.169.0 with `openai/gpt-6.1-sol` |
-| Mean reward | 0.1351 |
-| Tasks with a non-zero reward | 1 of 5 |
+| Mean score | 0.1351 |
+| Tasks with a non-zero score | 1 of 5 |
 | Average handling time (AHT) | 690 minutes (11.5 hours) |
 
 ## Tasks
@@ -53,7 +74,7 @@ Every task also requires that everything that works at the base commit keep work
 
 Each task carries one rollout under `rollouts/`. The rollouts were recorded with Harbor on 13 and 14 November 2026, using the agent described in [Agent](#agent).
 
-| # | Task | Reward |
+| # | Task | Score |
 | --- | --- | --- |
 | 1 | Biome type inference | 0.0 |
 | 2 | fabric8 JDK wire format and CRD schemas | 0.0 |
@@ -61,24 +82,24 @@ Each task carries one rollout under `rollouts/`. The rollouts were recorded with
 | 4 | oxc dead-code elimination | 0.6757 |
 | 5 | SWC minifier miscompilations | 0.0 |
 
-Mean reward across the five rollouts is 0.1351.
+Mean score across the five rollouts is 0.1351.
 
-## Rewards
+## Scores
 
-Every task uses a bounded continuous reward from 0.0 to 1.0. The verifier runs in a container separate from the agent's. Its entry point, `tests/test.sh`, builds the agent's submission, adds the task's held-out tests, runs them, and writes the result to `grade.json`.
+Every task uses a bounded continuous score from 0.0 to 1.0. The verifier runs in a container separate from the agent's. Its entry point, `tests/test.sh`, builds the agent's submission, adds the task's held-out tests, runs them, and writes the result to `grade.json`.
 
-The reward is gated. It stays at 0.0 unless grading finishes within its time budget and the gate opens. The gate opens only when all three of these hold:
+The score is gated. It stays at 0.0 unless grading finishes within its time budget and the gate opens. The gate opens only when all three of these hold:
 
 - At least one fail-to-pass test now passes.
 - The frame holds: every test that passed at the base commit still passes.
 - No test process outlives the test phase.
 
-Once the gate opens, Reward Kit computes the reward as a weighted mean of two kinds of rubric item:
+Once the gate opens, Reward Kit computes the score as a weighted mean of two kinds of rubric item:
 
 - **Compiled items** (`tests/test_output.py`). Each item is a named group of tests that must all pass. A task has 6 to 10 of these, with a total weight of 29 to 35.
 - **One judged item** (`tests/judge.toml`), with a weight of 3. `anthropic/claude-sonnet-5-5` reads `submission.diff` and checks that the fix is general rather than special-cased to the issue's example or the test inputs.
 
-If no judge is reachable, the reward is computed from the compiled items alone. The weights for each task are in `tests/reward.toml`. A scored rollout's breakdown, item by item, is in `rollouts/verifier/reward-details.json`.
+If no judge is reachable, the score is computed from the compiled items alone. The weights for each task are in `tests/reward.toml`. A scored rollout's breakdown, item by item, is in `rollouts/verifier/reward-details.json`.
 
 ## Agent
 
@@ -111,12 +132,12 @@ hypnos-samples/
     │   ├── grading/                  build and run scripts, held-out test diff, expected outputs
     │   ├── test_output.py            compiled rubric items
     │   ├── judge.toml                judged rubric item
-    │   ├── reward.toml               reward weights
+    │   ├── reward.toml               score weights
     │   └── rewardkit.lock
     └── rollouts/                     the recorded rollout
         ├── config.json               trial configuration
         ├── lock.json                 resolved task digest and run settings
-        ├── result.json               agent, model, tokens, timings, reward
+        ├── result.json               agent, model, tokens, timings, score
         ├── trial.log
         ├── agent/                    trajectory.json, codex.txt, sessions/*.jsonl, setup/
         ├── artifacts/                source directories captured from the container after the run
