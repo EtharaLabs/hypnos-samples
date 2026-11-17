@@ -1,8 +1,8 @@
-<p align="center"><img src="images/hero.svg" alt="hypnos" width="720"></p>
+<p align="center"><img src="images/hero.svg" alt="Hypnos" width="720"></p>
 
-# hypnos: samples
+# Hypnos: samples
 
-<p align="center"><b>Five sample Harbor tasks from the hypnos corpus, each shipped with one graded agent rollout.</b></p>
+<p align="center"><b>Five sample Harbor tasks from the Hypnos corpus, each shipped with one graded agent rollout.</b></p>
 
 <p align="center"><a href="#tasks"><img src="https://img.shields.io/badge/tasks-5-845EF7" alt="tasks: 5"></a> <a href="#rollouts"><img src="https://img.shields.io/badge/rollouts-5-845EF7" alt="rollouts: 5"></a> <a href="#agent"><img src="https://img.shields.io/badge/agent-codex_%7C_gpt--6.1--sol-845EF7" alt="agent: codex | gpt-6.1-sol"></a> <a href="#summary"><img src="https://img.shields.io/badge/AHT-690_min-845EF7" alt="AHT: 690 min"></a></p>
 
@@ -10,7 +10,7 @@
 
 ## About
 
-hypnos is Ethara AI's corpus of multilingual, issue-resolving terminal tasks for coding agents. Each task puts the agent inside a real open-source repository pinned at a fixed base commit, describes a defect the way a user would report it, and grades the agent's patch with the project's own test suite plus held-out tests the agent never sees.
+Hypnos is Ethara AI's corpus of multilingual, issue-resolving terminal tasks for coding agents. Each task puts the agent inside a real open-source repository pinned at a fixed base commit, describes a defect the way a user would report it, and grades the agent's patch with the project's own test suite plus held-out tests the agent never sees.
 
 This repository is the samples lane of that corpus: a small set of complete tasks you can read end to end. Each task directory is a self-contained Harbor task, and it also holds the recorded rollout of one agent run with the verifier's grading output.
 
@@ -41,13 +41,13 @@ This repository is the samples lane of that corpus: a small set of complete task
 
 What each task asks the agent to do:
 
-1. **Biome type inference** (base `97cfc6e40a31`). Teach Biome's type inference TypeScript indexed-access types with a `number` index and `keyof` on object types. Then `useExhaustiveSwitchCases` and the six other type-aware rules must see the resolved unions, stay unknown wherever the union could be incomplete, compare numeric switch cases by value, and narrow the `~~` check to the signed 32-bit range. All of this must work without whole-module inference.
+1. **Biome type inference** (base `97cfc6e40a31`). Teach Biome's type inference about TypeScript indexed-access types with a `number` index and `keyof` on object types. Then `useExhaustiveSwitchCases` and the six other type-aware rules must see the resolved unions, stay unknown wherever the union could be incomplete, compare numeric switch cases by value, and narrow the `~~` check to the signed 32-bit range. All of this must work without whole-module inference.
 2. **fabric8 JDK wire format and CRD schemas** (base `889d3b158163`). Restore the 7.x (Jackson 2) wire format of `Year`, `Month`, `java.sql.Date` and `Locale` through a public `Jackson2JdkTypesModule` that reads both forms. Also make the CRD generator map `byte[]`, `ByteBuffer`, `char[]`, `QName`, integers and these JDK types the way controller-gen does, so generated schemas never reject what the client writes.
-3. **SWC TypeScript namespaces and enums** (base `75848acc40ea`). Give namespace, enum and import-alias declarations, whether single or merged from several bodies, exactly the runtime behaviour of the JavaScript that `tsc` emits. That covers name resolution across merged bodies, the same objects, members and values, and enum members evaluated the way `tsc` evaluates them.
-4. **oxc dead-code elimination** (base `d76d89996f56`). Make the oxc minifier remove every function that no runnable code can reach, including functions that refer only to themselves or to each other. This must hold in every source type and compression mode that removes unused code, and everything observable must keep its behaviour.
+3. **SWC TypeScript namespaces and enums** (base `75848acc40ea`). Give namespace, enum and import-alias declarations, whether single or merged from several bodies, exactly the runtime behavior of the JavaScript that `tsc` emits. That covers name resolution across merged bodies, the same objects, members and values, and enum members evaluated the way `tsc` evaluates them.
+4. **oxc dead-code elimination** (base `d76d89996f56`). Make the oxc minifier remove every function that no runnable code can reach, including functions that refer only to themselves or to each other. This must hold in every source type and compression mode that removes unused code, and everything observable must keep its behavior.
 5. **SWC minifier miscompilations** (base `75848acc40ea`). Fix SWC's JavaScript minifier so that minified programs behave exactly like their source. The reported cases are live ES module imports, parameter defaults that name outer functions or objects, `(0, super.method)()` calls, names inferred under `keep_fnames`/`keep_classnames`, self-referencing classes under mangle `keep_classnames`, and non-associative constant multiplications.
 
-Every task also requires that everything that works at the base commit keeps working. Every instruction also limits which source directories the agent may change. The agent works offline: the task environment has no network, and the agent can reach only an allowlist of model API and sign-in hosts. Each task runs on 8 CPUs with 16 to 32 GB of memory. The agent time limit is 5 hours, except task 2, which allows 2 hours.
+Every task also requires that everything that works at the base commit keep working. Every instruction also limits which source directories the agent may change. The agent works offline: the task environment has no network, and the agent can reach only an allowlist of model API and sign-in hosts. Each task runs on 8 CPUs with 16 to 32 GB of memory. The agent time limit is 5 hours, except task 2, which allows 2 hours.
 
 ## Rollouts
 
@@ -76,7 +76,7 @@ The reward is gated. It stays at 0.0 unless grading finishes within its time bud
 Once the gate opens, Reward Kit computes the reward as a weighted mean of two kinds of rubric item:
 
 - **Compiled items** (`tests/test_output.py`). Each item is a named group of tests that must all pass. A task has 6 to 10 of these, with a total weight of 29 to 35.
-- **One judged item** (`tests/judge.toml`), with weight 3. `anthropic/claude-sonnet-5-5` reads `submission.diff` and checks that the fix is general rather than special-cased to the issue's example or the test inputs.
+- **One judged item** (`tests/judge.toml`), with a weight of 3. `anthropic/claude-sonnet-5-5` reads `submission.diff` and checks that the fix is general rather than special-cased to the issue's example or the test inputs.
 
 If no judge is reachable, the reward is computed from the compiled items alone. The weights for each task are in `tests/reward.toml`. A scored rollout's breakdown, item by item, is in `rollouts/verifier/reward-details.json`.
 
@@ -88,7 +88,7 @@ If no judge is reachable, the reward is computed from the compiled items alone. 
 | Agent | Codex CLI 0.169.0 |
 | Model | `openai/gpt-6.1-sol` |
 | Skills / MCP servers | none |
-| Agent user | uid 20001, non-root |
+| Agent user | UID 20001, non-root |
 | Network | Allowlist only: `api.openai.com`, `api.anthropic.com`, plus `chatgpt.com` and `auth.openai.com` for Codex sign-in. The task environment itself has no network. |
 
 The Codex CLI is preinstalled in each task image from checksum-verified release binaries, because the environment cannot download anything. `rollouts/result.json` records the agent and model versions, token counts and timings for each rollout.
@@ -99,7 +99,7 @@ The Codex CLI is preinstalled in each task image from checksum-verified release 
 hypnos-samples/
 ├── README.md
 ├── images/hero.svg
-└── <task-uuid>/                      one directory per task, named by its uuid5
+└── <task-uuid>/                      one directory per task, named by its UUIDv5
     ├── task.toml                     Harbor manifest: metadata, provenance, resources, timeouts
     ├── instruction.md                the issue the agent receives
     ├── environment/                  the agent's sandbox
@@ -113,7 +113,7 @@ hypnos-samples/
     │   ├── judge.toml                judged rubric item
     │   ├── reward.toml               reward weights
     │   └── rewardkit.lock
-    └── rollouts/                 the recorded rollout
+    └── rollouts/                     the recorded rollout
         ├── config.json               trial configuration
         ├── lock.json                 resolved task digest and run settings
         ├── result.json               agent, model, tokens, timings, reward
@@ -130,7 +130,7 @@ Tasks 3 and 5 (SWC) also carry an `exec-tools/` directory in `environment/` and 
 
 ```bibtex
 @misc{hypnos2026,
-  title        = {hypnos: Multilingual Issue-Resolving Terminal Tasks Replayed Before the Fix},
+  title        = {Hypnos: Multilingual Issue-Resolving Terminal Tasks Replayed Before the Fix},
   author       = {Ethara AI},
   year         = {2026},
   howpublished = {\url{https://github.com/EtharaOrion/hypnos}},
