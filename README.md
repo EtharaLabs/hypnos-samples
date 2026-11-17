@@ -162,6 +162,6 @@ Tasks 3 and 5 (SWC) also carry an `exec-tools/` directory in `environment/` and 
 
 ## Contact
 
-The organization page is [Ethara AI on GitHub](https://github.com/Ethara-Ai).
+Hypnos Multi-SWE Bench is built by Ethara.AI. For questions about the benchmark or dataset, contact [research@ethara.ai](mailto:research@ethara.ai).
 
 Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
