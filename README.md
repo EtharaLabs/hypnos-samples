@@ -74,7 +74,7 @@ Every task also requires that everything that works at the base commit keep work
 
 ## Rollouts
 
-Each task carries one rollout under `trials/`. The rollouts were recorded with Harbor on 13 and 14 November 2026, using the agent described in [Agent](#agent).
+Each task carries one rollout under `trials/gpt-6.1-sol/`. The rollouts were recorded with Harbor on 13 and 14 November 2026, using the agent described in [Agent](#agent).
 
 | # | Task | Score |
 | --- | --- | --- |
@@ -101,7 +101,7 @@ Once the gate opens, Reward Kit computes the score as a weighted mean of two kin
 - **Compiled items** (`tests/test_output.py`). Each item is a named group of tests that must all pass. A task has 6 to 10 of these, with a total weight of 29 to 35.
 - **One judged item** (`tests/judge.toml`), with a weight of 3. `anthropic/claude-sonnet-5-5` reads `submission.diff` and checks that the fix is general rather than special-cased to the issue's example or the test inputs.
 
-If no judge is reachable, the score is computed from the compiled items alone. The weights for each task are in `tests/reward.toml`. A scored rollout's breakdown, item by item, is in `trials/verifier/reward-details.json`.
+If no judge is reachable, the score is computed from the compiled items alone. The weights for each task are in `tests/reward.toml`. A scored rollout's breakdown, item by item, is in `trials/gpt-6.1-sol/verifier/reward-details.json`.
 
 ## Agent
 
@@ -114,7 +114,7 @@ If no judge is reachable, the score is computed from the compiled items alone. T
 | Agent user | UID 20001, non-root |
 | Network | Allowlist only: `api.openai.com`, `api.anthropic.com`, plus `chatgpt.com` and `auth.openai.com` for Codex sign-in. The task environment itself has no network. |
 
-The Codex CLI is preinstalled in each task image from checksum-verified release binaries, because the environment cannot download anything. `trials/result.json` records the agent and model versions, token counts and timings for each rollout.
+The Codex CLI is preinstalled in each task image from checksum-verified release binaries, because the environment cannot download anything. `trials/gpt-6.1-sol/result.json` records the agent and model versions, token counts and timings for each rollout.
 
 ## Dataset structure
 
@@ -136,14 +136,15 @@ hypnos-samples/
     │   ├── judge.toml                judged rubric item
     │   ├── reward.toml               score weights
     │   └── rewardkit.lock
-    └── trials/                       the recorded rollout
-        ├── config.json               trial configuration
-        ├── lock.json                 resolved task digest and run settings
-        ├── result.json               agent, model, tokens, timings, score
-        ├── trial.log
-        ├── agent/                    trajectory.json, codex.txt, sessions/*.jsonl, setup/
-        ├── artifacts/                source directories captured from the container after the run
-        └── verifier/                 reward.json, reward.txt, reward-details.json, grade.json,
+    └── trials/
+        └── gpt-6.1-sol/              the recorded rollout, one directory per agent model
+            ├── config.json           trial configuration
+            ├── lock.json             resolved task digest and run settings
+            ├── result.json           agent, model, tokens, timings, score
+            ├── trial.log
+            ├── agent/                trajectory.json, codex.txt, sessions/*.jsonl, setup/
+            ├── artifacts/            source directories captured from the container after the run
+            └── verifier/             reward.json, reward.txt, reward-details.json, grade.json,
                                       submission.diff, build and test logs
 ```
 
