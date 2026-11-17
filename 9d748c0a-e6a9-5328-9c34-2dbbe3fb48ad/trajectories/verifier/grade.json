@@ -1,0 +1,267 @@
+{
+  "fail_to_pass": {
+    "api-v2/io.fabric8.crdv2.generator.CRDGeneratorExamplesTest#k8sValidation": true,
+    "api-v2/io.fabric8.crdv2.generator.CRDGeneratorTest#checkGenerationIsDeterministic": true,
+    "api-v2/io.fabric8.crdv2.generator.CRDGeneratorTest#checkK8sValidationRules": true,
+    "api-v2/io.fabric8.crdv2.generator.ParallelCRDGeneratorExamplesTest#k8sValidation": true,
+    "api-v2/io.fabric8.crdv2.generator.ParallelCRDGeneratorTest#checkGenerationIsDeterministic": true,
+    "api-v2/io.fabric8.crdv2.generator.ParallelCRDGeneratorTest#checkK8sValidationRules": true,
+    "api-v2/io.fabric8.crdv2.generator.PrinterColumnTypeTest#temporalPropertiesAreStringColumns": true,
+    "api-v2/io.fabric8.crdv2.generator.ResolvingContextMapperTest#defaultMapperWritesJackson2JdkTypes": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.JsonSchemaTest#shouldAugmentPropertiesSchemaFromAnnotations": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#monthIsAnEnum": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[12]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[13]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[1]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[2]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[3]": false,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[4]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[5]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[6]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#sizeBounds(String, Long, Long)[1]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#sizeBounds(String, Long, Long)[2]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[11]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[29]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[30]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[31]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[32]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[33]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[34]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[35]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[36]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[37]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[49]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[50]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[51]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[52]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[53]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[19]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[49]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[54]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[55]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[60]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[61]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[62]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[67]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[68]": true,
+    "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#typeUseSizeBoundsBase64Items": true,
+    "kubernetes-client-api/io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest#asJsonWritesLike790(String)[1]": true,
+    "kubernetes-client-api/io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest#asJsonWritesLike790(String)[2]": true,
+    "kubernetes-client-api/io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest#asJsonWritesLike790(String)[3]": true,
+    "kubernetes-client-api/io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest#unmarshalReads790(String)[1]": true,
+    "kubernetes-client-api/io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest#unmarshalReads790(String)[2]": true,
+    "kubernetes-client-api/io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest#unmarshalReads790(String)[3]": true,
+    "kubernetes-client-api/io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest#yamlMapperWritesLike790": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[10]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[11]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[12]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[1]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[2]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[3]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[4]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[5]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[6]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[7]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[8]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsBcp47Form(Locale)[9]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsEmptyKeyAsRoot": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsEmptyStringAsRoot": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[10]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[11]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[12]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[1]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[2]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[3]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[4]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[5]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[6]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[7]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[8]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsJackson2Form(Locale)[9]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[10]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[11]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[12]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[1]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[2]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[3]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[4]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[5]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[6]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[7]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[8]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsKeysInBothForms(Locale)[9]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsLegacyLocales(Locale)[1]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsLegacyLocales(Locale)[2]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsLegacyLocales(Locale)[3]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsLegacyLocales(Locale)[4]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsLegacyLocales(Locale)[5]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsLegacyLocales(Locale)[6]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsLegacyLocales(Locale)[7]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsUndAsRoot": false,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$Schema#reportsTimestampsWhenEnabled": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$Schema#reportsWhatItWrites": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$Serialization#honorsJsonFormat": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$Serialization#writesJackson2Form": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$Serialization#writesLocaleKeysInJackson2Form": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$Serialization#writesMonthIndexWhenEnabled": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$Serialization#writesTimestampsWhenEnabled": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsAnythingElseLikeJackson(String)[1]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsAnythingElseLikeJackson(String)[2]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsAnythingElseLikeJackson(String)[3]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsAnythingElseLikeJackson(String)[4]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsLocalDate(String)[1]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsLocalDate(String)[2]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsLocalDate(String)[3]": true,
+    "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$SqlDateDeserialization#readsWithPattern": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[10]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[12]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[14]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[16]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[17]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[1]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[2]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[3]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[4]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[6]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[7]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[8]": true,
+    "test/io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest#approvalTest(Class[], String)[9]": true
+  },
+  "frame": {
+    "by_module": {
+      "api-v2": {
+        "failing": 7,
+        "tests": 257
+      },
+      "kubernetes-client-api": {
+        "failing": 0,
+        "tests": 702
+      },
+      "kubernetes-model-common": {
+        "failing": 0,
+        "tests": 60
+      },
+      "test": {
+        "failing": 0,
+        "tests": 6
+      }
+    },
+    "failing": [
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[10]",
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[11]",
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[9]",
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#sizeBounds(String, Long, Long)[3]",
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetFormat(String, String)[54]",
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[71]",
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#targetType(String, String)[73]"
+    ],
+    "failing_count": 7,
+    "names": 1025,
+    "ok": false,
+    "tests": 1025
+  },
+  "gate": {
+    "any_fail_to_pass": true,
+    "frame_ok": false,
+    "isolated": true,
+    "open": false,
+    "reason": "frame failed"
+  },
+  "item_failures": {
+    "R1": [
+      "kubernetes-model-common/io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest$LocaleDeserialization#readsUndAsRoot"
+    ],
+    "R2": [],
+    "R3": [
+      "api-v2/io.fabric8.crdv2.generator.v1.TypeMappingsTest#nested(String, String, String, String)[3]"
+    ],
+    "R4": [],
+    "R5": [],
+    "R6": []
+  },
+  "items": {
+    "R1": false,
+    "R2": true,
+    "R3": false,
+    "R4": true,
+    "R5": true,
+    "R6": true,
+    "R7": false
+  },
+  "modules": {
+    "api-v2": {
+      "maven_totals": [
+        302,
+        8,
+        0
+      ],
+      "rc": "0",
+      "reports": 16,
+      "whole": true,
+      "xml_totals": [
+        302,
+        8,
+        0
+      ]
+    },
+    "kubernetes-client-api": {
+      "maven_totals": [
+        724,
+        0,
+        3
+      ],
+      "rc": "0",
+      "reports": 63,
+      "whole": true,
+      "xml_totals": [
+        724,
+        0,
+        3
+      ]
+    },
+    "kubernetes-model-common": {
+      "maven_totals": [
+        121,
+        1,
+        0
+      ],
+      "rc": "0",
+      "reports": 5,
+      "whole": true,
+      "xml_totals": [
+        121,
+        1,
+        0
+      ]
+    },
+    "test": {
+      "maven_totals": [
+        19,
+        0,
+        0
+      ],
+      "rc": "0",
+      "reports": 2,
+      "whole": true,
+      "xml_totals": [
+        19,
+        0,
+        0
+      ]
+    }
+  },
+  "schema": "hypnos.grade/v3",
+  "stages": {
+    "build": "0",
+    "test-api-v2": "0",
+    "test-kubernetes-client-api": "0",
+    "test-kubernetes-model-common": "0",
+    "test-test": "0"
+  },
+  "test_phase": {
+    "elapsed_s": 98,
+    "survivors": 0,
+    "tests_passed": 1154,
+    "tests_seen": 1166
+  }
+}

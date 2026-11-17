@@ -1,0 +1,56 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+artifacts = ["/app/crates/swc_ecma_transforms_typescript/src", "/app/crates/swc_ecma_transforms_base/src", "/app/crates/swc_ecma_utils/src", "/app/crates/swc_atoms/src"]
+
+[task]
+name = "ethara/abf4e028-0a14-59f3-8d81-456c03830eea"
+version = "1.0.0"
+description = "Make SWC's TypeScript transform give namespace, enum and import-alias declarations, single or merged from several bodies, exactly the runtime behaviour of the JavaScript tsc emits: names in one body resolve to members any body of the same declaration exports before outer bindings, the same namespace and enum objects exist with the same members and values, and enum members evaluate as tsc evaluates them, while everything that works today keeps working."
+authors = [{ name = "adarsh.mishraint17", email = "adarsh.mishraint17@ethara.ai" }]
+keywords = ["rust", "swc", "typescript", "namespaces", "enums", "declaration-merging", "issue-resolution", "rewardkit"]
+
+[metadata]
+reward_type = "bounded_continuous"
+null_floor = 0.0
+discrimination_weight = 0.5
+platforms = ["linux/amd64", "linux/arm64"]
+
+[verifier]
+env = { ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}", ANTHROPIC_BASE_URL = "${ANTHROPIC_BASE_URL:-}", OPENAI_API_KEY = "${OPENAI_API_KEY:-}", OPENAI_BASE_URL = "${OPENAI_BASE_URL:-}", REWARDKIT_JUDGE = "${REWARDKIT_JUDGE:-}" }
+timeout_sec = 4500.0
+network_mode = "public"
+environment_mode = "separate"
+user = "0"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 3600.0
+cpus = 8
+memory_mb = 24576
+storage_mb = 40960
+gpus = 0
+
+[agent]
+network_mode = "allowlist"
+allowed_hosts = ["api.openai.com", "api.anthropic.com"]
+timeout_sec = 18000.0
+user = "20001"
+
+[environment]
+network_mode = "no-network"
+build_timeout_sec = 3600.0
+cpus = 8
+memory_mb = 24576
+storage_mb = 40960
+gpus = 0
+
+[upstream_provenance]
+origin = "original"
+provenance_date = "2026-11-04"
+source_kind = "public_repository"
+
+[upstream_provenance.source]
+canonical_repo = "github.com/swc-project/swc"
+fork_ancestry_digest = "sha256:9da8f2f9757ade070e2e65ce884fae174f35639178afd55e7ee2702d90e92961"
+base_commit = "75848acc40ea51b8409ac57b97f2d7fbbc2a3bdd"
+event_timestamp = "2026-01-28T10:20:59Z"

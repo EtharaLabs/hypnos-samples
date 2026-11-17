@@ -1,0 +1,4 @@
+a.ts:3:18 lint/suspicious/noUnnecessaryConditions
+a.ts:6:1 lint/nursery/noFloatingPromises
+a.ts:9:18 lint/nursery/noUselessTypeConversion
+rc=1

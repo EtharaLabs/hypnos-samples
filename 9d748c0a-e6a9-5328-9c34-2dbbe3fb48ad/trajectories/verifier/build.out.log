@@ -1,0 +1,2164 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] Fabric8 :: Kubernetes :: Project                                   [pom]
+[INFO] Fabric8 :: zjsonpatch                                           [bundle]
+[INFO] Fabric8 :: Kubernetes Model Parent                                 [pom]
+[INFO] Fabric8 :: Kubernetes Model :: Common                           [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Core                             [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Sigs :: Gateway API              [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: RBAC                             [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Admission Registration, Authentication and Authorization [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: API Extensions                   [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Apps                             [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Autoscaling                      [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Scheduling                       [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Batch                            [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Certificates                     [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Coordination                     [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Discovery                        [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Events                           [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Extensions                       [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: FlowControl                      [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Networking                       [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Node                             [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Metrics                          [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Policy                           [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Resource                         [bundle]
+[INFO] Fabric8 :: Kubernetes Model :: Storage Class                    [bundle]
+[INFO] Fabric8 :: Mock Web Server                                         [jar]
+[INFO] Fabric8 :: Kubernetes :: Java Client API                           [jar]
+[INFO] Fabric8 :: Kubernetes :: HttpClient :: Vert.x                      [jar]
+[INFO] Fabric8 :: Kubernetes :: Java Client                               [jar]
+[INFO] Kube API Test Parent                                               [pom]
+[INFO] Kube API Test                                                      [jar]
+[INFO] Kube API Test - Client Injecting Support                           [jar]
+[INFO] Fabric8 :: Generator Annotations                                   [jar]
+[INFO] Fabric8 :: CRD generator :: Parent                                 [pom]
+[INFO] Fabric8 :: CRD generator :: API V2                                 [jar]
+[INFO] Fabric8 :: CRD generator :: Tests                                  [jar]
+[INFO] 
+[INFO] Using the MultiThreadedBuilder implementation with a thread count of 8
+[INFO] 
+[INFO] ----------------< io.fabric8:kubernetes-client-project >----------------
+[INFO] Building Fabric8 :: Kubernetes :: Project 999-SNAPSHOT            [1/36]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-client-project ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-client-project ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-client-project ---
+[INFO] Jandex execution skipped for POM packaging
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-client-project ---
+[INFO] Installing /tmp/grade/work/src/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-client-project/999-SNAPSHOT/kubernetes-client-project-999-SNAPSHOT.pom
+[INFO] 
+[INFO] -----------------------< io.fabric8:zjsonpatch >------------------------
+[INFO] Building Fabric8 :: zjsonpatch 999-SNAPSHOT                       [2/36]
+[INFO]   from zjsonpatch/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] ------------------< io.fabric8:kube-api-test-parent >-------------------
+[INFO] Building Kube API Test Parent 999-SNAPSHOT                        [3/36]
+[INFO]   from junit/kube-api-test/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ------------------< io.fabric8:generator-annotations >------------------
+[INFO] Building Fabric8 :: Generator Annotations 999-SNAPSHOT            [4/36]
+[INFO]   from generator-annotations/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kube-api-test-parent ---
+[INFO] 
+[INFO] ------------------< io.fabric8:crd-generator-parent >-------------------
+[INFO] Building Fabric8 :: CRD generator :: Parent 999-SNAPSHOT          [5/36]
+[INFO]   from crd-generator/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kube-api-test-parent ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kube-api-test-parent ---
+[INFO] Jandex execution skipped for POM packaging
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kube-api-test-parent ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ crd-generator-parent ---
+[INFO] Installing /tmp/grade/work/src/junit/kube-api-test/pom.xml to /tmp/grade/work/m2/io/fabric8/kube-api-test-parent/999-SNAPSHOT/kube-api-test-parent-999-SNAPSHOT.pom
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ crd-generator-parent ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ crd-generator-parent ---
+[INFO] Jandex execution skipped for POM packaging
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ crd-generator-parent ---
+[INFO] Installing /tmp/grade/work/src/crd-generator/pom.xml to /tmp/grade/work/m2/io/fabric8/crd-generator-parent/999-SNAPSHOT/crd-generator-parent-999-SNAPSHOT.pom
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ generator-annotations ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ generator-annotations ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ generator-annotations ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ zjsonpatch ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ zjsonpatch ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ zjsonpatch ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/zjsonpatch/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/generator-annotations/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/zjsonpatch/src/main/resources
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/generator-annotations/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ zjsonpatch ---
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ generator-annotations ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 14 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Compiling 22 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ generator-annotations ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/generator-annotations/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ generator-annotations ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ generator-annotations ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ generator-annotations ---
+[WARNING] /tmp/grade/work/src/zjsonpatch/src/main/java/io/fabric8/zjsonpatch/JsonPatch.java:[42,15] isTextual() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/zjsonpatch/src/main/java/io/fabric8/zjsonpatch/JsonPatch.java:[76,83] textValue() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/zjsonpatch/src/main/java/io/fabric8/zjsonpatch/JsonPatch.java:[77,78] textValue() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/zjsonpatch/src/main/java/io/fabric8/zjsonpatch/JsonPatch.java:[107,88] textValue() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/zjsonpatch/src/main/java/io/fabric8/zjsonpatch/JsonPatch.java:[113,88] textValue() in tools.jackson.databind.JsonNode has been deprecated
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ zjsonpatch ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ generator-annotations ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/zjsonpatch/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ zjsonpatch ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ zjsonpatch ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ zjsonpatch ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ zjsonpatch ---
+[INFO] Building jar: /tmp/grade/work/src/generator-annotations/target/generator-annotations-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ generator-annotations ---
+[INFO] Installing /tmp/grade/work/src/generator-annotations/pom.xml to /tmp/grade/work/m2/io/fabric8/generator-annotations/999-SNAPSHOT/generator-annotations-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/generator-annotations/target/generator-annotations-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/generator-annotations/999-SNAPSHOT/generator-annotations-999-SNAPSHOT.jar
+[WARNING] Bundle io.fabric8:zjsonpatch:bundle:999-SNAPSHOT : Unused Import-Package instructions: [com.fasterxml.jackson.annotation.*] 
+[INFO] Building bundle: /tmp/grade/work/src/zjsonpatch/target/zjsonpatch-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/zjsonpatch/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (bundle) @ zjsonpatch ---
+[WARNING] Bundle io.fabric8:zjsonpatch:bundle:999-SNAPSHOT : Unused Import-Package instructions: [com.fasterxml.jackson.annotation.*] 
+[INFO] Building bundle: /tmp/grade/work/src/zjsonpatch/target/zjsonpatch-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/zjsonpatch/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ zjsonpatch ---
+[INFO] Installing /tmp/grade/work/src/zjsonpatch/pom.xml to /tmp/grade/work/m2/io/fabric8/zjsonpatch/999-SNAPSHOT/zjsonpatch-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/zjsonpatch/target/zjsonpatch-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/zjsonpatch/999-SNAPSHOT/zjsonpatch-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ zjsonpatch ---
+[INFO] Installing io/fabric8/zjsonpatch/999-SNAPSHOT/zjsonpatch-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ---------------< io.fabric8:kubernetes-model-generator >----------------
+[INFO] 
+[INFO] Building Fabric8 :: Kubernetes Model Parent 999-SNAPSHOT          [6/36]
+[INFO] ----------------------< io.fabric8:mockwebserver >----------------------
+[INFO]   from kubernetes-model-generator/pom.xml
+[INFO] Building Fabric8 :: Mock Web Server 999-SNAPSHOT                  [7/36]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]   from junit/mockwebserver/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-generator ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-generator ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-generator ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ mockwebserver ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ mockwebserver ---
+[INFO] 
+[INFO] --- gplus:5.1.0:addSources (default) @ mockwebserver ---
+[INFO] maven is executed in offline mode, Updating project files from SCM: skipped.
+[WARNING] Cannot get the revision information from the scm repository, proceeding with revision of UNKNOWN : 
+Exception while executing SCM command.
+[INFO] Storing buildNumber: UNKNOWN at timestamp: 1794604539812
+[WARNING] Cannot get the branch information from the git repository: 
+Error while executing command.
+[WARNING] Cannot get the branch information from the scm repository, proceeding with UNKNOWN_BRANCH : 
+Exception while executing SCM command.
+[INFO] Storing scmBranch: UNKNOWN_BRANCH
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-generator ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-generator ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-generator ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-generator ---
+[INFO] Jandex execution skipped for POM packaging
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-generator ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-generator ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-generator/999-SNAPSHOT/kubernetes-model-generator-999-SNAPSHOT.pom
+[INFO] 
+[INFO] -----------------< io.fabric8:kubernetes-model-common >-----------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Common 999-SNAPSHOT       [8/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-common/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-common ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-common ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-common ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-common ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-common ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-common ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-common ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/main/resources
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-common ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 35 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- gplus:5.1.0:addTestSources (default) @ mockwebserver ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ mockwebserver ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/junit/mockwebserver/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/junit/mockwebserver/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ mockwebserver ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 70 source files with javac [debug deprecation release 17] to target/classes
+[WARNING] /tmp/grade/work/src/junit/mockwebserver/src/main/java/io/fabric8/mockwebserver/MockWebServer.java:[396,48] non-varargs call of varargs method with inexact argument type for last parameter;
+  cast to java.lang.Object for a varargs call
+  cast to java.lang.Object[] for a non-varargs call and to suppress this warning
+[WARNING] /tmp/grade/work/src/junit/mockwebserver/src/main/java/io/fabric8/mockwebserver/http/ByteString.java:[27,8] deprecated item is not annotated with @Deprecated
+[WARNING] /tmp/grade/work/src/junit/mockwebserver/src/main/java/io/fabric8/mockwebserver/internal/MockServerExpectationImpl.java:[202,71] andUpgradeToWebSocket(java.util.concurrent.ScheduledExecutorService) in io.fabric8.mockwebserver.dsl.WebSocketable has been deprecated
+[WARNING] /tmp/grade/work/src/junit/mockwebserver/src/main/java/io/fabric8/mockwebserver/utils/ResponseProviders.java:[48,57] Possible heap pollution from parameterized vararg type R
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ mockwebserver ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/junit/mockwebserver/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ mockwebserver ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ mockwebserver ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- gplus:5.1.0:compileTests (default) @ mockwebserver ---
+[INFO] Compilation of tests is skipped.
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ mockwebserver ---
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[19,59] Possible heap pollution from parameterized vararg type java.util.List<? extends T>
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[20,12] unchecked call to ArrayList(java.util.Collection<? extends E>) as a member of the raw type java.util.ArrayList
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[20,12] unchecked conversion
+  required: java.util.List<T>
+  found:    java.util.ArrayList
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[23,57] Possible heap pollution from parameterized vararg type java.util.Set<? extends T>
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[24,12] unchecked call to LinkedHashSet(java.util.Collection<? extends E>) as a member of the raw type java.util.LinkedHashSet
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[24,12] unchecked conversion
+  required: java.util.Set<T>
+  found:    java.util.LinkedHashSet
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[39,45] unchecked cast
+  required: io.fabric8.kubernetes.api.builder.VisitableBuilder<T,?>
+  found:    java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[47,27] unchecked cast
+  required: io.fabric8.kubernetes.api.builder.VisitableBuilder<T,?>
+  found:    capture#1 of ?
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/BaseFluent.java:[51,29] unchecked cast
+  required: io.fabric8.kubernetes.api.builder.VisitableBuilder<T,?>
+  found:    capture#2 of ?
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/VisitableMap.java:[36,22] spliterator() in io.fabric8.kubernetes.api.builder.VisitableMap implements spliterator() in java.lang.Iterable
+  return type requires unchecked conversion from java.util.Spliterator to java.util.Spliterator<io.fabric8.kubernetes.api.builder.Visitable<?>>
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/VisitableMap.java:[27,14] unchecked method invocation: method put in class java.util.HashMap is applied to given types
+  required: K,V
+  found:    java.lang.String,java.util.ArrayList
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/VisitableMap.java:[27,36] unchecked conversion
+  required: V
+  found:    java.util.ArrayList
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[45,41] unchecked method invocation: method wrap in interface io.fabric8.kubernetes.api.builder.VisitorListener is applied to given types
+  required: io.fabric8.kubernetes.api.builder.Visitor<T>
+  found:    io.fabric8.kubernetes.api.builder.Visitor
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[45,42] unchecked conversion
+  required: io.fabric8.kubernetes.api.builder.Visitor<T>
+  found:    io.fabric8.kubernetes.api.builder.Visitor
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[46,32] unchecked call to <F>canVisit(java.util.List<java.util.Map.Entry<java.lang.String,java.lang.Object>>,F) as a member of the raw type io.fabric8.kubernetes.api.builder.Visitor
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[53,24] unchecked call to visit(java.util.List<java.util.Map.Entry<java.lang.String,java.lang.Object>>,T) as a member of the raw type io.fabric8.kubernetes.api.builder.Visitor
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[56,65] unchecked call to ArrayList(java.util.Collection<? extends E>) as a member of the raw type java.util.ArrayList
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[56,65] unchecked conversion
+  required: java.util.List<java.util.Map.Entry<java.lang.String,java.lang.Object>>
+  found:    java.util.ArrayList
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[64,94] unchecked cast
+  required: java.util.List<io.fabric8.kubernetes.api.builder.Visitable<T>>
+  found:    capture#3 of ?
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[66,84] unchecked call to isAssignableFrom(java.lang.Class<?>) as a member of the raw type java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[72,85] unchecked call to isAssignableFrom(java.lang.Class<?>) as a member of the raw type java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[80,20] unchecked cast
+  required: T
+  found:    io.fabric8.kubernetes.api.builder.Visitable<T>
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitable.java:[84,16] unchecked cast
+  required: T
+  found:    io.fabric8.kubernetes.api.builder.Visitable<T>
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitor.java:[17,51] unchecked call to DelegatingVisitor(java.lang.Class<T>,io.fabric8.kubernetes.api.builder.Visitor<T>) as a member of the raw type io.fabric8.kubernetes.api.builder.DelegatingVisitor
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitor.java:[20,53] unchecked method invocation: method and in interface java.util.function.Predicate is applied to given types
+  required: java.util.function.Predicate<? super T>
+  found:    java.util.function.Predicate
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitor.java:[20,54] unchecked conversion
+  required: java.util.function.Predicate<? super T>
+  found:    java.util.function.Predicate
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitor.java:[20,53] unchecked conversion
+  required: java.util.function.Predicate<java.util.List<java.lang.Object>>
+  found:    java.util.function.Predicate
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitor.java:[17,12] unchecked conversion
+  required: io.fabric8.kubernetes.api.builder.Visitor<T>
+  found:    <anonymous io.fabric8.kubernetes.api.builder.DelegatingVisitor>
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/Visitor.java:[58,35] unchecked cast
+  required: java.lang.Class<T>
+  found:    java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/TypedVisitor.java:[9,84] unchecked cast
+  required: java.lang.Class<V>
+  found:    java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/PathAwareTypedVisitor.java:[19,40] unchecked cast
+  required: java.lang.Class<V>
+  found:    java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/PathAwareTypedVisitor.java:[20,46] unchecked cast
+  required: java.lang.Class<P>
+  found:    java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/generated-builders/java/io/fabric8/kubernetes/api/builder/PathAwareTypedVisitor.java:[24,47] unchecked cast
+  required: P
+  found:    java.util.Map.Entry<java.lang.String,java.lang.Object>
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/main/java/io/fabric8/kubernetes/model/jackson/GoIntegerDeserializer.java:[49,27] getText() in tools.jackson.core.JsonParser has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/src/main/java/io/fabric8/kubernetes/model/jackson/SettableBeanPropertyDelegating.java:[221,60] getText() in tools.jackson.core.JsonParser has been deprecated
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-common ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ mockwebserver ---
+[INFO] Building jar: /tmp/grade/work/src/junit/mockwebserver/target/mockwebserver-999-SNAPSHOT.jar
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-common ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-common ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-common ---
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ mockwebserver ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-common ---
+[INFO] Installing /tmp/grade/work/src/junit/mockwebserver/pom.xml to /tmp/grade/work/m2/io/fabric8/mockwebserver/999-SNAPSHOT/mockwebserver-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/junit/mockwebserver/target/mockwebserver-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/mockwebserver/999-SNAPSHOT/mockwebserver-999-SNAPSHOT.jar
+[WARNING] Bundle io.fabric8:kubernetes-model-common:bundle:999-SNAPSHOT : osgi.serviceloader capability found with no 'register:' directive. Descriptor 'META-INF/services/io.fabric8.kubernetes.api.model.KubernetesResource' cannot be generated unless the osgi.serviceloader capability specifies the 'register:' directive
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/target/kubernetes-model-common-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-common ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-common ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-common/999-SNAPSHOT/kubernetes-model-common-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-common/target/kubernetes-model-common-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-common/999-SNAPSHOT/kubernetes-model-common-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-common ---
+[INFO] Installing io/fabric8/kubernetes-model-common/999-SNAPSHOT/kubernetes-model-common-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ------------------< io.fabric8:kubernetes-model-core >------------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Core 999-SNAPSHOT         [9/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-core/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-core ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-core ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-core ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-core ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-core ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-core ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-core ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-core ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 928 source files with javac [debug deprecation release 17] to target/classes
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/java/io/fabric8/kubernetes/api/model/Quantity.java:[374,51] asText() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/java/io/fabric8/kubernetes/api/model/Quantity.java:[374,80] asText() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/java/io/fabric8/kubernetes/api/model/Quantity.java:[376,51] asText() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/java/io/fabric8/kubernetes/api/model/Quantity.java:[378,37] asText() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/java/io/fabric8/kubernetes/api/model/MicroTimeSerDes.java:[49,39] asText() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/java/io/fabric8/kubernetes/internal/KubernetesDeserializer.java:[188,40] textValue() in tools.jackson.databind.JsonNode has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/src/main/java/io/fabric8/kubernetes/internal/KubernetesDeserializer.java:[189,28] textValue() in tools.jackson.databind.JsonNode has been deprecated
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-core ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-core ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-core ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-core ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-core ---
+[WARNING] Bundle io.fabric8:kubernetes-model-core:bundle:999-SNAPSHOT : Export io.fabric8.kubernetes.api.model,  has 1,  private references [io.fabric8.kubernetes.internal]
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/target/kubernetes-model-core-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-core ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-core ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-core/999-SNAPSHOT/kubernetes-model-core-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-core/target/kubernetes-model-core-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-core/999-SNAPSHOT/kubernetes-model-core-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-core ---
+[INFO] Installing io/fabric8/kubernetes-model-core/999-SNAPSHOT/kubernetes-model-core-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] 
+[INFO] ------------------< io.fabric8:kubernetes-model-rbac >------------------
+[INFO] Building Fabric8 :: Kubernetes Model :: RBAC 999-SNAPSHOT        [10/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-rbac/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] ---------------< io.fabric8:kubernetes-model-gatewayapi >---------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Sigs :: Gateway API 999-SNAPSHOT [11/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-gatewayapi/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] 
+[INFO] -------------< io.fabric8:kubernetes-model-apiextensions >--------------
+[INFO] Building Fabric8 :: Kubernetes Model :: API Extensions 999-SNAPSHOT [12/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-apiextensions/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] ---------< io.fabric8:kubernetes-model-admissionregistration >----------
+[INFO] Building Fabric8 :: Kubernetes Model :: Admission Registration, Authentication and Authorization 999-SNAPSHOT [13/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-admissionregistration/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] ------------------< io.fabric8:kubernetes-model-apps >------------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Apps 999-SNAPSHOT        [14/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-apps/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-admissionregistration ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-rbac ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-apiextensions ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-gatewayapi ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-apiextensions ---
+[INFO] 
+[INFO] 
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-apps ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-admissionregistration ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-admissionregistration ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-apps ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-admissionregistration ---
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-apiextensions ---
+[INFO] 
+[INFO] --------------< io.fabric8:kubernetes-model-autoscaling >---------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Autoscaling 999-SNAPSHOT [15/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-autoscaling/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-admissionregistration ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-admissionregistration ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-apiextensions ---
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-admissionregistration ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-apiextensions ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-apiextensions ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] ---------------< io.fabric8:kubernetes-model-scheduling >---------------
+[INFO] 
+[INFO] --------------< io.fabric8:kubernetes-model-certificates >--------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Certificates 999-SNAPSHOT [17/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-certificates/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-admissionregistration ---
+[INFO] 
+[INFO] Building Fabric8 :: Kubernetes Model :: Scheduling 999-SNAPSHOT  [16/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-scheduling/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-autoscaling ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-autoscaling ---
+[INFO] 
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-rbac ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-rbac ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-rbac ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/src/main/resources
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-rbac ---
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-rbac ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-rbac ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/src/main/resources
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-scheduling ---
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-scheduling ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-scheduling ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-scheduling ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-scheduling ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-scheduling ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-scheduling ---
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-apiextensions ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/src/main/resources
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-autoscaling ---
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-autoscaling ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-autoscaling ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-autoscaling ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-autoscaling ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-apiextensions ---
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-apps ---
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-rbac ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-apps ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-apps ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-apps ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-apps ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-certificates ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/src/main/resources
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-certificates ---
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-certificates ---
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-apps ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-certificates ---
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-scheduling ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-certificates ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-certificates ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-certificates ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-autoscaling ---
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-certificates ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 36 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 90 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 369 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 150 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 72 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 222 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 444 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 222 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-rbac ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-rbac ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-rbac ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-rbac ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-rbac ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/target/kubernetes-model-rbac-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-rbac ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-rbac ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-rbac/999-SNAPSHOT/kubernetes-model-rbac-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-rbac/target/kubernetes-model-rbac-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-rbac/999-SNAPSHOT/kubernetes-model-rbac-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-rbac ---
+[INFO] Installing io/fabric8/kubernetes-model-rbac/999-SNAPSHOT/kubernetes-model-rbac-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] --------------< io.fabric8:kubernetes-model-coordination >--------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Coordination 999-SNAPSHOT [18/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-coordination/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-coordination ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-coordination ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-coordination ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-coordination ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-coordination ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-coordination ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-coordination ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-coordination ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 27 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-certificates ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-certificates ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-certificates ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-certificates ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-certificates ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-apps ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-apps ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-apps ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-apps ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-apps ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/target/kubernetes-model-certificates-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-certificates ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-certificates ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-certificates/999-SNAPSHOT/kubernetes-model-certificates-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-certificates/target/kubernetes-model-certificates-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-certificates/999-SNAPSHOT/kubernetes-model-certificates-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-certificates ---
+[INFO] Installing io/fabric8/kubernetes-model-certificates/999-SNAPSHOT/kubernetes-model-certificates-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ---------------< io.fabric8:kubernetes-model-discovery >----------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Discovery 999-SNAPSHOT   [19/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-discovery/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-discovery ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-discovery ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-discovery ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-discovery ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-discovery ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-discovery ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-discovery ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-discovery ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 45 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/target/kubernetes-model-apps-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-coordination ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-coordination ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-coordination ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-coordination ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-coordination ---
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-apps ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-apps ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-apps/999-SNAPSHOT/kubernetes-model-apps-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apps/target/kubernetes-model-apps-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-apps/999-SNAPSHOT/kubernetes-model-apps-999-SNAPSHOT.jar
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/target/kubernetes-model-coordination-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-coordination ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-coordination ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-coordination/999-SNAPSHOT/kubernetes-model-coordination-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-coordination/target/kubernetes-model-coordination-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-coordination/999-SNAPSHOT/kubernetes-model-coordination-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-apps ---
+[INFO] Installing io/fabric8/kubernetes-model-apps/999-SNAPSHOT/kubernetes-model-apps-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] -----------------< io.fabric8:kubernetes-model-events >-----------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Events 999-SNAPSHOT      [20/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-events/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-events ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-events ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-events ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-events ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-events ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-events ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-events ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-coordination ---
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-events ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 18 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Installing io/fabric8/kubernetes-model-coordination/999-SNAPSHOT/kubernetes-model-coordination-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ---------------< io.fabric8:kubernetes-model-extensions >---------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Extensions 999-SNAPSHOT  [21/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-extensions/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-extensions ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-extensions ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-extensions ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-extensions ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-extensions ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-extensions ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-extensions ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-extensions ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 165 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-apiextensions ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-apiextensions ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-apiextensions ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-apiextensions ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-apiextensions ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/target/kubernetes-model-apiextensions-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-events ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-events ---
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-apiextensions ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-apiextensions ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-events ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-apiextensions/999-SNAPSHOT/kubernetes-model-apiextensions-999-SNAPSHOT.pom
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-events ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-apiextensions/target/kubernetes-model-apiextensions-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-apiextensions/999-SNAPSHOT/kubernetes-model-apiextensions-999-SNAPSHOT.jar
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-events ---
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-apiextensions ---
+[INFO] Installing io/fabric8/kubernetes-model-apiextensions/999-SNAPSHOT/kubernetes-model-apiextensions-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] --------------< io.fabric8:kubernetes-model-flowcontrol >---------------
+[INFO] Building Fabric8 :: Kubernetes Model :: FlowControl 999-SNAPSHOT [22/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-flowcontrol/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-flowcontrol ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-flowcontrol ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-flowcontrol ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-flowcontrol ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-flowcontrol ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-flowcontrol ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-flowcontrol ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-flowcontrol ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 267 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/target/kubernetes-model-events-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-events ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-events ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-events/999-SNAPSHOT/kubernetes-model-events-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-events/target/kubernetes-model-events-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-events/999-SNAPSHOT/kubernetes-model-events-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-events ---
+[INFO] Installing io/fabric8/kubernetes-model-events/999-SNAPSHOT/kubernetes-model-events-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ---------------< io.fabric8:kubernetes-model-networking >---------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Networking 999-SNAPSHOT  [23/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-networking/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-networking ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-networking ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-networking ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-networking ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-networking ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-networking ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-networking ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-networking ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 141 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-discovery ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-discovery ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-discovery ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-discovery ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-discovery ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/target/kubernetes-model-discovery-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-scheduling ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-discovery ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-discovery ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-discovery/999-SNAPSHOT/kubernetes-model-discovery-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-discovery/target/kubernetes-model-discovery-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-discovery/999-SNAPSHOT/kubernetes-model-discovery-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-discovery ---
+[INFO] Installing io/fabric8/kubernetes-model-discovery/999-SNAPSHOT/kubernetes-model-discovery-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ------------------< io.fabric8:kubernetes-model-node >------------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Node 999-SNAPSHOT        [24/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-node/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-node ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-node ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-node ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-node ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-node ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-node ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-node ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-node ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 39 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-scheduling ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-scheduling ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-scheduling ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-scheduling ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/target/kubernetes-model-scheduling-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-autoscaling ---
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-scheduling ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-scheduling ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-scheduling/999-SNAPSHOT/kubernetes-model-scheduling-999-SNAPSHOT.pom
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/target/classes/META-INF/jandex.idx
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-scheduling/target/kubernetes-model-scheduling-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-scheduling/999-SNAPSHOT/kubernetes-model-scheduling-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-autoscaling ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-autoscaling ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-autoscaling ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-autoscaling ---
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-scheduling ---
+[INFO] Installing io/fabric8/kubernetes-model-scheduling/999-SNAPSHOT/kubernetes-model-scheduling-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ----------------< io.fabric8:kubernetes-model-metrics >-----------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Metrics 999-SNAPSHOT     [25/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-metrics/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-metrics ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-metrics ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-metrics ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-metrics ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-metrics ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-metrics ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-metrics ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-metrics ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 15 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/target/kubernetes-model-autoscaling-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-autoscaling ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-autoscaling ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-autoscaling/999-SNAPSHOT/kubernetes-model-autoscaling-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-autoscaling/target/kubernetes-model-autoscaling-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-autoscaling/999-SNAPSHOT/kubernetes-model-autoscaling-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-autoscaling ---
+[INFO] Installing io/fabric8/kubernetes-model-autoscaling/999-SNAPSHOT/kubernetes-model-autoscaling-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] -----------------< io.fabric8:kubernetes-model-policy >-----------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Policy 999-SNAPSHOT      [26/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-policy/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-policy ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-policy ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-policy ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-policy ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-policy ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-policy ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-policy ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-policy ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 72 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-node ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-node ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-node ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-node ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-node ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-metrics ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-metrics ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-metrics ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-metrics ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-metrics ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/target/kubernetes-model-metrics-999-SNAPSHOT.jar
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/target/kubernetes-model-node-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-metrics ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-metrics ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-metrics/999-SNAPSHOT/kubernetes-model-metrics-999-SNAPSHOT.pom
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-node ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-node ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-node/999-SNAPSHOT/kubernetes-model-node-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-metrics/target/kubernetes-model-metrics-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-metrics/999-SNAPSHOT/kubernetes-model-metrics-999-SNAPSHOT.jar
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-node/target/kubernetes-model-node-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-node/999-SNAPSHOT/kubernetes-model-node-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-metrics ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-extensions ---
+[INFO] Installing io/fabric8/kubernetes-model-metrics/999-SNAPSHOT/kubernetes-model-metrics-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ----------------< io.fabric8:kubernetes-model-resource >----------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Resource 999-SNAPSHOT    [27/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-resource/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-node ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-resource ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-resource ---
+[INFO] Installing io/fabric8/kubernetes-model-node/999-SNAPSHOT/kubernetes-model-node-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-resource ---
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-resource ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-resource ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-resource ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-resource ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --------------< io.fabric8:kubernetes-model-storageclass >--------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Storage Class 999-SNAPSHOT [28/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-storageclass/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-resource ---
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-storageclass ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-storageclass ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-storageclass ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-storageclass ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-storageclass ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-storageclass ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-storageclass ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/target/classes/META-INF/jandex.idx
+[INFO] Compiling 603 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-storageclass ---
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-extensions ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-extensions ---
+[INFO] Compiling 177 source files with javac [debug deprecation release 17] to target/classes
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-extensions ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-extensions ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/target/kubernetes-model-extensions-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-extensions ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-extensions ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-extensions/999-SNAPSHOT/kubernetes-model-extensions-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-extensions/target/kubernetes-model-extensions-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-extensions/999-SNAPSHOT/kubernetes-model-extensions-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-extensions ---
+[INFO] Installing io/fabric8/kubernetes-model-extensions/999-SNAPSHOT/kubernetes-model-extensions-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] -----------------< io.fabric8:kubernetes-model-batch >------------------
+[INFO] Building Fabric8 :: Kubernetes Model :: Batch 999-SNAPSHOT       [29/36]
+[INFO]   from kubernetes-model-generator/kubernetes-model-batch/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-model-batch ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-model-batch ---
+[INFO] 
+[INFO] --- buildnumber:3.3.1:create (get-scm-revision) @ kubernetes-model-batch ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (default) @ kubernetes-model-batch ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/src/generated/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-source (add-generated-builders-source) @ kubernetes-model-batch ---
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/src/generated-builders/java added.
+[INFO] 
+[INFO] --- build-helper:3.6.2:add-resource (add-generated-resources) @ kubernetes-model-batch ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-model-batch ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/src/main/resources
+[INFO] Copying 1 resource from src/generated/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-model-batch ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 69 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-policy ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-policy ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-policy ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-networking ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-policy ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-policy ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-networking ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-networking ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-networking ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-networking ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/target/kubernetes-model-policy-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-policy ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-policy ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-policy/999-SNAPSHOT/kubernetes-model-policy-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-policy/target/kubernetes-model-policy-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-policy/999-SNAPSHOT/kubernetes-model-policy-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-policy ---
+[INFO] Installing io/fabric8/kubernetes-model-policy/999-SNAPSHOT/kubernetes-model-policy-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/target/kubernetes-model-networking-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-networking ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-networking ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-networking/999-SNAPSHOT/kubernetes-model-networking-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-networking/target/kubernetes-model-networking-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-networking/999-SNAPSHOT/kubernetes-model-networking-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-networking ---
+[INFO] Installing io/fabric8/kubernetes-model-networking/999-SNAPSHOT/kubernetes-model-networking-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-admissionregistration ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-batch ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-batch ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-batch ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-batch ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-batch ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-admissionregistration ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-admissionregistration ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-admissionregistration ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-admissionregistration ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/target/kubernetes-model-batch-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-batch ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-batch ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-batch/999-SNAPSHOT/kubernetes-model-batch-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-batch/target/kubernetes-model-batch-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-batch/999-SNAPSHOT/kubernetes-model-batch-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-batch ---
+[INFO] Installing io/fabric8/kubernetes-model-batch/999-SNAPSHOT/kubernetes-model-batch-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[WARNING] Bundle io.fabric8:kubernetes-model-admissionregistration:bundle:999-SNAPSHOT : Unused Export-Package instructions: [io.fabric8.kubernetes.api.model.admissionregistration**] 
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/target/kubernetes-model-admissionregistration-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-admissionregistration ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-admissionregistration ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-admissionregistration/999-SNAPSHOT/kubernetes-model-admissionregistration-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-admissionregistration/target/kubernetes-model-admissionregistration-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-admissionregistration/999-SNAPSHOT/kubernetes-model-admissionregistration-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-admissionregistration ---
+[INFO] Installing io/fabric8/kubernetes-model-admissionregistration/999-SNAPSHOT/kubernetes-model-admissionregistration-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-flowcontrol ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-flowcontrol ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-flowcontrol ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-flowcontrol ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-flowcontrol ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-gatewayapi ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-gatewayapi ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-gatewayapi ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-gatewayapi ---
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-storageclass ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-storageclass ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-storageclass ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-storageclass ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-storageclass ---
+[WARNING] Bundle io.fabric8:kubernetes-model-flowcontrol:bundle:999-SNAPSHOT : Unused Export-Package instructions: [io.fabric8.kubernetes.api.model.internal.apiserver**] 
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/target/kubernetes-model-flowcontrol-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-flowcontrol ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-flowcontrol ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-flowcontrol/999-SNAPSHOT/kubernetes-model-flowcontrol-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-flowcontrol/target/kubernetes-model-flowcontrol-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-flowcontrol/999-SNAPSHOT/kubernetes-model-flowcontrol-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-flowcontrol ---
+[INFO] Installing io/fabric8/kubernetes-model-flowcontrol/999-SNAPSHOT/kubernetes-model-flowcontrol-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/target/kubernetes-model-storageclass-999-SNAPSHOT.jar
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/target/kubernetes-model-gatewayapi-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-storageclass ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-storageclass ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-storageclass/999-SNAPSHOT/kubernetes-model-storageclass-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-storageclass/target/kubernetes-model-storageclass-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-storageclass/999-SNAPSHOT/kubernetes-model-storageclass-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-storageclass ---
+[INFO] Installing io/fabric8/kubernetes-model-storageclass/999-SNAPSHOT/kubernetes-model-storageclass-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-gatewayapi ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-gatewayapi ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-gatewayapi/999-SNAPSHOT/kubernetes-model-gatewayapi-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-gatewayapi/target/kubernetes-model-gatewayapi-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-gatewayapi/999-SNAPSHOT/kubernetes-model-gatewayapi-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-gatewayapi ---
+[INFO] Installing io/fabric8/kubernetes-model-gatewayapi/999-SNAPSHOT/kubernetes-model-gatewayapi-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-model-resource ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-model-resource ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-model-resource ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-model-resource ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (default-bundle) @ kubernetes-model-resource ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/target/kubernetes-model-resource-999-SNAPSHOT.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:3.6.2:attach-artifact (attach-artifacts) @ kubernetes-model-resource ---
+[INFO] Skip attaching artifacts
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-model-resource ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-model-resource/999-SNAPSHOT/kubernetes-model-resource-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-model-generator/kubernetes-model-resource/target/kubernetes-model-resource-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-model-resource/999-SNAPSHOT/kubernetes-model-resource-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:install (default-install) @ kubernetes-model-resource ---
+[INFO] Installing io/fabric8/kubernetes-model-resource/999-SNAPSHOT/kubernetes-model-resource-999-SNAPSHOT.jar
+[INFO] Writing OBR metadata
+[INFO] 
+[INFO] ------------------< io.fabric8:kubernetes-client-api >------------------
+[INFO] Building Fabric8 :: Kubernetes :: Java Client API 999-SNAPSHOT   [30/36]
+[INFO]   from kubernetes-client-api/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-client-api ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-client-api ---
+[INFO] 
+[INFO] --- templating:3.1.1:filter-sources (default) @ kubernetes-client-api ---
+[INFO] Copying files with filtering to temporary directory.
+[INFO] Copying 1 resource from src/main/java-templates to target/templates-tmp1218955325
+[INFO] Copied 1 files to output directory: /tmp/grade/work/src/kubernetes-client-api/target/generated-sources/java-templates
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-client-api/target/generated-sources/java-templates added.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-client-api ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-client-api/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-client-api/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-client-api ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 262 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 100%: Builder generation complete.                                                                                      
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/AnyNamespaceOperation.java:[64,31] Possible heap pollution from parameterized vararg type T
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/http/HttpResponse.java:[104,26] unchecked cast
+  required: io.fabric8.kubernetes.client.http.HttpResponse.SupportedResponses.Async<T>
+  found:    io.fabric8.kubernetes.client.http.HttpResponse.SupportedResponses.Async<capture#1 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/http/AsyncBody.java:[49,20] unchecked cast
+  required: U
+  found:    io.fabric8.kubernetes.client.http.AsyncBody.Consumer<T>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Utils.java:[308,44] Possible heap pollution from parameterized vararg type T
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Utils.java:[358,65] unchecked call to <A>getAnnotation(java.lang.Class<A>) as a member of the raw type java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/KubernetesClientBuilder.java:[57,97] unchecked cast
+  required: java.lang.Class<io.fabric8.kubernetes.client.KubernetesClient>
+  found:    java.lang.Class<capture#2 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/KubernetesClientBuilder.java:[60,92] unchecked cast
+  required: java.lang.Class<io.fabric8.kubernetes.client.KubernetesClient>
+  found:    java.lang.Class<capture#3 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ClientAdapter.java:[102,18] supportsApiPath(java.lang.String) in io.fabric8.kubernetes.client.Client has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ClientAdapter.java:[103,18] supportsApiPath(java.lang.String) in io.fabric8.kubernetes.client.Client has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[193,22] getVersion() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[136,127] certificateSigningRequests() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[137,23] certificateSigningRequests() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[194,23] getVersion() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/ExtensionsAPIGroupDSL.java:[62,59] deprecated item is not annotated with @Deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[319,24] unchecked cast
+  required: T
+  found:    java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[330,18] unchecked cast
+  required: T
+  found:    java.util.List<io.fabric8.kubernetes.api.model.KubernetesResource>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[337,24] unchecked method invocation: method addAll in interface java.util.List is applied to given types
+  required: java.util.Collection<? extends E>
+  found:    java.util.List
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[337,67] unchecked conversion
+  required: java.util.Collection<? extends E>
+  found:    java.util.List
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[353,25] unchecked cast
+  required: T
+  found:    io.fabric8.kubernetes.api.model.KubernetesResource
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[415,34] unchecked cast
+  required: T
+  found:    capture#4 of ? extends java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[77,5] undo() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[69,5] restart() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[61,5] resume() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[52,5] pause() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/WithRequestCallable.java:[35,65] unchecked cast
+  required: C
+  found:    capture#5 of ? extends io.fabric8.kubernetes.client.Client
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ExtensibleResource.java:[46,25] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ExtensibleResource.java:[55,25] withIndexers(java.util.Map<java.lang.String,java.util.function.Function<T,java.util.List<java.lang.String>>>) in io.fabric8.kubernetes.client.dsl.Informable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[157,12] patchStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[287,12] updateStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[282,30] delete(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[262,12] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[272,12] createOrReplace(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[126,12] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[106,22] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[111,12] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[182,24] withIndexers(java.util.Map<java.lang.String,java.util.function.Function<T,java.util.List<java.lang.String>>>) in io.fabric8.kubernetes.client.dsl.Informable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[267,12] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[277,12] replaceStatus(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[367,12] scale(int,boolean) in io.fabric8.kubernetes.client.dsl.Scalable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[257,12] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[212,16] watch(java.lang.String,io.fabric8.kubernetes.client.Watcher<T>) in io.fabric8.kubernetes.client.dsl.Watchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[107,20] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[112,20] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[127,20] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[158,20] patchStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[183,20] withIndexers(java.util.Map<java.lang.String,java.util.function.Function<T,java.util.List<java.lang.String>>>) in io.fabric8.kubernetes.client.dsl.Informable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[213,20] watch(java.lang.String,io.fabric8.kubernetes.client.Watcher<T>) in io.fabric8.kubernetes.client.dsl.Watchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[258,20] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[263,20] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[268,20] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[273,20] createOrReplace(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[278,20] replaceStatus(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[283,20] delete(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[288,20] updateStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[368,20] scale(int,boolean) in io.fabric8.kubernetes.client.dsl.Scalable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/http/StandardHttpClient.java:[78,29] unchecked cast
+  required: C
+  found:    io.fabric8.kubernetes.client.http.StandardHttpClient<C,F,T>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/informers/cache/ReducedStateItemStore.java:[121,57] unchecked conversion
+  required: java.util.Map<java.lang.String,java.lang.Object>
+  found:    java.util.Map
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/informers/cache/ReducedStateItemStore.java:[146,62] unchecked cast
+  required: java.util.Map<java.lang.String,java.lang.Object>
+  found:    java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesResourceUtil.java:[479,65] unchecked cast
+  required: java.lang.Class<? extends io.fabric8.kubernetes.api.model.KubernetesResourceList>
+  found:    java.lang.Class<capture#6 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/OpenIDConnectionUtils.java:[278,70] unchecked conversion
+  required: java.util.Map<java.lang.String,java.lang.Object>
+  found:    java.util.Map
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-client-api ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-client-api/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-client-api ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-client-api ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-client-api ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ kubernetes-client-api ---
+[INFO] Building jar: /tmp/grade/work/src/kubernetes-client-api/target/kubernetes-client-api-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- jar:3.5.1:test-jar (default) @ kubernetes-client-api ---
+[INFO] Skipping packaging of the test-jar
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (bundle) @ kubernetes-client-api ---
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-client-api/target/kubernetes-client-api-999-SNAPSHOT-bundle.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-client-api/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-client-api ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-client-api/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-client-api/999-SNAPSHOT/kubernetes-client-api-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-client-api/target/kubernetes-client-api-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-client-api/999-SNAPSHOT/kubernetes-client-api-999-SNAPSHOT.jar
+[INFO] Installing /tmp/grade/work/src/kubernetes-client-api/target/kubernetes-client-api-999-SNAPSHOT-bundle.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-client-api/999-SNAPSHOT/kubernetes-client-api-999-SNAPSHOT-bundle.jar
+[INFO] 
+[INFO] ---------------< io.fabric8:kubernetes-httpclient-vertx >---------------
+[INFO] Building Fabric8 :: Kubernetes :: HttpClient :: Vert.x 999-SNAPSHOT [31/36]
+[INFO]   from httpclient-vertx/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] ------------------< io.fabric8:crd-generator-api-v2 >-------------------
+[INFO] Building Fabric8 :: CRD generator :: API V2 999-SNAPSHOT         [32/36]
+[INFO]   from crd-generator/api-v2/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ crd-generator-api-v2 ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ crd-generator-api-v2 ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ crd-generator-api-v2 ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/crd-generator/api-v2/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/crd-generator/api-v2/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ crd-generator-api-v2 ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 15 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-httpclient-vertx ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-httpclient-vertx ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-httpclient-vertx ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/httpclient-vertx/target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-httpclient-vertx ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug deprecation release 17] to target/classes
+[WARNING] /tmp/grade/work/src/httpclient-vertx/src/main/java/io/fabric8/kubernetes/client/vertx/InputStreamReadStream.java:[122,19] buffer(io.netty.buffer.ByteBuf) in io.vertx.core.buffer.Buffer has been deprecated
+[WARNING] /tmp/grade/work/src/httpclient-vertx/src/main/java/io/fabric8/kubernetes/client/vertx/InputStreamReadStream.java:[107,48] <T>executeBlocking(io.vertx.core.Handler<io.vertx.core.Promise<T>>) in io.vertx.core.Vertx has been deprecated
+[WARNING] /tmp/grade/work/src/httpclient-vertx/src/main/java/io/fabric8/kubernetes/client/vertx/VertxHttpClient.java:[91,9] webSocket(io.vertx.core.http.WebSocketConnectOptions) in io.vertx.core.http.HttpClient has been deprecated
+[WARNING] /tmp/grade/work/src/httpclient-vertx/src/main/java/io/fabric8/kubernetes/client/vertx/VertxWebSocket.java:[53,35] getByteBuf() in io.vertx.core.buffer.Buffer has been deprecated
+[WARNING] /tmp/grade/work/src/httpclient-vertx/src/main/java/io/fabric8/kubernetes/client/vertx/VertxWebSocket.java:[81,32] buffer(io.netty.buffer.ByteBuf) in io.vertx.core.buffer.Buffer has been deprecated
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-httpclient-vertx ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/httpclient-vertx/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-httpclient-vertx ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-httpclient-vertx ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-httpclient-vertx ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- surefire:3.6.0:test (simultaneous-connections-test) @ kubernetes-httpclient-vertx ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ kubernetes-httpclient-vertx ---
+[INFO] Building jar: /tmp/grade/work/src/httpclient-vertx/target/kubernetes-httpclient-vertx-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (bundle) @ kubernetes-httpclient-vertx ---
+[WARNING] Include-Resource: overriding META-INF/services/io.fabric8.kubernetes.client.http.HttpClient$Factory=src/main/resources/META-INF/services/io.fabric8.kubernetes.client.http.HttpClient$Factory with /META-INF/services/io.fabric8.kubernetes.client.http.HttpClient$Factory=target/classes/META-INF/services/io.fabric8.kubernetes.client.http.HttpClient$Factory, (add {maven-resources} if you want to include the maven resources)
+[WARNING] /tmp/grade/work/src/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractJsonSchema.java:[627,81] unchecked cast
+  required: T
+  found:    io.fabric8.crdv2.generator.v1.JsonSchema.V1JSONSchemaProps
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ crd-generator-api-v2 ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/crd-generator/api-v2/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ crd-generator-api-v2 ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ crd-generator-api-v2 ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ crd-generator-api-v2 ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ crd-generator-api-v2 ---
+[INFO] Building jar: /tmp/grade/work/src/crd-generator/api-v2/target/crd-generator-api-v2-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ crd-generator-api-v2 ---
+[INFO] Installing /tmp/grade/work/src/crd-generator/api-v2/pom.xml to /tmp/grade/work/m2/io/fabric8/crd-generator-api-v2/999-SNAPSHOT/crd-generator-api-v2-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/crd-generator/api-v2/target/crd-generator-api-v2-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/crd-generator-api-v2/999-SNAPSHOT/crd-generator-api-v2-999-SNAPSHOT.jar
+[INFO] Building bundle: /tmp/grade/work/src/httpclient-vertx/target/kubernetes-httpclient-vertx-999-SNAPSHOT-bundle.jar
+[INFO] Writing manifest: /tmp/grade/work/src/httpclient-vertx/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- jacoco:0.8.15:report-aggregate (report-aggregate) @ kubernetes-httpclient-vertx ---
+[INFO] Analyzed bundle 'kubernetes-client-api' with 183 classes
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-httpclient-vertx ---
+[INFO] Installing /tmp/grade/work/src/httpclient-vertx/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-httpclient-vertx/999-SNAPSHOT/kubernetes-httpclient-vertx-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/httpclient-vertx/target/kubernetes-httpclient-vertx-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-httpclient-vertx/999-SNAPSHOT/kubernetes-httpclient-vertx-999-SNAPSHOT.jar
+[INFO] Installing /tmp/grade/work/src/httpclient-vertx/target/kubernetes-httpclient-vertx-999-SNAPSHOT-bundle.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-httpclient-vertx/999-SNAPSHOT/kubernetes-httpclient-vertx-999-SNAPSHOT-bundle.jar
+[INFO] 
+[INFO] --------------------< io.fabric8:kubernetes-client >--------------------
+[INFO] Building Fabric8 :: Kubernetes :: Java Client 999-SNAPSHOT       [33/36]
+[INFO]   from kubernetes-client/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-client ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-client ---
+[INFO] 
+[INFO] --- templating:3.1.1:filter-sources (default) @ kubernetes-client ---
+[INFO] Requested directory '/tmp/grade/work/src/kubernetes-client/src/main/java-templates' not added since it does not exist.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-client ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-client/target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-client ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 128 source files with javac [debug deprecation release 17] to target/classes
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[667,18] delete(java.util.List<T>) in io.fabric8.kubernetes.client.dsl.AnyNamespaceOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1135,32] dryRun(boolean) in io.fabric8.kubernetes.client.dsl.AnyNamespaceOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1255,32] dryRun() in io.fabric8.kubernetes.client.dsl.AnyNamespaceOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[686,12] patchStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1265,12] updateStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1250,30] delete(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[101,8] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1235,12] createOrReplace(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[316,18] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[311,33] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[833,12] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[433,44] withoutFields(java.util.Map<java.lang.String,java.lang.String>) in io.fabric8.kubernetes.client.dsl.Filterable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[375,44] withoutLabels(java.util.Map<java.lang.String,java.lang.String>) in io.fabric8.kubernetes.client.dsl.Filterable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1145,32] withIndexers(java.util.Map<java.lang.String,java.util.function.Function<T,java.util.List<java.lang.String>>>) in io.fabric8.kubernetes.client.dsl.Informable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1240,12] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1245,12] replaceStatus(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[452,12] list(java.lang.Integer,java.lang.String) in io.fabric8.kubernetes.client.dsl.Listable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1319,12] scale(int,boolean) in io.fabric8.kubernetes.client.dsl.Scalable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[828,12] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[738,16] watch(java.lang.String,io.fabric8.kubernetes.client.Watcher<T>) in io.fabric8.kubernetes.client.dsl.Watchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[141,32] unchecked cast
+  required: T
+  found:    java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[153,27] unchecked cast
+  required: R
+  found:    io.fabric8.kubernetes.client.dsl.internal.BaseOperation<T,L,R>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[333,9] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[334,9] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[336,22] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[376,27] withoutLabels(java.util.Map<java.lang.String,java.lang.String>) in io.fabric8.kubernetes.client.dsl.Filterable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[434,27] withoutFields(java.util.Map<java.lang.String,java.lang.String>) in io.fabric8.kubernetes.client.dsl.Filterable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1211,70] unchecked conversion
+  required: java.util.Map<java.lang.String,?>
+  found:    java.util.TreeMap
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1236,26] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1241,26] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/BaseOperation.java:[1246,26] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/FilterNestedImpl.java:[117,58] withoutFields(java.util.Map<java.lang.String,java.lang.String>) in io.fabric8.kubernetes.client.dsl.Filterable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/FilterNestedImpl.java:[69,58] withoutLabels(java.util.Map<java.lang.String,java.lang.String>) in io.fabric8.kubernetes.client.dsl.Filterable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/HasMetadataOperationsImpl.java:[45,10] unchecked method invocation: constructor <init> in class io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation is applied to given types
+  required: io.fabric8.kubernetes.client.dsl.internal.OperationContext,java.lang.Class<T>,java.lang.Class<L>
+  found:    io.fabric8.kubernetes.client.dsl.internal.OperationContext,java.lang.Class<T>,java.lang.Class<L>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[172,28] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[202,38] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[285,28] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[275,28] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[176,14] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[227,20] unchecked method invocation: method addAll in interface java.util.List is applied to given types
+  required: java.util.Collection<? extends E>
+  found:    java.util.List
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[227,61] unchecked conversion
+  required: java.util.Collection<? extends E>
+  found:    java.util.List
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[276,29] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/NamespaceVisitFromServerGetWatchDeleteRecreateWaitApplicableListImpl.java:[286,29] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[154,53] withTimeoutInMillis(long) in io.fabric8.kubernetes.client.dsl.TimeoutImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[98,12] updateImage(java.lang.String) in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[121,12] updateImage(java.util.Map<java.lang.String,java.lang.String>) in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[174,12] undo() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[169,12] restart() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[164,12] resume() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[159,12] pause() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[54,12] edit(java.util.function.UnaryOperator<T>) in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollableScalableResourceOperation.java:[68,19] withLogWaitTimeout(java.lang.Integer) in io.fabric8.kubernetes.client.dsl.Loggable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollingUpdater.java:[108,78] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollingUpdater.java:[133,56] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollingUpdater.java:[139,88] scale(int,boolean) in io.fabric8.kubernetes.client.dsl.Scalable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollingUpdater.java:[144,63] scale(int,boolean) in io.fabric8.kubernetes.client.dsl.Scalable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollingUpdater.java:[155,61] cascading(boolean) in io.fabric8.kubernetes.client.dsl.Resource has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/apps/v1/RollingUpdater.java:[162,56] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/batch/v1/JobOperationsImpl.java:[165,19] withLogWaitTimeout(java.lang.Integer) in io.fabric8.kubernetes.client.dsl.Loggable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/core/v1/PodOperationsImpl.java:[564,33] readingInput(java.io.InputStream) in io.fabric8.kubernetes.client.dsl.ContainerResource has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/core/v1/PodOperationsImpl.java:[608,22] redirectingErrorChannel() in io.fabric8.kubernetes.client.dsl.TtyExecErrorChannelable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/core/v1/PodOperationsImpl.java:[602,22] writingErrorChannel(java.io.OutputStream) in io.fabric8.kubernetes.client.dsl.TtyExecErrorChannelable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/core/v1/PodOperationsImpl.java:[201,19] withLogWaitTimeout(java.lang.Integer) in io.fabric8.kubernetes.client.dsl.Loggable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/core/v1/PodOperationsImpl.java:[531,80] getNextTarEntry() in org.apache.commons.compress.archivers.tar.TarArchiveInputStream has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/core/v1/ReplicationControllerRollingUpdater.java:[63,61] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/core/v1/ReplicationControllerRollingUpdater.java:[74,61] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/extensions/v1beta1/LegacyRollableScalableResourceOperation.java:[60,84] unchecked cast
+  required: java.util.Map<java.lang.String,java.lang.Object>
+  found:    java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/extensions/v1beta1/LegacyRollableScalableResourceOperation.java:[61,48] unchecked call to put(K,V) as a member of the raw type java.util.Map
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/uploadable/PodUpload.java:[87,7] org.apache.commons.compress.utils.CountingOutputStream in org.apache.commons.compress.utils has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/dsl/internal/uploadable/PodUpload.java:[87,49] org.apache.commons.compress.utils.CountingOutputStream in org.apache.commons.compress.utils has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Adapters.java:[64,20] getExtensionType() in <anonymous io.fabric8.kubernetes.client.impl.Adapters$1> implements getExtensionType() in io.fabric8.kubernetes.client.extension.ExtensionAdapter
+  return type requires unchecked conversion from java.lang.Class to java.lang.Class<C>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Adapters.java:[100,55] unchecked cast
+  required: io.fabric8.kubernetes.client.extension.ExtensionAdapter<C>
+  found:    io.fabric8.kubernetes.client.extension.ExtensionAdapter<capture#1 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Adapters.java:[116,14] unchecked method invocation: constructor <init> in class io.fabric8.kubernetes.client.impl.ResourcedHasMetadataOperation is applied to given types
+  required: io.fabric8.kubernetes.client.dsl.internal.OperationContext,io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext,java.lang.Class<T>,java.lang.Class<L>,io.fabric8.kubernetes.client.extension.ExtensibleResourceAdapter<T>
+  found:    io.fabric8.kubernetes.client.dsl.internal.OperationContext,io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext,java.lang.Class<T>,java.lang.Class<capture#2 of ? extends io.fabric8.kubernetes.api.model.KubernetesResourceList>,R
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Adapters.java:[115,22] unchecked method invocation: method register in class io.fabric8.kubernetes.client.impl.Handlers is applied to given types
+  required: java.lang.Class<T>,java.util.function.Function<io.fabric8.kubernetes.client.Client,io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation<T,L,R>>
+  found:    java.lang.Class<T>,java.util.function.Function<io.fabric8.kubernetes.client.Client,io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation<T,io.fabric8.kubernetes.api.model.KubernetesResourceList<T>,io.fabric8.kubernetes.client.dsl.Resource<T>>>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[47,36] unchecked call to ResourceHandlerImpl(java.lang.Class<T>,java.util.function.Function<io.fabric8.kubernetes.client.Client,io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation<T,?,io.fabric8.kubernetes.client.dsl.Resource<T>>>) as a member of the raw type io.fabric8.kubernetes.client.impl.ResourceHandlerImpl
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[64,45] unchecked cast
+  required: java.lang.Class<T>
+  found:    java.lang.Class<capture#3 of ? extends io.fabric8.kubernetes.api.model.HasMetadata>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[71,16] unchecked call to ResourceHandlerImpl(java.lang.Class<T>,java.lang.Class<? extends io.fabric8.kubernetes.api.model.KubernetesResourceList<T>>,io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext) as a member of the raw type io.fabric8.kubernetes.client.impl.ResourceHandlerImpl
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[71,16] unchecked conversion
+  required: io.fabric8.kubernetes.client.impl.ResourceHandler<T,V>
+  found:    io.fabric8.kubernetes.client.impl.ResourceHandlerImpl
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[127,68] unchecked cast
+  required: io.fabric8.kubernetes.client.impl.ResourceHandler<T,V>
+  found:    io.fabric8.kubernetes.client.impl.ResourceHandler<capture#4 of ?,capture#5 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[136,69] unchecked cast
+  required: io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation<T,L,R>
+  found:    io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation<T,L,io.fabric8.kubernetes.client.dsl.Resource<T>>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[140,24] unchecked method invocation: method getOperation in class io.fabric8.kubernetes.client.impl.Handlers is applied to given types
+  required: java.lang.Class<T>,java.lang.Class<L>,io.fabric8.kubernetes.client.Client
+  found:    java.lang.Class<T>,java.lang.Class<capture#6 of ? extends io.fabric8.kubernetes.api.model.KubernetesResourceList>,io.fabric8.kubernetes.client.Client
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/Handlers.java:[140,24] unchecked conversion
+  required: io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation<T,?,io.fabric8.kubernetes.client.dsl.Resource<T>>
+  found:    io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperation
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/BaseClient.java:[265,18] supportsApiPath(java.lang.String) in io.fabric8.kubernetes.client.Client has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/BaseClient.java:[250,18] unchecked cast
+  required: C
+  found:    io.fabric8.kubernetes.client.impl.BaseClient
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/BaseClient.java:[329,65] unchecked cast
+  required: io.fabric8.kubernetes.client.dsl.MixedOperation<T,L,R>
+  found:    io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperationsImpl<T,L>
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/BatchAPIGroupClient.java:[39,66] cronjobs() in io.fabric8.kubernetes.client.dsl.BatchAPIGroupDSL has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/BatchAPIGroupClient.java:[34,62] jobs() in io.fabric8.kubernetes.client.dsl.BatchAPIGroupDSL has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/CertificatesAPIGroupClient.java:[37,10] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/CertificatesAPIGroupClient.java:[37,10] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/CertificatesAPIGroupClient.java:[37,10] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/CertificatesAPIGroupClient.java:[37,10] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/CertificatesAPIGroupClient.java:[37,10] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/CertificatesAPIGroupClient.java:[38,18] io.fabric8.kubernetes.client.impl.V1Alpha1CertificatesAPIGroupClient in io.fabric8.kubernetes.client.impl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/KubernetesClientImpl.java:[629,22] getVersion() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/KubernetesClientImpl.java:[540,127] certificateSigningRequests() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/KubernetesClientImpl.java:[269,29] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/KubernetesClientImpl.java:[269,72] io.fabric8.kubernetes.client.impl.V1Alpha1CertificatesAPIGroupClient in io.fabric8.kubernetes.client.impl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/PolicyAPIGroupClient.java:[37,96] podSecurityPolicies() in io.fabric8.kubernetes.client.dsl.PolicyAPIGroupDSL has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/PolicyAPIGroupClient.java:[32,102] podDisruptionBudget() in io.fabric8.kubernetes.client.dsl.PolicyAPIGroupDSL has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/ResourceHandlerImpl.java:[41,97] unchecked cast
+  required: java.lang.Class<? extends io.fabric8.kubernetes.api.model.KubernetesResourceList<T>>
+  found:    java.lang.Class<capture#7 of ? extends io.fabric8.kubernetes.api.model.KubernetesResourceList>
+[INFO] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/SchedulingAPIGroupClient.java: Some input files additionally use or override a deprecated API.
+[INFO] /tmp/grade/work/src/kubernetes-client/src/main/java/io/fabric8/kubernetes/client/impl/ResourceHandlerImpl.java: Some input files additionally use unchecked or unsafe operations.
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-client ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-client/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-client ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-client ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-client ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ kubernetes-client ---
+[INFO] Building jar: /tmp/grade/work/src/kubernetes-client/target/kubernetes-client-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- jar:3.5.1:test-jar (default) @ kubernetes-client ---
+[INFO] Skipping packaging of the test-jar
+[INFO] 
+[INFO] --- bundle:6.2.0:bundle (bundle) @ kubernetes-client ---
+[WARNING] Include-Resource: overriding META-INF/services/io.fabric8.kubernetes.client.ServiceToURLProvider=src/main/resources/META-INF/services/io.fabric8.kubernetes.client.ServiceToURLProvider with /META-INF/services/io.fabric8.kubernetes.client.ServiceToURLProvider=target/classes/META-INF/services/io.fabric8.kubernetes.client.ServiceToURLProvider (add {maven-resources} if you want to include the maven resources)
+[WARNING] Bundle io.fabric8:kubernetes-client:jar:999-SNAPSHOT : Unused -privatepackage instructions , no such package(s) on the class path: [io.fabric8.kubernetes.client.handlers]
+[INFO] Building bundle: /tmp/grade/work/src/kubernetes-client/target/kubernetes-client-999-SNAPSHOT-bundle.jar
+[INFO] Writing manifest: /tmp/grade/work/src/kubernetes-client/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kubernetes-client ---
+[INFO] Installing /tmp/grade/work/src/kubernetes-client/pom.xml to /tmp/grade/work/m2/io/fabric8/kubernetes-client/999-SNAPSHOT/kubernetes-client-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/kubernetes-client/target/kubernetes-client-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-client/999-SNAPSHOT/kubernetes-client-999-SNAPSHOT.jar
+[INFO] Installing /tmp/grade/work/src/kubernetes-client/target/kubernetes-client-999-SNAPSHOT-bundle.jar to /tmp/grade/work/m2/io/fabric8/kubernetes-client/999-SNAPSHOT/kubernetes-client-999-SNAPSHOT-bundle.jar
+[INFO] 
+[INFO] ----------------------< io.fabric8:kube-api-test >----------------------
+[INFO] Building Kube API Test 999-SNAPSHOT                              [34/36]
+[INFO]   from junit/kube-api-test/core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kube-api-test ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kube-api-test ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kube-api-test ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/junit/kube-api-test/core/target/classes
+[INFO] Copying 2 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kube-api-test ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 24 source files with javac [debug deprecation release 17] to target/classes
+[WARNING] /tmp/grade/work/src/junit/kube-api-test/core/src/main/java/io/fabric8/kubeapitest/binary/BinaryDownloader.java:[96,24] getNextTarEntry() in org.apache.commons.compress.archivers.tar.TarArchiveInputStream has been deprecated
+[WARNING] /tmp/grade/work/src/junit/kube-api-test/core/src/main/java/io/fabric8/kubeapitest/binary/BinaryDownloader.java:[104,22] getNextTarEntry() in org.apache.commons.compress.archivers.tar.TarArchiveInputStream has been deprecated
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kube-api-test ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/junit/kube-api-test/core/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kube-api-test ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kube-api-test ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kube-api-test ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ kube-api-test ---
+[INFO] Building jar: /tmp/grade/work/src/junit/kube-api-test/core/target/kube-api-test-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kube-api-test ---
+[INFO] Installing /tmp/grade/work/src/junit/kube-api-test/core/pom.xml to /tmp/grade/work/m2/io/fabric8/kube-api-test/999-SNAPSHOT/kube-api-test-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/junit/kube-api-test/core/target/kube-api-test-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kube-api-test/999-SNAPSHOT/kube-api-test-999-SNAPSHOT.jar
+[INFO] 
+[INFO] ---------------< io.fabric8:kube-api-test-client-inject >---------------
+[INFO] Building Kube API Test - Client Injecting Support 999-SNAPSHOT   [35/36]
+[INFO]   from junit/kube-api-test/client-inject/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kube-api-test-client-inject ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kube-api-test-client-inject ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kube-api-test-client-inject ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/junit/kube-api-test/client-inject/target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kube-api-test-client-inject ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug deprecation release 17] to target/classes
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kube-api-test-client-inject ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/junit/kube-api-test/client-inject/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kube-api-test-client-inject ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kube-api-test-client-inject ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kube-api-test-client-inject ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ kube-api-test-client-inject ---
+[INFO] Building jar: /tmp/grade/work/src/junit/kube-api-test/client-inject/target/kube-api-test-client-inject-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ kube-api-test-client-inject ---
+[INFO] Installing /tmp/grade/work/src/junit/kube-api-test/client-inject/pom.xml to /tmp/grade/work/m2/io/fabric8/kube-api-test-client-inject/999-SNAPSHOT/kube-api-test-client-inject-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/junit/kube-api-test/client-inject/target/kube-api-test-client-inject-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/kube-api-test-client-inject/999-SNAPSHOT/kube-api-test-client-inject-999-SNAPSHOT.jar
+[INFO] 
+[INFO] -------------------< io.fabric8:crd-generator-test >--------------------
+[INFO] Building Fabric8 :: CRD generator :: Tests 999-SNAPSHOT          [36/36]
+[INFO]   from crd-generator/test/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ crd-generator-test ---
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ crd-generator-test ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ crd-generator-test ---
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/crd-generator/test/target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/crd-generator/test/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ crd-generator-test ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ crd-generator-test ---
+[WARNING] Skipping file set, directory does not exist: /tmp/grade/work/src/crd-generator/test/target/classes
+[INFO] Saving Jandex index: /tmp/grade/work/src/crd-generator/test/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ crd-generator-test ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ crd-generator-test ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ crd-generator-test ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ crd-generator-test ---
+[INFO] Building jar: /tmp/grade/work/src/crd-generator/test/target/crd-generator-test-999-SNAPSHOT.jar
+[INFO] 
+[INFO] --- install:3.2.0:install (default-install) @ crd-generator-test ---
+[INFO] Installing /tmp/grade/work/src/crd-generator/test/pom.xml to /tmp/grade/work/m2/io/fabric8/crd-generator-test/999-SNAPSHOT/crd-generator-test-999-SNAPSHOT.pom
+[INFO] Installing /tmp/grade/work/src/crd-generator/test/target/crd-generator-test-999-SNAPSHOT.jar to /tmp/grade/work/m2/io/fabric8/crd-generator-test/999-SNAPSHOT/crd-generator-test-999-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Fabric8 :: Kubernetes :: Project 999-SNAPSHOT:
+[INFO] 
+[INFO] Fabric8 :: Kubernetes :: Project ................... SUCCESS [  0.412 s]
+[INFO] Fabric8 :: zjsonpatch .............................. SUCCESS [  1.936 s]
+[INFO] Fabric8 :: Kubernetes Model Parent ................. SUCCESS [  0.401 s]
+[INFO] Fabric8 :: Kubernetes Model :: Common .............. SUCCESS [  1.069 s]
+[INFO] Fabric8 :: Kubernetes Model :: Core ................ SUCCESS [ 10.140 s]
+[INFO] Fabric8 :: Kubernetes Model :: Sigs :: Gateway API . SUCCESS [  7.637 s]
+[INFO] Fabric8 :: Kubernetes Model :: RBAC ................ SUCCESS [  1.045 s]
+[INFO] Fabric8 :: Kubernetes Model :: Admission Registration, Authentication and Authorization SUCCESS [  6.867 s]
+[INFO] Fabric8 :: Kubernetes Model :: API Extensions ...... SUCCESS [  2.888 s]
+[INFO] Fabric8 :: Kubernetes Model :: Apps ................ SUCCESS [  2.054 s]
+[INFO] Fabric8 :: Kubernetes Model :: Autoscaling ......... SUCCESS [  3.948 s]
+[INFO] Fabric8 :: Kubernetes Model :: Scheduling .......... SUCCESS [  3.654 s]
+[INFO] Fabric8 :: Kubernetes Model :: Batch ............... SUCCESS [  1.667 s]
+[INFO] Fabric8 :: Kubernetes Model :: Certificates ........ SUCCESS [  1.857 s]
+[INFO] Fabric8 :: Kubernetes Model :: Coordination ........ SUCCESS [  1.045 s]
+[INFO] Fabric8 :: Kubernetes Model :: Discovery ........... SUCCESS [  1.411 s]
+[INFO] Fabric8 :: Kubernetes Model :: Events .............. SUCCESS [  0.981 s]
+[INFO] Fabric8 :: Kubernetes Model :: Extensions .......... SUCCESS [  2.824 s]
+[INFO] Fabric8 :: Kubernetes Model :: FlowControl ......... SUCCESS [  4.546 s]
+[INFO] Fabric8 :: Kubernetes Model :: Networking .......... SUCCESS [  2.955 s]
+[INFO] Fabric8 :: Kubernetes Model :: Node ................ SUCCESS [  1.190 s]
+[INFO] Fabric8 :: Kubernetes Model :: Metrics ............. SUCCESS [  0.791 s]
+[INFO] Fabric8 :: Kubernetes Model :: Policy .............. SUCCESS [  1.868 s]
+[INFO] Fabric8 :: Kubernetes Model :: Resource ............ SUCCESS [  6.657 s]
+[INFO] Fabric8 :: Kubernetes Model :: Storage Class ....... SUCCESS [  3.050 s]
+[INFO] Fabric8 :: Mock Web Server ......................... SUCCESS [  1.310 s]
+[INFO] Fabric8 :: Kubernetes :: Java Client API ........... SUCCESS [  4.309 s]
+[INFO] Fabric8 :: Kubernetes :: HttpClient :: Vert.x ...... SUCCESS [  0.950 s]
+[INFO] Fabric8 :: Kubernetes :: Java Client ............... SUCCESS [  2.434 s]
+[INFO] Kube API Test Parent ............................... SUCCESS [  0.013 s]
+[INFO] Kube API Test ...................................... SUCCESS [  0.408 s]
+[INFO] Kube API Test - Client Injecting Support ........... SUCCESS [  0.086 s]
+[INFO] Fabric8 :: Generator Annotations ................... SUCCESS [  1.286 s]
+[INFO] Fabric8 :: CRD generator :: Parent ................. SUCCESS [  0.013 s]
+[INFO] Fabric8 :: CRD generator :: API V2 ................. SUCCESS [  0.275 s]
+[INFO] Fabric8 :: CRD generator :: Tests .................. SUCCESS [  0.305 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  35.183 s (Wall Clock)
+[INFO] Finished at: 2026-11-13T21:16:10Z
+[INFO] ------------------------------------------------------------------------

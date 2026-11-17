@@ -1,0 +1,56 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+artifacts = ["/app/crates", "/app/xtask/codegen/src"]
+
+[task]
+name = "ethara/33715a43-5ec2-50c0-91a7-1beff9cbf66b"
+version = "1.0.0"
+description = "Teach Biome's type inference TypeScript indexed-access types with a number index and keyof on object types, so useExhaustiveSwitchCases and the six other type-aware rules see the resolved unions, stay unknown wherever the union could be incomplete, compare numeric switch cases by value, and narrow the ~~ check to the signed 32-bit range, without whole-module inference."
+authors = [{ name = "adarsh.mishraint17", email = "adarsh.mishraint17@ethara.ai" }]
+keywords = ["rust", "biome", "typescript", "type-inference", "linter", "issue-resolution", "rewardkit"]
+
+[metadata]
+reward_type = "bounded_continuous"
+null_floor = 0.0
+discrimination_weight = 0.5
+platforms = ["linux/amd64", "linux/arm64"]
+
+[verifier]
+env = { ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}", ANTHROPIC_BASE_URL = "${ANTHROPIC_BASE_URL:-}", OPENAI_API_KEY = "${OPENAI_API_KEY:-}", OPENAI_BASE_URL = "${OPENAI_BASE_URL:-}", REWARDKIT_JUDGE = "${REWARDKIT_JUDGE:-}" }
+timeout_sec = 6000.0
+network_mode = "public"
+environment_mode = "separate"
+user = "0"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 2400.0
+cpus = 8
+memory_mb = 24576
+storage_mb = 81920
+gpus = 0
+
+[agent]
+network_mode = "allowlist"
+allowed_hosts = ["api.openai.com", "api.anthropic.com"]
+timeout_sec = 18000.0
+user = "20001"
+
+[environment]
+network_mode = "no-network"
+build_timeout_sec = 2400.0
+cpus = 8
+memory_mb = 32768
+storage_mb = 81920
+gpus = 0
+
+[upstream_provenance]
+origin = "original"
+provenance_date = "2026-10-30"
+source_kind = "public_repository"
+
+[upstream_provenance.source]
+canonical_repo = "github.com/biomejs/biome"
+fork_ancestry_digest = "sha256:80d231165429b06512e3f7aa06468387318d607b289dcd077bb8c59d3d6a40f6"
+base_commit = "97cfc6e40a31c8f46fa32930224230b904618263"
+event_timestamp = "2025-10-13T15:39:06Z"

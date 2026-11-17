@@ -1,0 +1,82 @@
+---
+source: crates/biome_tailwind_parser/tests/spec_test.rs
+expression: snapshot
+---
+
+## Input
+
+```text
+border -top-2
+
+```
+
+
+## AST
+
+```
+TwRoot {
+    bom_token: missing (optional),
+    leading_whitespace_token: missing (optional),
+    candidates: TwCandidateList [
+        TwFullCandidate {
+            variants: TwVariantList [],
+            legacy_important_token: missing (optional),
+            negative_token: missing (optional),
+            candidate: TwStaticCandidate {
+                base_token: TW_BASE@0..6 "border" [] [],
+                modifier: missing (optional),
+            },
+            excl_token: missing (optional),
+        },
+        WHITESPACE@6..7 " " [] [],
+        TwFullCandidate {
+            variants: TwVariantList [],
+            legacy_important_token: missing (optional),
+            negative_token: DASH@7..8 "-" [] [],
+            candidate: TwFunctionalCandidate {
+                base_token: TW_BASE@8..11 "top" [] [],
+                minus_token: DASH@11..12 "-" [] [],
+                value: TwNumberValue {
+                    value_token: TW_NUMBER@12..13 "2" [] [],
+                },
+                modifier: missing (optional),
+            },
+            excl_token: missing (optional),
+        },
+        WHITESPACE@13..14 "\n" [] [],
+    ],
+    eof_token: EOF@14..14 "" [] [],
+}
+```
+
+## CST
+
+```
+0: TW_ROOT@0..14
+  0: (empty)
+  1: (empty)
+  2: TW_CANDIDATE_LIST@0..14
+    0: TW_FULL_CANDIDATE@0..6
+      0: TW_VARIANT_LIST@0..0
+      1: (empty)
+      2: (empty)
+      3: TW_STATIC_CANDIDATE@0..6
+        0: TW_BASE@0..6 "border" [] []
+        1: (empty)
+      4: (empty)
+    1: WHITESPACE@6..7 " " [] []
+    2: TW_FULL_CANDIDATE@7..13
+      0: TW_VARIANT_LIST@7..7
+      1: (empty)
+      2: DASH@7..8 "-" [] []
+      3: TW_FUNCTIONAL_CANDIDATE@8..13
+        0: TW_BASE@8..11 "top" [] []
+        1: DASH@11..12 "-" [] []
+        2: TW_NUMBER_VALUE@12..13
+          0: TW_NUMBER@12..13 "2" [] []
+        3: (empty)
+      4: (empty)
+    3: WHITESPACE@13..14 "\n" [] []
+  3: EOF@14..14 "" [] []
+
+```

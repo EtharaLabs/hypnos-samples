@@ -1,0 +1,19 @@
+{
+  "gate": {
+    "any_fail_to_pass": true,
+    "frame_ok": false,
+    "isolated": true,
+    "open": false,
+    "reason": "frame failed"
+  },
+  "items": {
+    "R1": false,
+    "R2": true,
+    "R3": false,
+    "R4": true,
+    "R5": true,
+    "R6": true,
+    "R7": false
+  },
+  "writer": "tests/grading/summarize.py, gate closed"
+}

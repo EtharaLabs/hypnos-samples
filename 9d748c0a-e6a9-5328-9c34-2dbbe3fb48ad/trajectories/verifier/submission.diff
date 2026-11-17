@@ -1,0 +1,454 @@
+diff -ruN a/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractCustomResourceHandler.java b/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractCustomResourceHandler.java
+--- a/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractCustomResourceHandler.java	2026-09-21 13:21:38.000000000 +0000
++++ b/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractCustomResourceHandler.java	2026-11-13 21:15:32.922524575 +0000
+@@ -68,8 +68,6 @@
+         if ("object".equals(type) || "array".equals(type)) {
+           logger.warn("Printer column '{}' has a type '{}' that is not allowed, will use string instead", column, type);
+           type = "string";
+-        } else if ("string".equals(type) && "date".equals(property.schema.getFormat())) {
+-          type = "date";
+         }
+         int priority = printerColumn.priority();
+ 
+diff -ruN a/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractJsonSchema.java b/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractJsonSchema.java
+--- a/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractJsonSchema.java	2026-09-21 13:21:38.000000000 +0000
++++ b/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/AbstractJsonSchema.java	2026-11-13 21:15:32.922524575 +0000
+@@ -458,7 +458,9 @@
+       schema.setMaxProperties(maxProperties);
+ 
+       schema.setPattern(pattern);
+-      schema.setFormat(format);
++      if (format != null) {
++        schema.setFormat(format);
++      }
+       if (preserveUnknownFields) {
+         schema.setXKubernetesPreserveUnknownFields(true);
+       }
+@@ -568,6 +570,18 @@
+           beanProperty.getAnnotation(JsonTypeInfo.class));
+ 
+       propertyMetadata.updateSchema(schema);
++      Class<?> wireType = unwrapReferenceType(type).getRawClass();
++      if (wireType == byte[].class || java.nio.ByteBuffer.class.isAssignableFrom(wireType)) {
++        schema.setFormat("byte");
++        schema.setMinItems(null);
++        schema.setMaxItems(null);
++        schema.setMinLength(propertyMetadata.findMinInSizeAnnotation(beanProperty)
++            .map(AbstractJsonSchema::base64Length).orElse(null));
++        schema.setMaxLength(propertyMetadata.findMaxInSizeAnnotation(beanProperty)
++            .map(AbstractJsonSchema::base64Length).orElse(null));
++      }
++
++      handleTypeAnnotations(schema, beanProperty, Optional.class, 0);
+ 
+       if (!swapResult.onGoing) {
+         for (Entry<Class<? extends Annotation>, LinkedHashMap<String, AnnotationMetadata>> entry : pathMetadata.entrySet()) {
+@@ -639,6 +653,15 @@
+     // the schema Jackson generated is the referenced type's, so resolve it with that type
+     type = unwrapReferenceType(type);
+ 
++    Class<?> rawType = type.getRawClass();
++    if (rawType == byte[].class || java.nio.ByteBuffer.class.isAssignableFrom(rawType)) {
++      T binary = singleProperty("string");
++      binary.setFormat("byte");
++      return binary;
++    }
++    if (rawType == char[].class || rawType == javax.xml.namespace.QName.class) {
++      return singleProperty("string");
++    }
+     if (jacksonSchema.isArraySchema()) {
+       Items items = jacksonSchema.asArraySchema().getItems();
+       if (items == null) { // raw collection, or one with an Object element type
+@@ -653,7 +676,15 @@
+       handleTypeAnnotations(schema, beanProperty, List.class, 0);
+       return arrayLikeProperty(schema);
+     } else if (jacksonSchema.isIntegerSchema()) {
+-      return singleProperty("integer");
++      T integer = singleProperty("integer");
++      if (rawType == int.class || rawType == Integer.class || rawType == java.util.OptionalInt.class
++          || rawType == java.util.concurrent.atomic.AtomicInteger.class) {
++        integer.setFormat("int32");
++      } else if (rawType == long.class || rawType == Long.class || rawType == java.util.OptionalLong.class
++          || rawType == java.util.concurrent.atomic.AtomicLong.class) {
++        integer.setFormat("int64");
++      }
++      return integer;
+     } else if (jacksonSchema.isNumberSchema()) {
+       return singleProperty("number");
+     } else if (jacksonSchema.isBooleanSchema()) {
+@@ -769,11 +800,13 @@
+             ofNullable(at.getAnnotation(Size.class))
+                 .map(Size::min)
+                 .filter(v -> v > 0)
++                .map(v -> "byte".equals(schema.getFormat()) ? base64Length(v) : v)
+                 .ifPresent(schema::setMinLength);
+ 
+             ofNullable(at.getAnnotation(Size.class))
+                 .map(Size::max)
+                 .filter(v -> v < Long.MAX_VALUE)
++                .map(v -> "byte".equals(schema.getFormat()) ? base64Length(v) : v)
+                 .ifPresent(schema::setMaxLength);
+ 
+           } else if ("number".equals(schema.getType()) || "integer".equals(schema.getType())) {
+@@ -824,7 +857,7 @@
+       case "date-time" -> type == Instant.class || type == OffsetDateTime.class || type == ZonedDateTime.class
+           || Calendar.class.isAssignableFrom(type)
+           || (Date.class.isAssignableFrom(type) && type != java.sql.Time.class);
+-      case "date" -> type == LocalDate.class;
++      case "date" -> type == LocalDate.class || type == java.sql.Date.class;
+       default -> false;
+     };
+   }
+@@ -832,6 +865,11 @@
+   /**
+    * Jackson describes {@code Optional<X>} and the other reference types with the schema of {@code X}.
+    */
++  private static long base64Length(long bytes) {
++    long groups = bytes / 3 + (bytes % 3 == 0 ? 0 : 1);
++    return groups > Long.MAX_VALUE / 4 ? Long.MAX_VALUE : 4 * groups;
++  }
++
+   private static JavaType unwrapReferenceType(JavaType type) {
+     while (type != null && type.isReferenceType()) {
+       type = type.getReferencedType();
+diff -ruN a/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/ResolvingContext.java b/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/ResolvingContext.java
+--- a/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/ResolvingContext.java	2026-09-21 13:21:38.000000000 +0000
++++ b/crd-generator/api-v2/src/main/java/io/fabric8/crdv2/generator/ResolvingContext.java	2026-11-13 21:15:32.922524575 +0000
+@@ -16,6 +16,7 @@
+ 
+ package io.fabric8.crdv2.generator;
+ 
++import io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModule;
+ import io.fabric8.kubernetes.client.utils.KubernetesSerialization;
+ import io.fabric8.kubernetes.client.utils.YamlDumpSettings;
+ import io.fabric8.kubernetes.client.utils.YamlDumpSettingsBuilder;
+@@ -105,6 +106,7 @@
+       YamlDumpSettings yamlDumpSettings) {
+     if (OBJECT_MAPPER == null) {
+       OBJECT_MAPPER = JsonMapper.builderWithJackson2Defaults()
++          .addModule(new Jackson2JdkTypesModule())
+           .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+           .disable(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+           .build();
+diff -ruN a/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java b/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java
+--- a/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java	2026-09-21 13:21:38.000000000 +0000
++++ b/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java	2026-11-13 21:15:33.140180831 +0000
+@@ -15,6 +15,7 @@
+  */
+ package io.fabric8.kubernetes.client.utils;
+ 
++import io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModule;
+ import com.fasterxml.jackson.annotation.JsonInclude;
+ import com.fasterxml.jackson.annotation.JsonInclude.Include;
+ import io.fabric8.kubernetes.api.model.KubernetesResource;
+@@ -78,7 +79,8 @@
+    * (property order, enum names, null primitives, getter-only collections...).
+    */
+   public KubernetesSerialization() {
+-    this(JsonMapper.builderWithJackson2Defaults().build(), true);
++    this(JsonMapper.builderWithJackson2Defaults()
++        .addModule(new Jackson2JdkTypesModule()).build(), true);
+   }
+ 
+   /**
+diff -ruN a/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Serialization.java b/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Serialization.java
+--- a/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Serialization.java	2026-09-21 13:21:38.000000000 +0000
++++ b/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Serialization.java	2026-11-13 21:15:33.140180831 +0000
+@@ -15,6 +15,7 @@
+  */
+ package io.fabric8.kubernetes.client.utils;
+ 
++import io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModule;
+ import io.fabric8.kubernetes.api.model.KubernetesResource;
+ import io.fabric8.kubernetes.model.jackson.GoCompatibilityModule;
+ import io.fabric8.kubernetes.model.jackson.UnmatchedFieldTypeModule;
+@@ -92,6 +93,7 @@
+           YAML_MAPPER = YAMLMapper.builder(
+               YAMLFactory.builder().configureForJackson2().disable(YAMLWriteFeature.USE_NATIVE_TYPE_ID).build())
+               .configureForJackson2()
++              .addModule(new Jackson2JdkTypesModule())
+               .addModule(new GoCompatibilityModule())
+               .addModule(UNMATCHED_FIELD_TYPE_MODULE)
+               .build();
+diff -ruN a/kubernetes-model-generator/kubernetes-model-common/src/main/java/io/fabric8/kubernetes/model/jackson/Jackson2JdkTypesModule.java b/kubernetes-model-generator/kubernetes-model-common/src/main/java/io/fabric8/kubernetes/model/jackson/Jackson2JdkTypesModule.java
+--- a/kubernetes-model-generator/kubernetes-model-common/src/main/java/io/fabric8/kubernetes/model/jackson/Jackson2JdkTypesModule.java	1970-01-01 00:00:00.000000000 +0000
++++ b/kubernetes-model-generator/kubernetes-model-common/src/main/java/io/fabric8/kubernetes/model/jackson/Jackson2JdkTypesModule.java	2026-11-13 21:15:33.148652434 +0000
+@@ -0,0 +1,278 @@
++/*
++ * Copyright (C) 2015 Red Hat, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *         http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package io.fabric8.kubernetes.model.jackson;
++
++import com.fasterxml.jackson.annotation.JsonFormat;
++import tools.jackson.core.JsonGenerator;
++import tools.jackson.core.JsonParser;
++import tools.jackson.core.JsonToken;
++import tools.jackson.databind.BeanDescription;
++import tools.jackson.databind.BeanProperty;
++import tools.jackson.databind.DeserializationContext;
++import tools.jackson.databind.JavaType;
++import tools.jackson.databind.KeyDeserializer;
++import tools.jackson.databind.MapperFeature;
++import tools.jackson.databind.SerializationContext;
++import tools.jackson.databind.ValueDeserializer;
++import tools.jackson.databind.ValueSerializer;
++import tools.jackson.databind.cfg.DateTimeFeature;
++import tools.jackson.databind.cfg.SerializerFactoryConfig;
++import tools.jackson.databind.deser.jdk.EnumDeserializer;
++import tools.jackson.databind.deser.std.FromStringDeserializer;
++import tools.jackson.databind.deser.std.StdScalarDeserializer;
++import tools.jackson.databind.ext.javatime.ser.YearSerializer;
++import tools.jackson.databind.ext.sql.JavaSqlDateDeserializer;
++import tools.jackson.databind.ext.sql.JavaSqlDateSerializer;
++import tools.jackson.databind.introspect.EnumNamingStrategyFactory;
++import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
++import tools.jackson.databind.jsonFormatVisitors.JsonValueFormat;
++import tools.jackson.databind.module.SimpleModule;
++import tools.jackson.databind.ser.BeanSerializerFactory;
++import tools.jackson.databind.ser.jdk.EnumSerializer;
++import tools.jackson.databind.ser.std.StdScalarSerializer;
++import tools.jackson.databind.util.EnumResolver;
++
++import java.sql.Date;
++import java.text.DateFormat;
++import java.text.SimpleDateFormat;
++import java.time.Month;
++import java.time.Year;
++import java.time.format.DateTimeFormatter;
++import java.util.IllformedLocaleException;
++import java.util.Locale;
++
++/** Restores the Jackson 2 wire representation of JDK types changed by Jackson 3. */
++public class Jackson2JdkTypesModule extends SimpleModule {
++  public Jackson2JdkTypesModule() {
++    addSerializer(Year.class, new LegacyYearSerializer());
++    // Let the normal enum serializer apply enum features and contextual annotations.
++    addSerializer(Month.class, new StdScalarSerializer<Month>(Month.class) {
++      @Override
++      public ValueSerializer<?> createContextual(SerializationContext ctxt,
++          BeanProperty property) {
++        JavaType type = ctxt.constructType(Month.class);
++        JsonFormat.Value format = findFormatOverrides(ctxt, property, Month.class);
++        if (format != null
++            && (format.getShape() == JsonFormat.Shape.OBJECT || format.getShape() == JsonFormat.Shape.POJO)) {
++          return new EnumPojoSerializerFactory().serializer(ctxt, type, format, property);
++        }
++        return EnumSerializer.construct(Month.class, ctxt.getConfig(), ctxt.introspectBeanDescription(type),
++            format).createContextual(ctxt, property);
++      }
++
++      @Override
++      public void serialize(Month value, JsonGenerator gen, SerializationContext ctxt) {
++        gen.writeString(value.name());
++      }
++    });
++    addDeserializer(Month.class, new StdScalarDeserializer<Month>(Month.class) {
++      @Override
++      public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
++          BeanProperty property) {
++        var config = ctxt.getConfig();
++        var annotated = ctxt.introspectBeanDescription(ctxt.constructType(Month.class)).getClassInfo();
++        var naming = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
++            config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotated),
++            config.canOverrideAccessModifiers(), config.getEnumNamingStrategy());
++        return new EnumDeserializer(
++            EnumResolver.constructFor(config, annotated),
++            config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
++            naming == null ? null : EnumResolver.constructUsingEnumNamingStrategy(config, annotated, naming),
++            EnumResolver.constructUsingToString(config, annotated))
++            .createContextual(ctxt, property);
++      }
++
++      @Override
++      public Month deserialize(JsonParser parser, DeserializationContext ctxt) {
++        return (Month) createContextual(ctxt, null).deserialize(parser, ctxt);
++      }
++    });
++    addSerializer(Date.class, new LegacySqlDateSerializer(null, null));
++    addDeserializer(Date.class, new LegacySqlDateDeserializer());
++    addSerializer(Locale.class, new StdScalarSerializer<Locale>(Locale.class) {
++      @Override
++      public void serialize(Locale value, JsonGenerator gen, SerializationContext ctxt) {
++        gen.writeString(value.toString());
++      }
++    });
++    addKeySerializer(Locale.class, new StdScalarSerializer<Locale>(Locale.class) {
++      @Override
++      public void serialize(Locale value, JsonGenerator gen, SerializationContext ctxt) {
++        gen.writeName(value.toString());
++      }
++    });
++    addDeserializer(Locale.class, new FromStringDeserializer<Locale>(Locale.class) {
++      @Override
++      protected boolean _shouldTrim() {
++        return false;
++      }
++
++      @Override
++      protected Object _deserializeFromEmptyString(DeserializationContext ctxt) {
++        return Locale.ROOT;
++      }
++
++      @Override
++      protected Locale _deserialize(String value, DeserializationContext ctxt) {
++        return parseLocale(value);
++      }
++    });
++    addKeyDeserializer(Locale.class, new KeyDeserializer() {
++      @Override
++      public Object deserializeKey(String key, DeserializationContext ctxt) {
++        return parseLocale(key);
++      }
++    });
++  }
++
++  private static Locale parseLocale(String value) {
++    if (!value.contains("_")) {
++      return value.contains("-") ? Locale.forLanguageTag(value) : new Locale(value);
++    }
++    String[] parts = value.split("_#", 2);
++    String[] base = parts[0].split("_", 3);
++    Locale locale = new Locale(base[0], base.length > 1 ? base[1] : "", base.length > 2 ? base[2] : "");
++    if (parts.length == 1) {
++      return locale;
++    }
++    // A legacy variant may not be a BCP 47 variant. Build the script/extensions separately.
++    String suffix = parts[1];
++    String script = suffix.length() >= 4 && suffix.charAt(0) != 'u' && suffix.charAt(0) != 'x'
++        && (suffix.length() == 4 || suffix.charAt(4) == '_') ? suffix.substring(0, 4) : "";
++    String extensions = script.isEmpty() ? suffix : suffix.length() == 4 ? "" : suffix.substring(5);
++    Locale tags = Locale.forLanguageTag("und" + (script.isEmpty() ? "" : "-" + script)
++        + (extensions.isEmpty() ? "" : "-" + extensions));
++    // Preserve the constructor's legacy compatibility variants as well as extensions.
++    if (script.isEmpty() && tags.getExtensionKeys().equals(locale.getExtensionKeys())
++        && tags.getExtensionKeys().stream().allMatch(key -> tags.getExtension(key).equals(locale.getExtension(key)))) {
++      return locale;
++    }
++    try {
++      Locale.Builder builder = new Locale.Builder().setLocale(locale).setScript(tags.getScript());
++      for (Character key : tags.getExtensionKeys()) {
++        builder.setExtension(key, tags.getExtension(key));
++      }
++      return builder.build();
++    } catch (IllformedLocaleException ex) {
++      Locale.Builder builder = new Locale.Builder().setLanguage(locale.getLanguage())
++          .setRegion(locale.getCountry()).setScript(tags.getScript());
++      for (Character key : tags.getExtensionKeys()) {
++        builder.setExtension(key, tags.getExtension(key));
++      }
++      String tag = builder.build().toLanguageTag();
++      return Locale.forLanguageTag(tag + (tags.getExtension('x') == null ? "-x" : "")
++          + "-lvariant-" + locale.getVariant().replace('_', '-'));
++    }
++  }
++
++  /** Uses the ordinary enum-to-bean path for an explicit object shape. */
++  private static class EnumPojoSerializerFactory extends BeanSerializerFactory {
++    EnumPojoSerializerFactory() {
++      super(new SerializerFactoryConfig());
++    }
++
++    ValueSerializer<?> serializer(SerializationContext ctxt, JavaType type, JsonFormat.Value format, BeanProperty property) {
++      BeanDescription description = ctxt.introspectBeanDescription(type);
++      BeanDescription.Supplier supplier = description.supplier();
++      buildEnumSerializer(ctxt, type, supplier, format);
++      ValueSerializer<?> serializer = constructBeanOrAddOnSerializer(ctxt, type, supplier, format, false);
++      serializer.resolve(ctxt);
++      return serializer.createContextual(ctxt, property);
++    }
++  }
++
++  private static class LegacyYearSerializer extends YearSerializer {
++    LegacyYearSerializer() {
++      super();
++    }
++
++    LegacyYearSerializer(LegacyYearSerializer base, DateTimeFormatter formatter, Boolean timestamp) {
++      super(base, formatter, timestamp);
++    }
++
++    @Override
++    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type) {
++      if (useTimestamp(visitor.getContext())) {
++        super.acceptJsonFormatVisitor(visitor, type);
++      } else {
++        visitStringFormat(visitor, type);
++      }
++    }
++
++    @Override
++    protected YearSerializer withFormat(DateTimeFormatter formatter, Boolean timestamp, JsonFormat.Shape shape) {
++      return new LegacyYearSerializer(this, formatter, timestamp);
++    }
++
++    @Override
++    protected boolean useTimestampFromGlobalDefaults(SerializationContext ctxt) {
++      return ctxt != null && ctxt.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
++    }
++  }
++
++  private static class LegacySqlDateSerializer extends JavaSqlDateSerializer {
++    LegacySqlDateSerializer(Boolean timestamp, DateFormat format) {
++      super(timestamp, format);
++    }
++
++    @Override
++    public JavaSqlDateSerializer withFormat(Boolean timestamp, DateFormat format) {
++      return new LegacySqlDateSerializer(timestamp, format);
++    }
++
++    @Override
++    public void serialize(Date value, JsonGenerator gen, SerializationContext ctxt) {
++      if (!_asTimestamp(ctxt) && _customFormat == null) {
++        gen.writeString(value.toString());
++      } else {
++        super.serialize(value, gen, ctxt);
++      }
++    }
++
++    @Override
++    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type) {
++      if (!_asTimestamp(visitor.getContext())) {
++        if (_customFormat == null || _customFormat instanceof SimpleDateFormat
++            && "yyyy-MM-dd".equals(((SimpleDateFormat) _customFormat).toPattern())) {
++          visitStringFormat(visitor, type, JsonValueFormat.DATE);
++        } else {
++          visitStringFormat(visitor, type);
++        }
++      } else {
++        super.acceptJsonFormatVisitor(visitor, type);
++      }
++    }
++  }
++
++  private static class LegacySqlDateDeserializer extends JavaSqlDateDeserializer {
++    LegacySqlDateDeserializer() {
++      super();
++    }
++
++    @Override
++    public Date deserialize(JsonParser parser, DeserializationContext ctxt) {
++      if (_customFormat == null && parser.hasToken(JsonToken.VALUE_STRING)
++          && parser.getString().matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
++        try {
++          return Date.valueOf(java.time.LocalDate.parse(parser.getString()));
++        } catch (java.time.DateTimeException ex) {
++          // Preserve Jackson's error and coercion handling for other input.
++        }
++      }
++      return super.deserialize(parser, ctxt);
++    }
++  }
++}

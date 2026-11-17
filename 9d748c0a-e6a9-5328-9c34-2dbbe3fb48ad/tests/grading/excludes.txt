@@ -1,0 +1,3 @@
+# GeneratedCRDsOnApiServerTest needs a kube-apiserver download; nested classes run inside their outer class
+**/GeneratedCRDsOnApiServerTest.java
+**/*$*

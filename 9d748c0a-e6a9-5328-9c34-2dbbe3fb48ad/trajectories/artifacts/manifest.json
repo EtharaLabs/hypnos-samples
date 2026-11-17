@@ -1,0 +1,114 @@
+[
+  {
+    "source": "/logs/artifacts",
+    "destination": "artifacts/logs/artifacts",
+    "type": "directory",
+    "status": "empty",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/crd-generator/api-v2/src/main/java",
+    "destination": "artifacts/app/crd-generator/api-v2/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/generator-annotations/src/main/java",
+    "destination": "artifacts/app/generator-annotations/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/httpclient-vertx/src/main/java",
+    "destination": "artifacts/app/httpclient-vertx/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/junit/kube-api-test/client-inject/src/main/java",
+    "destination": "artifacts/app/junit/kube-api-test/client-inject/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/junit/kube-api-test/core/src/main/java",
+    "destination": "artifacts/app/junit/kube-api-test/core/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/junit/mockwebserver/src/main/java",
+    "destination": "artifacts/app/junit/mockwebserver/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/kubernetes-client/src/main/java",
+    "destination": "artifacts/app/kubernetes-client/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/kubernetes-client-api/src/main/java",
+    "destination": "artifacts/app/kubernetes-client-api/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/kubernetes-model-generator/kubernetes-model-apiextensions/src/main/java",
+    "destination": "artifacts/app/kubernetes-model-generator/kubernetes-model-apiextensions/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/kubernetes-model-generator/kubernetes-model-common/src/main/java",
+    "destination": "artifacts/app/kubernetes-model-generator/kubernetes-model-common/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/kubernetes-model-generator/kubernetes-model-coordination/src/main/java",
+    "destination": "artifacts/app/kubernetes-model-generator/kubernetes-model-coordination/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/kubernetes-model-generator/kubernetes-model-core/src/main/java",
+    "destination": "artifacts/app/kubernetes-model-generator/kubernetes-model-core/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/zjsonpatch/src/main/java",
+    "destination": "artifacts/app/zjsonpatch/src/main/java",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  }
+]

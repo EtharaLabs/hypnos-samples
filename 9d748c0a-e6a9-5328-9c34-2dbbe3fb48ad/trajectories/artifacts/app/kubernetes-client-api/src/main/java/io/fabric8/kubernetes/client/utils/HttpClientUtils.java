@@ -1,0 +1,313 @@
+/*
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.fabric8.kubernetes.client.utils;
+
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.http.BasicBuilder;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.Interceptor;
+import io.fabric8.kubernetes.client.internal.SSLUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
+
+public class HttpClientUtils {
+
+  private static final class HeaderInterceptor implements Interceptor {
+    private final Config config;
+
+    private HeaderInterceptor(Config config) {
+      this.config = config;
+    }
+
+    @Override
+    public void before(BasicBuilder builder, HttpRequest request, RequestTags tags) {
+      if (config.getCustomHeaders() != null && !config.getCustomHeaders().isEmpty()) {
+        for (Map.Entry<String, String> entry : config.getCustomHeaders().entrySet()) {
+          builder.header(entry.getKey(), entry.getValue());
+        }
+      }
+      if (config.getUserAgent() != null && !config.getUserAgent().isEmpty()) {
+        builder.setHeader("User-Agent", config.getUserAgent());
+      }
+    }
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
+  private static final String HEADER_INTERCEPTOR = "HEADER";
+  private static final String KUBERNETES_BACKWARDS_COMPATIBILITY_INTERCEPTOR_DISABLE = "kubernetes.backwardsCompatibilityInterceptor.disable";
+  private static final String BACKWARDS_COMPATIBILITY_DISABLE_DEFAULT = "true";
+  private static final Pattern IP_PATTERN = Pattern.compile(
+      "(http(s?)://)?(?<ipAddressOrSubnet>((\\d{1,3}(.\\d{1,3}){3})|([a-f\\d]{1,4}(\\:[a-f\\d]{0,4}){2,7}))(/\\d+)?)",
+      Pattern.CASE_INSENSITIVE);
+  private static final Pattern INVALID_HOST_PATTERN = Pattern.compile("[^\\da-zA-Z.\\-/:]+");
+
+  private HttpClientUtils() {
+  }
+
+  static URI getProxyUri(URL master, Config config) throws URISyntaxException {
+    String proxy = config.getHttpsProxy();
+    if (master.getProtocol().equals("http")) {
+      proxy = config.getHttpProxy();
+    }
+    if (proxy != null) {
+      final String completedProxy;
+      if (proxy.contains("://")) {
+        completedProxy = proxy;
+      } else {
+        // No protocol specified, default to cluster requirements
+        completedProxy = master.getProtocol() + "://" + proxy;
+      }
+      final URI proxyUrl = new URI(completedProxy);
+      if (proxyUrl.getPort() < 0) {
+        throw new IllegalArgumentException("Failure in creating proxy URL. Proxy port is required!");
+      }
+      return proxyUrl;
+    }
+    return null;
+  }
+
+  public static Map<String, io.fabric8.kubernetes.client.http.Interceptor> createApplicableInterceptors(Config config,
+      HttpClient.Factory factory) {
+    Map<String, io.fabric8.kubernetes.client.http.Interceptor> interceptors = new LinkedHashMap<>();
+
+    // Header Interceptor
+    interceptors.put(HEADER_INTERCEPTOR, new HeaderInterceptor(config));
+    // Impersonator Interceptor
+    interceptors.put(ImpersonatorInterceptor.NAME, new ImpersonatorInterceptor(config.getRequestConfig()));
+    // Token Refresh Interceptor
+    interceptors.put(TokenRefreshInterceptor.NAME, new TokenRefreshInterceptor(config, factory, Instant.now()));
+    // Backwards Compatibility Interceptor
+    String shouldDisableBackwardsCompatibilityInterceptor = Utils
+        .getSystemPropertyOrEnvVar(KUBERNETES_BACKWARDS_COMPATIBILITY_INTERCEPTOR_DISABLE,
+            BACKWARDS_COMPATIBILITY_DISABLE_DEFAULT);
+    if (!Boolean.parseBoolean(shouldDisableBackwardsCompatibilityInterceptor)) {
+      interceptors.put(BackwardsCompatibilityInterceptor.NAME, new BackwardsCompatibilityInterceptor());
+    }
+
+    return interceptors;
+  }
+
+  public static String basicCredentials(String usernameAndPassword) {
+    String encoded = Base64.getEncoder().encodeToString(usernameAndPassword.getBytes(StandardCharsets.UTF_8));
+    return "Basic " + encoded;
+  }
+
+  public static String basicCredentials(String username, String password) {
+    return basicCredentials(username + ":" + password);
+  }
+
+  public static String[] decodeBasicCredentials(String basicCredentials) {
+    if (basicCredentials == null) {
+      return null;
+    }
+    try {
+      final String encodedCredentials = basicCredentials.replaceFirst("Basic ", "");
+      final String decodedProxyAuthorization = new String(Base64.getDecoder().decode(encodedCredentials),
+          StandardCharsets.UTF_8);
+      // RFC 7617: the user-id can't contain a colon, the password can
+      final String[] userPassword = decodedProxyAuthorization.split(":", 2);
+      if (userPassword.length == 2) {
+        return userPassword;
+      }
+    } catch (Exception ignored) {
+      // Ignored
+    }
+    return null;
+  }
+
+  /**
+   * @deprecated you should not need to call this method directly. Please create your own HttpClient.Factory
+   *             should you need to customize your clients.
+   */
+  @Deprecated
+  public static HttpClient createHttpClient(Config config) {
+    HttpClient.Factory factory = getHttpClientFactory();
+    return factory.newBuilder(config).build();
+  }
+
+  public static HttpClient.Factory getHttpClientFactory() {
+    HttpClient.Factory factory = getFactory(
+        ServiceLoader.load(HttpClient.Factory.class, Thread.currentThread().getContextClassLoader()));
+    if (factory == null) {
+      factory = getFactory(ServiceLoader.load(HttpClient.Factory.class, HttpClientUtils.class.getClassLoader()));
+      if (factory == null) {
+        throw new KubernetesClientException(
+            "No httpclient implementations found on the context classloader, please ensure your classpath includes an implementation jar");
+      }
+    }
+    logger.debug("Using httpclient {} factory", factory.getClass().getName());
+    return factory;
+  }
+
+  private static HttpClient.Factory getFactory(ServiceLoader<HttpClient.Factory> loader) {
+    List<HttpClient.Factory> factories = new ArrayList<>();
+    loader.forEach(factories::add);
+    if (factories.isEmpty()) {
+      return null;
+    }
+    Collections.sort(factories, (f1, f2) -> Integer.compare(f2.priority(), f1.priority()));
+    HttpClient.Factory factory = factories.get(0);
+    if (factories.size() > 1) {
+      if (factories.get(1).priority() == factory.priority()) {
+        logger.warn("The following httpclient factories were detected on your classpath: {}, "
+            + "multiple of which had the same priority ({}) so one was chosen randomly. "
+            + "You should exclude dependencies that aren't needed or use an explicit association of the HttpClient.Factory.",
+            factories.stream().map(f -> f.getClass().getName()).toArray(), factory.priority());
+      } else if (logger.isDebugEnabled()) {
+        logger.debug("The following httpclient factories were detected on your classpath: {}",
+            factories.stream().map(f -> f.getClass().getName()).toArray());
+      }
+    }
+    return factory;
+  }
+
+  public static void applyCommonConfiguration(Config config, HttpClient.Builder builder, HttpClient.Factory factory) {
+    builder.followAllRedirects();
+
+    builder.tag(config.getRequestConfig());
+
+    if (config.getConnectionTimeout() > 0) {
+      builder.connectTimeout(config.getConnectionTimeout(), TimeUnit.MILLISECONDS);
+    }
+
+    if (config.isHttp2Disable()) {
+      builder.preferHttp11();
+    }
+
+    try {
+      configureProxy(config, builder);
+
+      TrustManager[] trustManagers = SSLUtils.trustManagers(config);
+      KeyManager[] keyManagers = SSLUtils.keyManagers(config);
+      builder.sslContext(keyManagers, trustManagers);
+    } catch (Exception e) {
+      throw KubernetesClientException.launderThrowable(e);
+    }
+
+    if (config.getTlsVersions() != null && config.getTlsVersions().length > 0) {
+      builder.tlsVersions(config.getTlsVersions());
+    }
+
+    if (config.getTlsServerName() != null && !config.getTlsServerName().isEmpty()) {
+      builder.tlsServerName(config.getTlsServerName());
+    }
+
+    HttpClientUtils.createApplicableInterceptors(config, factory).forEach(builder::addOrReplaceInterceptor);
+  }
+
+  static void configureProxy(Config config, HttpClient.Builder builder)
+      throws URISyntaxException, MalformedURLException {
+    URL master;
+    try {
+      master = new URL(config.getMasterUrl());
+    } catch (MalformedURLException e) {
+      // Only check proxy if it's a full URL with protocol
+      return;
+    }
+    URI proxyUri = HttpClientUtils.getProxyUri(master, config);
+    if (proxyUri == null) {
+      // not configured for a proxy
+      return;
+    }
+    String host = master.getHost();
+    if (isHostMatchedByNoProxy(host, config.getNoProxy())) {
+      builder.proxyType(HttpClient.ProxyType.DIRECT);
+    } else {
+      builder.proxyAddress(new InetSocketAddress(proxyUri.getHost(), proxyUri.getPort()));
+
+      // RFC 7617: the colon is required even when the password is empty, otherwise the credentials can't be decoded
+      if (config.getProxyUsername() != null) {
+        builder.proxyAuthorization(
+            basicCredentials(config.getProxyUsername(), Utils.getNonNullOrElse(config.getProxyPassword(), "")));
+      }
+
+      String userInfo = proxyUri.getUserInfo();
+      if (userInfo != null) {
+        builder.proxyAuthorization(basicCredentials(userInfo.contains(":") ? userInfo : userInfo + ":"));
+      }
+
+      builder.proxyType(toProxyType(proxyUri.getScheme()));
+    }
+  }
+
+  static HttpClient.ProxyType toProxyType(String scheme) throws MalformedURLException {
+    if (scheme == null) {
+      throw new MalformedURLException("No protocol specified on proxy URL");
+    }
+    scheme = scheme.toLowerCase();
+    if (scheme.startsWith("http")) {
+      return HttpClient.ProxyType.HTTP;
+    }
+    if (scheme.equals("socks4")) {
+      return HttpClient.ProxyType.SOCKS4;
+    }
+    if (scheme.equals("socks5")) {
+      return HttpClient.ProxyType.SOCKS5;
+    }
+    throw new MalformedURLException("Unsupported protocol specified on proxy URL");
+  }
+
+  static boolean isHostMatchedByNoProxy(String host, String[] noProxies) throws MalformedURLException {
+    for (String noProxy : noProxies == null ? new String[0] : noProxies) {
+      if (INVALID_HOST_PATTERN.matcher(noProxy).find()) {
+        throw new MalformedURLException("NO_PROXY URL contains invalid entry: '" + noProxy + "'");
+      }
+      final Optional<String> noProxyIpOrSubnet = extractIpAddressOrSubnet(noProxy);
+      if (noProxyIpOrSubnet.isPresent()) {
+        if (new IpAddressMatcher(noProxyIpOrSubnet.get()).matches(host)) {
+          return true;
+        }
+      } else {
+        if (host.endsWith(noProxy)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static Optional<String> extractIpAddressOrSubnet(String ipAddressOrSubnet) {
+    final Matcher ipMatcher = IP_PATTERN.matcher(ipAddressOrSubnet);
+    if (ipMatcher.matches()) {
+      return Optional.of(ipMatcher.group("ipAddressOrSubnet"));
+    }
+    return Optional.empty();
+  }
+}

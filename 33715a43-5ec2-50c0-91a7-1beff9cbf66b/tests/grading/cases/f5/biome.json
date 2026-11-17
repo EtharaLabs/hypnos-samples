@@ -1,0 +1,21 @@
+{
+  "formatter": { "enabled": false },
+  "assist": { "enabled": false },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "nursery": {
+        "useExhaustiveSwitchCases": "error",
+        "noFloatingPromises": "error",
+        "noUselessTypeConversion": "error",
+        "useAwaitThenable": "error",
+        "noUnsafePlusOperands": "error"
+      },
+      "suspicious": {
+        "noUnnecessaryConditions": "error",
+        "useArraySortCompare": "error"
+      }
+    }
+  }
+}

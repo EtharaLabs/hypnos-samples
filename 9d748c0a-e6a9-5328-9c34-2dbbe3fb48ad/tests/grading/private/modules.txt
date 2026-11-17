@@ -1,0 +1,13 @@
+crd-generator/api-v2
+generator-annotations
+httpclient-vertx
+junit/kube-api-test/client-inject
+junit/kube-api-test/core
+junit/mockwebserver
+kubernetes-client
+kubernetes-client-api
+kubernetes-model-generator/kubernetes-model-apiextensions
+kubernetes-model-generator/kubernetes-model-common
+kubernetes-model-generator/kubernetes-model-coordination
+kubernetes-model-generator/kubernetes-model-core
+zjsonpatch

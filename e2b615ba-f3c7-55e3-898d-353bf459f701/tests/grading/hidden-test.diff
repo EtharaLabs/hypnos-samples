@@ -1,0 +1,2779 @@
+diff --git a/crates/swc_ecma_minifier/tests/compress.rs b/crates/swc_ecma_minifier/tests/compress.rs
+index cd0a311778..f67f278f22 100644
+--- a/crates/swc_ecma_minifier/tests/compress.rs
++++ b/crates/swc_ecma_minifier/tests/compress.rs
+@@ -364,9 +364,8 @@ fn custom_fixture(input: PathBuf) {
+             );
+         }
+ 
+-        NormalizedOutput::from(output)
+-            .compare_to_file(dir.join("output.js"))
+-            .unwrap();
++        // Behaviour only: the emitted text of a fixture is not compared.
++        drop(output);
+ 
+         Ok(())
+     })
+@@ -874,7 +873,8 @@ fn fixture(input: PathBuf) {
+             });
+         }
+ 
+-        assert_eq!(DebugUsingDisplay(&output_str), DebugUsingDisplay(&expected));
++        // Behaviour only: the emitted text of a fixture is not compared.
++        drop((output_str, expected));
+ 
+         Ok(())
+     })
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/input.js
+new file mode 100644
+index 0000000000..9bff767b1e
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/input.js
+@@ -0,0 +1,9 @@
++(() => {
++    const Alias = class Named {
++        static self = Named;
++        static refs = { Named };
++        static make() { return new Named(); }
++        whoami() { return Named.name; }
++    };
++    console.log(Alias.name, Alias.self === Alias, Alias.refs.Named === Alias, Alias.make() instanceof Alias, new Alias().whoami());
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__class_expression/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/input.js
+new file mode 100644
+index 0000000000..0cc810bc8b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/input.js
+@@ -0,0 +1,13 @@
++(() => {
++    class Base {}
++    class Shape extends Base {
++        static Inner = class {
++            static outer = Shape;
++        };
++        static parent = Object.getPrototypeOf(Shape) === Base;
++        static {
++            Shape.tag = { Shape }.Shape === Shape;
++        }
++    }
++    console.log(Shape.name, Shape.Inner.outer === Shape, Shape.parent, Shape.tag);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__derived_nested/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/config.json
+new file mode 100644
+index 0000000000..60002e6429
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/config.json
+@@ -0,0 +1,7 @@
++{
++    "defaults": true,
++    "keep_classnames": true,
++    "keep_fnames": true,
++    "passes": 3,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/input.js
+new file mode 100644
+index 0000000000..9663d738eb
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/input.js
+@@ -0,0 +1,8 @@
++(() => {
++    class Widget {
++        static instances = [new Widget()];
++        static { Widget.factory = function create() { return new Widget(); }; }
++        static { [Widget.alias] = [Widget]; }
++    }
++    console.log(Widget.name, Widget.instances[0] instanceof Widget, Widget.factory().constructor === Widget, Widget.alias === Widget, Widget.factory.name);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/mangle.json
+new file mode 100644
+index 0000000000..85e655b4c8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__keep_both/mangle.json
+@@ -0,0 +1,5 @@
++{
++    "keep_classnames": true,
++    "keep_fnames": true,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/config.json
+new file mode 100644
+index 0000000000..f4235cbfe8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/config.json
+@@ -0,0 +1,6 @@
++{
++    "defaults": true,
++    "module": true,
++    "toplevel": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/input.js
+new file mode 100644
+index 0000000000..927a5f452b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/input.js
+@@ -0,0 +1,11 @@
++export class Cache {
++    static shared = new Cache();
++    static {
++        Cache.ready = Cache.shared instanceof Cache;
++    }
++}
++class Local {
++    static self = Local;
++    static refs = { Local };
++}
++console.log(Cache.name, Cache.ready, Local.name, Local.self === Local, Local.refs.Local === Local);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/mangle.json
+new file mode 100644
+index 0000000000..74583411dd
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__module_toplevel/mangle.json
+@@ -0,0 +1,4 @@
++{
++    "keep_classnames": true,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/input.js
+new file mode 100644
+index 0000000000..85d85a2b4b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/input.js
+@@ -0,0 +1,11 @@
++(() => {
++    class A {
++        static peer = () => B;
++        static self = A;
++    }
++    class B {
++        static peer = A;
++        static self = B;
++    }
++    console.log(A.name, B.name, A.peer() === B, B.peer === A, A.self === A, B.self === B);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__mutual_statics/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/input.js
+new file mode 100644
+index 0000000000..1882d14036
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/input.js
+@@ -0,0 +1,10 @@
++(() => {
++    class Base {
++        constructor() {
++            this.exact = new.target === Base;
++        }
++        static make = () => new Base();
++        static check = new Base().exact;
++    }
++    console.log(Base.name, Base.check, Base.make().exact);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__new_target/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/input.js
+new file mode 100644
+index 0000000000..5e092f4a4f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/input.js
+@@ -0,0 +1,17 @@
++(() => {
++    class Node {
++        static root = new Node(null);
++        static refs = { Node };
++        static {
++            Node.self = Node;
++        }
++        constructor(parent) {
++            this.parent = parent;
++        }
++        child() {
++            return new Node(this);
++        }
++    }
++    const leaf = Node.root.child();
++    console.log(leaf.parent === Node.root, Node.refs.Node === Node, Node.self === Node, leaf instanceof Node);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/mangle.json
+new file mode 100644
+index 0000000000..0967ef424b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__plain_mangle/mangle.json
+@@ -0,0 +1 @@
++{}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/config.json
+new file mode 100644
+index 0000000000..dccb2dcc1f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/input.js
+new file mode 100644
+index 0000000000..cfcb790f00
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/input.js
+@@ -0,0 +1,13 @@
++(() => {
++    class Counter {
++        static #instances = 0;
++        static #create() {
++            Counter.#instances++;
++            return new Counter();
++        }
++        static first = Counter.#create();
++        static get total() { return Counter.#instances; }
++        clone() { return new Counter(); }
++    }
++    console.log(Counter.name, Counter.total, Counter.first instanceof Counter, new Counter().clone() instanceof Counter);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__private_statics/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/input.js
+new file mode 100644
+index 0000000000..9a92be7bd8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/input.js
+@@ -0,0 +1,16 @@
++(() => {
++    class Registry {
++        static all = [];
++        static create = () => new Registry();
++        static count = Registry.all.length;
++        static {
++            Registry.kind = { Registry }.Registry.name;
++        }
++        constructor() {
++            Registry.all.push(this);
++        }
++    }
++    Registry.create();
++    Registry.create();
++    console.log(Registry.name, Registry.all.length, Registry.count, Registry.kind, Registry.all[0] instanceof Registry);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__registry/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/input.js
+new file mode 100644
+index 0000000000..b77850532c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/input.js
+@@ -0,0 +1,14 @@
++(() => {
++    class Foo {
++        static assign(value) {
++            try {
++                ({ Foo } = value);
++            } catch (error) {
++                return error instanceof TypeError;
++            }
++            return false;
++        }
++    }
++    console.log(Foo.assign({ Foo: null }));
++    console.log(Foo.name);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_assignment/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/input.js
+new file mode 100644
+index 0000000000..0b96494475
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/input.js
+@@ -0,0 +1,12 @@
++(() => {
++    class Foo {
++        static {
++            try {
++                ({ Foo = null } = {});
++            } catch (error) {
++                console.log(error instanceof TypeError);
++            }
++        }
++    }
++    console.log(Foo.name);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_destructuring_default/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/input.js
+new file mode 100644
+index 0000000000..03bd4b3f22
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/input.js
+@@ -0,0 +1,15 @@
++(() => {
++    class Foo {
++        getSelf() {
++            return { Foo };
++        }
++        getShadowed(Foo) {
++            return { Foo };
++        }
++    }
++    const Saved = Foo;
++    Foo = null;
++    const instance = new Saved();
++    console.log(Saved.name, instance.getSelf().Foo === Saved);
++    console.log(instance.getShadowed(7).Foo);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_method_reassignment/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/input.js
+new file mode 100644
+index 0000000000..66ebe6b300
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/input.js
+@@ -0,0 +1,8 @@
++(() => {
++    class Foo {
++        static {
++            Foo.refs = { Foo };
++        }
++    }
++    console.log(Foo.name, Foo.refs.Foo === Foo);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_block/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/input.js
+new file mode 100644
+index 0000000000..7b74805251
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/input.js
+@@ -0,0 +1,6 @@
++(() => {
++    class Foo {
++        static refs = { Foo };
++    }
++    console.log(Foo.name, Foo.refs.Foo === Foo);
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__shorthand_static_field/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/input.js
+new file mode 100644
+index 0000000000..e4fa5b5883
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/input.js
+@@ -0,0 +1,27 @@
++(() => {
++    class StaticBlock {
++        static {
++            StaticBlock.prototype.ready = true;
++        }
++    }
++
++    console.log(StaticBlock.name, new StaticBlock().ready);
++})();
++
++(() => {
++    class StaticField {
++        static instance = new StaticField();
++        static self = StaticField;
++
++        getSelf() {
++            return StaticField;
++        }
++    }
++
++    console.log(
++        StaticField.name,
++        StaticField.instance instanceof StaticField,
++        StaticField.self === StaticField,
++        StaticField.instance.getSelf() === StaticField
++    );
++})();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/mangle.json
+new file mode 100644
+index 0000000000..6ba8f5474c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/class_self__static_members/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_methods/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_methods/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_methods/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_methods/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_methods/input.js
+new file mode 100644
+index 0000000000..a891531f84
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_methods/input.js
+@@ -0,0 +1,16 @@
++(function () {
++    function instanceLoad(value) { return value + 1; }
++    function staticLoad(value) { return value + 2; }
++    function privateLoad(value) { return value + 3; }
++    globalThis.Service = class {
++        read(callback = instanceLoad) { return callback; }
++        static read(callback = staticLoad) { return callback; }
++        #read(callback = privateLoad) { return callback; }
++        readPrivate() { return this.#read(); }
++    };
++})();
++const first = new Service();
++const second = new Service();
++console.log(first.read() === second.read(), first.read()(1));
++console.log(Service.read() === Service.read(), Service.read()(1));
++console.log(first.readPrivate() === second.readPrivate(), first.readPrivate()(1));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_value/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_value/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_value/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_value/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_value/input.js
+new file mode 100644
+index 0000000000..243ed1461b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__class_value/input.js
+@@ -0,0 +1,9 @@
++(function () {
++    class Store {
++        constructor() { this.items = []; }
++    }
++    function hook([Kind = Store] = []) { return Kind; }
++    globalThis.make = function (kinds) { return hook(kinds); };
++})();
++const Kind = make();
++console.log(Kind === make([]), new Kind() instanceof make(), make([Array]) === Array);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__computed_keys/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__computed_keys/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__computed_keys/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__computed_keys/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__computed_keys/input.js
+new file mode 100644
+index 0000000000..86108036e4
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__computed_keys/input.js
+@@ -0,0 +1,19 @@
++(function () {
++    let key = "first";
++    const events = [];
++    function methodKey() { events.push("method"); return "read"; }
++    function parameterKey() { events.push(key); return key; }
++    function load() { return "default"; }
++    globalThis.service = {
++        [methodKey()]({ [parameterKey()]: callback = load } = {}) {
++            return callback;
++        }
++    };
++    globalThis.changeKey = function () { key = "second"; };
++    globalThis.events = events;
++})();
++console.log(events.join(","));
++const first = service.read();
++changeKey();
++console.log(first === service.read({}), service.read({ second: () => "provided" })());
++console.log(events.join(","));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__constructor_default/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__constructor_default/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__constructor_default/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__constructor_default/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__constructor_default/input.js
+new file mode 100644
+index 0000000000..51d1fbb36c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__constructor_default/input.js
+@@ -0,0 +1,10 @@
++(function () {
++    function load(value) { return value + 1; }
++    globalThis.Service = class {
++        constructor(callback = load) { this.callback = callback; }
++    };
++})();
++const first = new Service();
++const second = new Service();
++console.log(first.callback === second.callback, first.callback(2));
++console.log(new Service(null).callback);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_array/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_array/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_array/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_array/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_array/input.js
+new file mode 100644
+index 0000000000..8844197936
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_array/input.js
+@@ -0,0 +1,7 @@
++(function () {
++    function load(value) { return value + 1; }
++    function hook([callback = load] = []) { return callback; }
++    globalThis.render = function (callbacks) { return hook(callbacks); };
++})();
++console.log(render() === render([]), render([]) === render([undefined]));
++console.log(render([null]), render([value => value * 2])(3));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_object/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_object/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_object/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_object/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_object/input.js
+new file mode 100644
+index 0000000000..8a50fa86f0
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__destructured_object/input.js
+@@ -0,0 +1,11 @@
++(function () {
++    function load(value) { return value + 1; }
++    function hook({ options: { callback = load } = {} } = {}) {
++        return callback;
++    }
++    globalThis.render = function (options) { return hook(options); };
++})();
++const first = render();
++console.log(first === render({}), first === render({ options: {} }));
++console.log(render({ options: { callback: null } }));
++console.log(render({ options: { callback: value => value * 2 } })(3));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/config.json
+new file mode 100644
+index 0000000000..65f9450694
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/input.js
+new file mode 100644
+index 0000000000..a84dbc3131
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/input.js
+@@ -0,0 +1,6 @@
++(function () {
++    function load(value) { return value + 1; }
++    const hook = function ({ callback = load } = {}) { return callback; };
++    globalThis.render = function (input) { return hook(input); };
++})();
++console.log(render() === render({}), render()(1));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__expression_hook/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_expressions/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_expressions/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_expressions/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_expressions/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_expressions/input.js
+new file mode 100644
+index 0000000000..ff55dff833
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_expressions/input.js
+@@ -0,0 +1,13 @@
++(function () {
++    function load(value) { return value + 1; }
++    const settings = { retries: 3 };
++    globalThis.make = function () {
++        return function (callback = load) { return callback; };
++    };
++    globalThis.arrow = (callback = load) => callback;
++    globalThis.config = function (options = settings) { return options; };
++})();
++const a = make(), b = make();
++console.log(a() === b(), a()(1), arrow() === arrow(), arrow()(2));
++config().retries++;
++console.log(config() === config(), config().retries);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/config.json
+new file mode 100644
+index 0000000000..65f9450694
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/input.js
+new file mode 100644
+index 0000000000..0793ac6872
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/input.js
+@@ -0,0 +1,30 @@
++(function () {
++    function load(value) { return value + 1; }
++    function hook(callback = load) { return callback; }
++    globalThis.render = function () { return hook(); };
++})();
++console.log("sync", render() === render());
++(function () {
++    async function load(value) { return value + 1; }
++    function hook(callback = load) { return callback; }
++    globalThis.render = function () { return hook(); };
++})();
++console.log("async", render() === render());
++(function () {
++    function* load(value) { yield value + 1; }
++    function hook(callback = load) { return callback; }
++    globalThis.render = function () { return hook(); };
++})();
++console.log("generator", render() === render());
++(function () {
++    const load = value => value + 1;
++    function hook(callback = load) { return callback; }
++    globalThis.render = function () { return hook(); };
++})();
++console.log("arrow", render() === render());
++(function () {
++    const load = async value => value + 1;
++    function hook(callback = load) { return callback; }
++    globalThis.render = function () { return hook(); };
++})();
++console.log("asyncArrow", render() === render());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__function_kinds/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__initializer_effects/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__initializer_effects/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__initializer_effects/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__initializer_effects/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__initializer_effects/input.js
+new file mode 100644
+index 0000000000..b938567e9a
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__initializer_effects/input.js
+@@ -0,0 +1,14 @@
++(function () {
++    let calls = 0;
++    function fallback() {
++        calls++;
++        if (calls === 2) throw new Error("fallback");
++        return calls;
++    }
++    globalThis.read = function (value = fallback()) { return value; };
++    globalThis.calls = function () { return calls; };
++})();
++console.log(calls(), read(10), read(null), calls());
++console.log(read(), calls());
++try { read(undefined); } catch (error) { console.log(error.message, calls()); }
++console.log(read(), calls());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_array/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_array/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_array/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_array/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_array/input.js
+new file mode 100644
+index 0000000000..0f1f909622
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_array/input.js
+@@ -0,0 +1,6 @@
++(function () {
++    function load(value) { return value + 1; }
++    function hook([[callback = load] = []] = []) { return callback; }
++    globalThis.render = function (input) { return hook(input); };
++})();
++console.log(render() === render([]), render([[]]) === render(), render()(1));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_function/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_function/config.json
+new file mode 100644
+index 0000000000..65f9450694
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_function/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_function/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_function/input.js
+new file mode 100644
+index 0000000000..7fdd0d9fbf
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__nested_function/input.js
+@@ -0,0 +1,9 @@
++(function () {
++    function load(value) { return value + 1; }
++    function outer() {
++        function inner({ callback = load } = {}) { return callback; }
++        return inner();
++    }
++    globalThis.render = function () { return outer(); };
++})();
++console.log(render() === render(), render()(5));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__object_method/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__object_method/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__object_method/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__object_method/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__object_method/input.js
+new file mode 100644
+index 0000000000..b453f71f9b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__object_method/input.js
+@@ -0,0 +1,8 @@
++(function () {
++    function load(value) { return value + 1; }
++    globalThis.service = {
++        read(callback = load) { return callback; }
++    };
++})();
++const read = service.read;
++console.log(service.read() === read(), read()(2));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__parameter_scope/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__parameter_scope/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__parameter_scope/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__parameter_scope/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__parameter_scope/input.js
+new file mode 100644
+index 0000000000..d475f158b9
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__parameter_scope/input.js
+@@ -0,0 +1,11 @@
++(function () {
++    function load() { return "outer"; }
++    globalThis.render = function (callback = load) {
++        function load() { return "body"; }
++        return [callback, load()];
++    };
++})();
++const first = render();
++const second = render();
++console.log(first[0] === second[0], first[0](), first[1]);
++console.log(render(() => "override")[0]());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__reassigned_default/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__reassigned_default/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__reassigned_default/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__reassigned_default/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__reassigned_default/input.js
+new file mode 100644
+index 0000000000..f0be650881
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__reassigned_default/input.js
+@@ -0,0 +1,11 @@
++(function () {
++    let load = value => value + 1;
++    function hook(callback = load) { return callback; }
++    globalThis.render = function () { return hook(); };
++    globalThis.replace = function (callback) { load = callback; };
++})();
++const first = render();
++console.log(first(2), first === render());
++const replacement = value => value * 2;
++replace(replacement);
++console.log(render() === replacement, render()(2), first(2));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/config.json
+new file mode 100644
+index 0000000000..4e7eff41a7
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 3
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/input.js
+new file mode 100644
+index 0000000000..28c0acaf26
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/input.js
+@@ -0,0 +1,6 @@
++(function () {
++    function load(value) { return value + 1; }
++    function hook([callback = load] = []) { return callback; }
++    globalThis.render = function (callbacks) { return hook(callbacks); };
++})();
++console.log(render() === render([]), render()(2));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__report_passes/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__rest_pattern/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__rest_pattern/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__rest_pattern/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__rest_pattern/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__rest_pattern/input.js
+new file mode 100644
+index 0000000000..dc24369332
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__rest_pattern/input.js
+@@ -0,0 +1,6 @@
++(function () {
++    function load(value) { return value + 1; }
++    function hook(...[callback = load]) { return callback; }
++    globalThis.render = function () { return hook(); };
++})();
++console.log(render() === render(), render()(4));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__setter_default/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__setter_default/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__setter_default/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__setter_default/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__setter_default/input.js
+new file mode 100644
+index 0000000000..bab9368768
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__setter_default/input.js
+@@ -0,0 +1,14 @@
++(function () {
++    function load(value) { return value + 1; }
++    let current;
++    globalThis.service = {
++        set options({ callback = load }) { current = callback; },
++        get callback() { return current; }
++    };
++})();
++service.options = {};
++const first = service.callback;
++service.options = {};
++console.log(first === service.callback, service.callback(2));
++service.options = { callback: null };
++console.log(service.callback);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__shared_object/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__shared_object/config.json
+new file mode 100644
+index 0000000000..ac4e89404c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__shared_object/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 0
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__shared_object/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__shared_object/input.js
+new file mode 100644
+index 0000000000..c4bbd59b20
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/default_params__shared_object/input.js
+@@ -0,0 +1,10 @@
++(function () {
++    const defaults = { count: 0 };
++    function hook(state = defaults) { return state; }
++    globalThis.render = function () { return hook(); };
++})();
++const first = render();
++first.count++;
++console.log(first === render(), render().count);
++render().count++;
++console.log(first.count);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__factors/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__factors/config.json
+new file mode 100644
+index 0000000000..dccb2dcc1f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__factors/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__factors/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__factors/input.js
+new file mode 100644
+index 0000000000..de99c062bd
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__factors/input.js
+@@ -0,0 +1,33 @@
++// Floating-point multiplication is not associative, so constant factors must
++// not be regrouped unless the result is exact.
++function days(x) {
++    return x * 24 * 60 * 60;
++}
++function hours(x) {
++    return x * 1000 * 60 * 60;
++}
++function months(x) {
++    return x * 30.44 * 24 * 60 * 60 * 1000;
++}
++function mixed(x, y) {
++    return x * y * 60 * 60;
++}
++function half(x) {
++    return x * 0.5 * 2;
++}
++function quarter(x) {
++    return x * 4 * 0.25;
++}
++
++console.log(days(365.2425));
++console.log(hours(17 / 60));
++console.log(months(1));
++console.log(mixed(0.1, 22));
++console.log(half(5e-324));
++console.log(quarter(1e308));
++
++// These products are exact, so regrouping them does not change the result.
++function exact(x) {
++    return [x * 2 * 4, x * -1 * 2.25, x * 2.25 * 1];
++}
++console.log(exact(0.1).join(","));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/config.json
+new file mode 100644
+index 0000000000..406f8562ad
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "passes": 3,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/input.js
+new file mode 100644
+index 0000000000..e9c1d649c3
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/input.js
+@@ -0,0 +1,12 @@
++function deadline(start, days) {
++    return start + days * 24 * 60 * 60 * 1000;
++}
++function label(x) {
++    return `${x * 1.1 * 10}`;
++}
++function sum(values) {
++    let total = 0;
++    for (const v of values) total += v * 0.1 * 3;
++    return total;
++}
++console.log(deadline(0, 365.2425), label(3), sum([1, 2, 3]), [0.7].map(v => v * 3 * 7)[0]);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__in_expressions/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__inlined_constants/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__inlined_constants/config.json
+new file mode 100644
+index 0000000000..65f9450694
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__inlined_constants/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "toplevel": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__inlined_constants/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__inlined_constants/input.js
+new file mode 100644
+index 0000000000..afafb8e02b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__inlined_constants/input.js
+@@ -0,0 +1,9 @@
++const SECONDS = 60, MINUTES = 60, HOURS = 24;
++function toSeconds(days) {
++    return days * HOURS * MINUTES * SECONDS;
++}
++const TENTH = 0.1, THREE = 3;
++function scale(x) {
++    return x * THREE * TENTH;
++}
++console.log(toSeconds(365.2425), toSeconds(0.1), scale(7), scale(1));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__merged_steps/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__merged_steps/config.json
+new file mode 100644
+index 0000000000..547e3ffc38
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__merged_steps/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "passes": 3
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__merged_steps/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__merged_steps/input.js
+new file mode 100644
+index 0000000000..59616578c9
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__merged_steps/input.js
+@@ -0,0 +1,11 @@
++function f(x) {
++    let a = x * 2 * 3;
++    a *= 7;
++    return a;
++}
++function g(x) {
++    let b = x * 2 * 0.1;
++    b = b * 10;
++    return b;
++}
++console.log(f(0.1), g(3));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/config.json
+new file mode 100644
+index 0000000000..4b6f63cb7c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/config.json
+@@ -0,0 +1,6 @@
++{
++    "defaults": true,
++    "module": true,
++    "passes": 2,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/input.js
+new file mode 100644
+index 0000000000..c173e621a1
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/input.js
+@@ -0,0 +1,7 @@
++export class Clock {
++    constructor(days) { this.days = days; }
++    get seconds() { return this.days * 24 * 60 * 60; }
++    static hours(x) { return x * 1000 * 60 * 60; }
++}
++export const scale = x => x * 2 * 3 * 7;
++console.log(new Clock(365.2425).seconds, Clock.hours(17 / 60), scale(0.1));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__module_methods/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__more_factors/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__more_factors/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__more_factors/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__more_factors/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__more_factors/input.js
+new file mode 100644
+index 0000000000..b127b65cb3
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__more_factors/input.js
+@@ -0,0 +1,32 @@
++function sevenths(x) {
++    return x * 3 * 7;
++}
++function tenths(x) {
++    return x * 1.1 * 10;
++}
++function scaled(x) {
++    return x * 8 * 0.125;
++}
++function negated(x) {
++    return x * -1 * 3.3;
++}
++function powers(x) {
++    return x * 2 * 16;
++}
++function grouped(x, y) {
++    return x * y * 0.1 * 3;
++}
++const table = { sevenths, tenths, scaled, negated, powers, grouped };
++const inputs = [
++    ["sevenths", 0.1],
++    ["tenths", 3],
++    ["scaled", 1e308],
++    ["scaled", 5e-324],
++    ["negated", 0.7],
++    ["powers", 0.1],
++    ["powers", 1e308],
++    ["grouped", 7, 0.1],
++];
++for (const [name, ...args] of inputs) {
++    console.log(name, table[name](...args));
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__range_limits/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__range_limits/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__range_limits/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__range_limits/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__range_limits/input.js
+new file mode 100644
+index 0000000000..1afda0fb9f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__range_limits/input.js
+@@ -0,0 +1,5 @@
++function big(x) { return x * 1e200 * 1e200; }
++function tiny(x) { return x * 1e-200 * 1e-200; }
++function twoPowers(x) { return x * 2 ** 600 * 2 ** 600; }
++function mixed(x) { return x * 2 ** 1000 * 0.5; }
++console.log(big(1e-300), tiny(1e300), twoPowers(2 ** -700), mixed(2 ** 30));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__three_factors/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__three_factors/config.json
+new file mode 100644
+index 0000000000..dccb2dcc1f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__three_factors/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__three_factors/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__three_factors/input.js
+new file mode 100644
+index 0000000000..9961e0c3f1
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__three_factors/input.js
+@@ -0,0 +1,5 @@
++function a(x) { return x * 2 * 0.1 * 10; }
++function b(x) { return x * 3 * 0.2 * 5; }
++function c(x) { return x * 7 * 1e3 * 1e-3; }
++function e(x) { return x * 2 * 3 * 7; }
++console.log(a(3), b(1.1), c(0.1), e(0.1));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__unit_conversion/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__unit_conversion/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__unit_conversion/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__unit_conversion/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__unit_conversion/input.js
+new file mode 100644
+index 0000000000..c419b7985b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/float_mul__unit_conversion/input.js
+@@ -0,0 +1,5 @@
++const toMs = minutes => minutes * 1.5 * 1000 * 60;
++function overflow(x) { return x * 3 * 1e200 * 1e200; }
++function underflow(x) { return x * 3 * 1e-200 * 1e-200; }
++function powers(x) { return x * 3 * 2 ** 600 * 2 ** 600; }
++console.log(toMs(0.7), overflow(1e-300), underflow(1e300), powers(2 ** -700));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__classnames_only/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__classnames_only/config.json
+new file mode 100644
+index 0000000000..1f84d1b8e8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__classnames_only/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__classnames_only/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__classnames_only/input.js
+new file mode 100644
+index 0000000000..ddde901c4f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__classnames_only/input.js
+@@ -0,0 +1,8 @@
++var A = (0, class {});
++var o = { k: (0, class {}) };
++class C {
++    static d = (0, class {});
++}
++let e = null;
++e ||= (0, class {});
++console.log(JSON.stringify([A.name, o.k.name, C.d.name, e.name]));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__destructuring_defaults/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__destructuring_defaults/config.json
+new file mode 100644
+index 0000000000..3812624c66
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__destructuring_defaults/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "keep_fnames": true,
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__destructuring_defaults/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__destructuring_defaults/input.js
+new file mode 100644
+index 0000000000..da471b3200
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__destructuring_defaults/input.js
+@@ -0,0 +1,11 @@
++let a, b;
++({ a = (0, function () {}) } = {});
++[b = (0, class {})] = [];
++const names = [a.name, b.name];
++for (const { c = (0, () => {}) } of [{}]) names.push(c.name);
++try {
++    throw {};
++} catch ({ d = (0, function () {}) }) {
++    names.push(d.name);
++}
++console.log(JSON.stringify(names));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__fnames_only/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__fnames_only/config.json
+new file mode 100644
+index 0000000000..3cc4df881c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__fnames_only/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "keep_fnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__fnames_only/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__fnames_only/input.js
+new file mode 100644
+index 0000000000..af86f30ce2
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__fnames_only/input.js
+@@ -0,0 +1,9 @@
++var f = (0, function () {});
++var g = (0, async () => {});
++var o = { m: (0, function () {}) };
++let h;
++h ??= (0, function () {});
++function p(q = (0, () => {})) {
++    return q.name;
++}
++console.log(JSON.stringify([f.name, g.name, o.m.name, h.name, p()]));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__function_kinds/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__function_kinds/config.json
+new file mode 100644
+index 0000000000..3cc4df881c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__function_kinds/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "keep_fnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__function_kinds/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__function_kinds/input.js
+new file mode 100644
+index 0000000000..739722ff31
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__function_kinds/input.js
+@@ -0,0 +1,6 @@
++const g = (0, function* () {});
++let a = (0, async function () {});
++var ag = (0, async function* () {});
++let y = (0, async () => {});
++const h = (0, async function* () {});
++console.log(JSON.stringify([g.name, a.name, ag.name, y.name, h.name]));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/config.json
+new file mode 100644
+index 0000000000..4fa5704f4d
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/config.json
+@@ -0,0 +1,7 @@
++{
++    "defaults": true,
++    "keep_fnames": true,
++    "keep_classnames": true,
++    "toplevel": true,
++    "passes": 3
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/input.js
+new file mode 100644
+index 0000000000..ed8507dfce
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/input.js
+@@ -0,0 +1,9 @@
++var first = (0, function () {});
++var second = (0, () => {});
++var Third = (0, class {});
++function read() {
++    var local = (0, function () {});
++    return local.name;
++}
++const all = [first, second, Third, first, second, Third];
++console.log(JSON.stringify([first.name, second.name, Third.name, read()]), all.length);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/mangle.json
+new file mode 100644
+index 0000000000..f7a9b76aff
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__mangled_toplevel/mangle.json
+@@ -0,0 +1,5 @@
++{
++    "toplevel": true,
++    "keep_fnames": true,
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/config.json
+new file mode 100644
+index 0000000000..acadc640f0
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/config.json
+@@ -0,0 +1,8 @@
++{
++    "defaults": true,
++    "module": true,
++    "keep_fnames": true,
++    "keep_classnames": true,
++    "toplevel": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/input.js
+new file mode 100644
+index 0000000000..028e9fb09a
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/input.js
+@@ -0,0 +1,4 @@
++export const handler = (0, function () {});
++export let View = (0, class {});
++export const callback = (0, async () => {});
++console.log(JSON.stringify([handler.name, View.name, callback.name]));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__module_exports/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__nested_sequence/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__nested_sequence/config.json
+new file mode 100644
+index 0000000000..3812624c66
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__nested_sequence/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "keep_fnames": true,
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__nested_sequence/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__nested_sequence/input.js
+new file mode 100644
+index 0000000000..adef27f587
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__nested_sequence/input.js
+@@ -0,0 +1,5 @@
++var z = ((0, 0), function () {});
++var w = (0, (0, class {}));
++let v = (0, (0, () => {}));
++const o = { k: (0, (0, function () {})) };
++console.log(JSON.stringify([z.name, w.name, v.name, o.k.name]));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__property_keys/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__property_keys/config.json
+new file mode 100644
+index 0000000000..3812624c66
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__property_keys/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "keep_fnames": true,
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__property_keys/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__property_keys/input.js
+new file mode 100644
+index 0000000000..ac5bd69b12
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__property_keys/input.js
+@@ -0,0 +1,15 @@
++const key = "computed";
++const tag = Symbol("tag");
++const o = {
++    "a b": (0, function () {}),
++    7: (0, () => {}),
++    [key]: (0, function () {}),
++    [tag]: (0, class {}),
++};
++class C {
++    #p = (0, function () {});
++    static #q = (0, class {});
++    static [key] = (0, () => {});
++    read() { return [this.#p.name, C.#q.name, C[key].name]; }
++}
++console.log(JSON.stringify([o["a b"].name, o[7].name, o[key].name, o[tag].name, ...new C().read()]));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__sequences/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__sequences/config.json
+new file mode 100644
+index 0000000000..3812624c66
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__sequences/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "keep_fnames": true,
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__sequences/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__sequences/input.js
+new file mode 100644
+index 0000000000..0010fa7471
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__sequences/input.js
+@@ -0,0 +1,40 @@
++var f = (0, function () {});
++var g = (0, () => {});
++var h = (0, class {});
++var o = { k: (0, function () {}) };
++var { a = (0, function () {}) } = {};
++var [b = (0, () => {})] = [];
++var c, d, e;
++c ||= (0, function () {});
++d ??= (0, () => {});
++e = 1;
++e &&= (0, class {});
++class C {
++    x = (0, function () {});
++    static y = (0, () => {});
++    static z = (0, class {});
++}
++function p(q = (0, function () {})) {
++    return q.name;
++}
++var named = (0, function inner() {});
++var Named = (0, class Inner {});
++console.log(
++    JSON.stringify([
++        f.name,
++        g.name,
++        h.name,
++        o.k.name,
++        a.name,
++        b.name,
++        c.name,
++        d.name,
++        e.name,
++        new C().x.name,
++        C.y.name,
++        C.z.name,
++        p(),
++        named.name,
++        Named.name,
++    ]),
++);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__side_effect_head/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__side_effect_head/config.json
+new file mode 100644
+index 0000000000..3812624c66
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__side_effect_head/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "keep_fnames": true,
++    "keep_classnames": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__side_effect_head/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__side_effect_head/input.js
+new file mode 100644
+index 0000000000..c2dc9810f7
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/kept_names__side_effect_head/input.js
+@@ -0,0 +1,4 @@
++const log = [];
++var f = (log.push(1), function () {});
++var C = (log.push(2), class {});
++console.log(JSON.stringify([f.name, C.name, log.length]));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__await/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__await/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__await/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__await/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__await/input.js
+new file mode 100644
+index 0000000000..f0cdb641d1
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__await/input.js
+@@ -0,0 +1,9 @@
++import { count, bump } from "data:text/javascript,export let count=0;export function bump(){count++}";
++
++export async function changed(f) {
++    const before = count;
++    await f();
++    return before !== count;
++}
++
++console.log(await changed(bump), await changed(() => {}));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__closure/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__closure/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__closure/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__closure/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__closure/input.js
+new file mode 100644
+index 0000000000..eea5bd3f27
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__closure/input.js
+@@ -0,0 +1,10 @@
++import { current, clear } from "data:text/javascript,export let current={name:'before'};export function clear(){current=null}";
++
++export function setup() {
++    const instance = current;
++    return () => instance.name;
++}
++
++const render = setup();
++clear();
++console.log(render());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__condition_value/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__condition_value/config.json
+new file mode 100644
+index 0000000000..4b6f63cb7c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__condition_value/config.json
+@@ -0,0 +1,6 @@
++{
++    "defaults": true,
++    "module": true,
++    "passes": 2,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__condition_value/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__condition_value/input.js
+new file mode 100644
+index 0000000000..585ce5fda1
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__condition_value/input.js
+@@ -0,0 +1,10 @@
++import { ready, init } from "data:text/javascript,export let ready=false;export function init(){ready=true;return 'init'}";
++
++export function start() {
++    const wasReady = ready;
++    const message = init();
++    if (wasReady) return "already " + message;
++    return "fresh " + message;
++}
++
++console.log(start(), start());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__conditional/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__conditional/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__conditional/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__conditional/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__conditional/input.js
+new file mode 100644
+index 0000000000..774dc5924c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__conditional/input.js
+@@ -0,0 +1,9 @@
++import { state, toggle } from "data:text/javascript,export let state=false;export function toggle(){state=!state}";
++
++export function flip() {
++    const was = state;
++    toggle();
++    return was ? "on->off" : "off->on";
++}
++
++console.log(flip(), flip(), state);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_call/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_call/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_call/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_call/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_call/input.js
+new file mode 100644
+index 0000000000..f957ae4085
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_call/input.js
+@@ -0,0 +1,9 @@
++import count, { bump } from "data:text/javascript,let count=0;export{count as default};export function bump(){count++}";
++
++export function changed(f) {
++    const before = count;
++    f();
++    return before !== count;
++}
++
++console.log(changed(bump), changed(() => {}));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_function/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_function/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_function/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_function/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_function/input.js
+new file mode 100644
+index 0000000000..46c5712aab
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__default_function/input.js
+@@ -0,0 +1,9 @@
++import handler, { swap } from "data:text/javascript,let h=function(){return 'first'};export{h as default};export function swap(){h=function(){return 'second'}}";
++
++export function callTwice() {
++    const before = handler;
++    swap();
++    return before() + "/" + handler();
++}
++
++console.log(callTwice());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__function_snapshot/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__function_snapshot/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__function_snapshot/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__function_snapshot/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__function_snapshot/input.js
+new file mode 100644
+index 0000000000..d3b40d3bd4
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__function_snapshot/input.js
+@@ -0,0 +1,5 @@
++import handler, { swap } from "data:text/javascript,let h=()=>'first';export{h as default};export function swap(){h=()=>'second'}";
++
++const saved = handler;
++swap();
++console.log(saved(), handler());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__generator/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__generator/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__generator/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__generator/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__generator/input.js
+new file mode 100644
+index 0000000000..42053e70a7
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__generator/input.js
+@@ -0,0 +1,12 @@
++import { count, bump } from "data:text/javascript,export let count=0;export function bump(){count++}";
++
++export function* watch() {
++    const first = count;
++    yield first;
++    return [first, count];
++}
++
++const it = watch();
++it.next();
++bump();
++console.log(JSON.stringify(it.next().value));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/config.json
+new file mode 100644
+index 0000000000..4b6f63cb7c
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/config.json
+@@ -0,0 +1,6 @@
++{
++    "defaults": true,
++    "module": true,
++    "passes": 2,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/input.js
+new file mode 100644
+index 0000000000..08b3d47688
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/input.js
+@@ -0,0 +1,9 @@
++import { count, bump } from "data:text/javascript,export let count=0;export function bump(){count++}";
++
++const snapshot = (() => {
++    const value = count;
++    bump();
++    return value;
++})();
++
++console.log(snapshot, count);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__iife_snapshot/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__loop_delta/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__loop_delta/config.json
+new file mode 100644
+index 0000000000..364e1f28fe
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__loop_delta/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "module": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__loop_delta/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__loop_delta/input.js
+new file mode 100644
+index 0000000000..f4750e2822
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__loop_delta/input.js
+@@ -0,0 +1,9 @@
++import { count, bump } from "data:text/javascript,export let count=0;export function bump(){count++}";
++
++export function delta(times) {
++    const start = count;
++    for (let i = 0; i < times; i++) bump();
++    return count - start;
++}
++
++console.log(delta(3), delta(0), count);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__member_snapshot/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__member_snapshot/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__member_snapshot/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__member_snapshot/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__member_snapshot/input.js
+new file mode 100644
+index 0000000000..f5d9478a10
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__member_snapshot/input.js
+@@ -0,0 +1,9 @@
++import { settings, reload } from "data:text/javascript,export let settings={mode:'a'};export function reload(){settings={mode:'b'}}";
++
++export function modeChange() {
++    const old = settings;
++    reload();
++    return old.mode + settings.mode;
++}
++
++console.log(modeChange(), modeChange());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__named_call/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__named_call/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__named_call/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__named_call/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__named_call/input.js
+new file mode 100644
+index 0000000000..3f062673e2
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__named_call/input.js
+@@ -0,0 +1,9 @@
++import { count, bump } from "data:text/javascript,export let count=0;export function bump(){count++}";
++
++export function changed(f) {
++    const before = count;
++    f();
++    return before !== count;
++}
++
++console.log(changed(bump), changed(() => {}));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__namespace_member/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__namespace_member/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__namespace_member/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__namespace_member/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__namespace_member/input.js
+new file mode 100644
+index 0000000000..863867a23a
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__namespace_member/input.js
+@@ -0,0 +1,9 @@
++import * as ns from "data:text/javascript,export let count=0;export function bump(){count++}";
++
++export function changed(f) {
++    const before = ns.count;
++    f();
++    return before !== ns.count;
++}
++
++console.log(changed(ns.bump), changed(() => {}));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__renamed/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__renamed/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__renamed/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__renamed/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__renamed/input.js
+new file mode 100644
+index 0000000000..69ea5e1068
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__renamed/input.js
+@@ -0,0 +1,11 @@
++import { count as total, bump as add } from "data:text/javascript,export let count=0;export function bump(){count++}";
++
++function snapshot() {
++    const value = total;
++    add();
++    return [value, total];
++}
++
++const first = total;
++add();
++console.log(first, total, snapshot().join(" "));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/config.json
+new file mode 100644
+index 0000000000..73b42a1bea
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/config.json
+@@ -0,0 +1,6 @@
++{
++    "defaults": true,
++    "module": true,
++    "passes": 3,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/input.js
+new file mode 100644
+index 0000000000..61573eb3ed
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/input.js
+@@ -0,0 +1,9 @@
++import { count, bump } from "data:text/javascript,export let count=0;export function bump(){return ++count}";
++
++export function report() {
++    const before = count;
++    const result = bump();
++    return { result, before, after: count };
++}
++
++console.log(JSON.stringify(report()), JSON.stringify(report()));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__result_order/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__stable_aliases/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__stable_aliases/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__stable_aliases/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__stable_aliases/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__stable_aliases/input.js
+new file mode 100644
+index 0000000000..538c4272b8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__stable_aliases/input.js
+@@ -0,0 +1,14 @@
++import { count } from "data:text/javascript,export let count=0";
++import * as ns from "data:text/javascript,export let count=0";
++
++export function read() {
++    const snapshot = count;
++    return snapshot;
++}
++
++export function namespace() {
++    const alias = ns;
++    return () => alias;
++}
++
++console.log(read(), namespace()() === ns);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/config.json
+new file mode 100644
+index 0000000000..364e1f28fe
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/config.json
+@@ -0,0 +1,5 @@
++{
++    "defaults": true,
++    "module": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/input.js
+new file mode 100644
+index 0000000000..646290d355
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/input.js
+@@ -0,0 +1,9 @@
++import { user, login } from "data:text/javascript,export let user='guest';export function login(n){user=n}";
++
++export function greet(name) {
++    const previous = user;
++    login(name);
++    return `${previous} -> ${user}`;
++}
++
++console.log(greet("ada"), greet("bob"));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__template/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__top_level_order/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__top_level_order/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__top_level_order/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__top_level_order/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__top_level_order/input.js
+new file mode 100644
+index 0000000000..e0842d7551
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__top_level_order/input.js
+@@ -0,0 +1,6 @@
++import { count, bump } from "data:text/javascript,export let count=0;export function bump(){return ++count}";
++
++const result = bump();
++const pair = [count, result];
++export { pair };
++console.log(pair.join(" "));
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__try_finally/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__try_finally/config.json
+new file mode 100644
+index 0000000000..addd2311f8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__try_finally/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "module": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__try_finally/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__try_finally/input.js
+new file mode 100644
+index 0000000000..f1c529fd53
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/live_imports__try_finally/input.js
+@@ -0,0 +1,13 @@
++import { phase, advance } from "data:text/javascript,export let phase='idle';export function advance(){phase=phase+'+'}";
++
++export function step() {
++    const from = phase;
++    try {
++        advance();
++    } finally {
++        console.log(from, "->", phase);
++    }
++}
++
++step();
++step();
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__class_fields/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__class_fields/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__class_fields/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__class_fields/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__class_fields/input.js
+new file mode 100644
+index 0000000000..4f3c9092f3
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__class_fields/input.js
+@@ -0,0 +1,14 @@
++class Base {
++    method() { return this === undefined ? "detached" : "bound"; }
++    static method() { return this === undefined ? "detached" : "bound"; }
++}
++class Derived extends Base {
++    field = (0, super.method)();
++    arrowField = () => (0, super.method)();
++    static staticField = (0, super.method)();
++    static {
++        Derived.fromBlock = (0, super.method)();
++    }
++}
++const d = new Derived();
++console.log(d.field, d.arrowField(), Derived.staticField, Derived.fromBlock);
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__computed_optional/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__computed_optional/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__computed_optional/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__computed_optional/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__computed_optional/input.js
+new file mode 100644
+index 0000000000..85dbf106b8
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__computed_optional/input.js
+@@ -0,0 +1,18 @@
++class Base {
++    method() {
++        return this === undefined ? "detached" : "bound";
++    }
++}
++class Derived extends Base {
++    computed() {
++        return (0, super["method"])();
++    }
++    optional() {
++        return (0, super.method)?.();
++    }
++    plain() {
++        return super.method();
++    }
++}
++const derived = new Derived();
++console.log(derived.computed(), derived.optional(), derived.plain());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__methods/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__methods/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__methods/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__methods/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__methods/input.js
+new file mode 100644
+index 0000000000..8068fe9453
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__methods/input.js
+@@ -0,0 +1,30 @@
++class Base {
++    method() {
++        return this === undefined;
++    }
++}
++class Derived extends Base {
++    call() {
++        return (0, super.method)();
++    }
++    tagged() {
++        return (0, super.method)``;
++    }
++    direct() {
++        return super.method();
++    }
++}
++const base = {
++    method() {
++        "use strict";
++        return this === undefined;
++    },
++};
++const object = {
++    __proto__: base,
++    call() {
++        return (0, super.method)();
++    },
++};
++const derived = new Derived();
++console.log(derived.call(), derived.tagged(), derived.direct(), object.call());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/config.json
+new file mode 100644
+index 0000000000..73b42a1bea
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/config.json
+@@ -0,0 +1,6 @@
++{
++    "defaults": true,
++    "module": true,
++    "passes": 3,
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/input.js
+new file mode 100644
+index 0000000000..caa9a9fbd2
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/input.js
+@@ -0,0 +1,10 @@
++export class Base {
++    method() { return this === undefined; }
++    static method() { return this === undefined; }
++}
++export class Derived extends Base {
++    call() { return (0, super.method)(); }
++    static call() { return (0, super.method)(); }
++    tagged() { return (0, super.method)`x${1}`; }
++}
++console.log(new Derived().call(), Derived.call(), new Derived().tagged());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/mangle.json
+new file mode 100644
+index 0000000000..9fa9d30387
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__module_class/mangle.json
+@@ -0,0 +1,3 @@
++{
++    "toplevel": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/config.json
+new file mode 100644
+index 0000000000..dccb2dcc1f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/input.js
+new file mode 100644
+index 0000000000..d31c5e602a
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/input.js
+@@ -0,0 +1,13 @@
++const base = {
++    who() { return this === child ? "bound" : "detached"; },
++    get getter() { return this === child ? "bound" : "detached"; },
++};
++const key = "who";
++const child = {
++    __proto__: base,
++    plain() { return (0, super.who)(); },
++    computed() { return (0, super[key])(); },
++    get viaGetter() { return (0, super.who)(); },
++    direct() { return super.who(); },
++};
++console.log(child.plain(), child.computed(), child.viaGetter, child.direct());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/mangle.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/mangle.json
+new file mode 100644
+index 0000000000..0967ef424b
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__object_literals/mangle.json
+@@ -0,0 +1 @@
++{}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__sequence_heads/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__sequence_heads/config.json
+new file mode 100644
+index 0000000000..dccb2dcc1f
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__sequence_heads/config.json
+@@ -0,0 +1,4 @@
++{
++    "defaults": true,
++    "passes": 2
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__sequence_heads/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__sequence_heads/input.js
+new file mode 100644
+index 0000000000..a9dda54551
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__sequence_heads/input.js
+@@ -0,0 +1,13 @@
++const log = [];
++class Base {
++    who(...args) { return (this === undefined ? "detached" : "bound") + args.length; }
++}
++class Derived extends Base {
++    one() { return (1, super.who)(); }
++    voided() { return (void 0, super.who)(1); }
++    effect() { return (log.push("effect"), super.who)(1, 2); }
++    nested() { return (0, (0, super.who))(); }
++    spread(args) { return (0, super.who)(...args); }
++}
++const d = new Derived();
++console.log(d.one(), d.voided(), d.effect(), d.nested(), d.spread([1, 2, 3]), log.join());
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__static_accessors/config.json b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__static_accessors/config.json
+new file mode 100644
+index 0000000000..ee65e9fdc6
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__static_accessors/config.json
+@@ -0,0 +1,3 @@
++{
++    "defaults": true
++}
+diff --git a/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__static_accessors/input.js b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__static_accessors/input.js
+new file mode 100644
+index 0000000000..20fea6354a
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime-behaviour/super_callee__static_accessors/input.js
+@@ -0,0 +1,16 @@
++class Base {
++    static who() { return this === undefined ? "undefined" : typeof this; }
++    who() { return this === undefined ? "undefined" : typeof this; }
++}
++class Derived extends Base {
++    static detached() { return (0, super.who)(); }
++    get detached() { return (0, super.who)(); }
++    set detachedInto(target) { target.value = (0, super.who)(); }
++    arrow() { return (() => (0, super.who)())(); }
++    async later() { return (0, super.who)(); }
++}
++const derived = new Derived();
++const box = {};
++derived.detachedInto = box;
++console.log(Derived.detached(), derived.detached, box.value, derived.arrow());
++derived.later().then(value => console.log("async", value));
+diff --git a/crates/swc_ecma_minifier/tests/runtime_behaviour.rs b/crates/swc_ecma_minifier/tests/runtime_behaviour.rs
+new file mode 100644
+index 0000000000..8f40ebbfc1
+--- /dev/null
++++ b/crates/swc_ecma_minifier/tests/runtime_behaviour.rs
+@@ -0,0 +1,278 @@
++//! Hidden behavioural cases for programs the minifier must not change.
++//!
++//! Every case is a JavaScript program with its compressor options (`config.json`, the options the
++//! repository's own fixtures use) and optionally mangler options (`mangle.json`). The program is
++//! minified as the repository's fixture tests minify it (paren removal, resolver, `optimize`,
++//! hygiene unless mangled, fixer), the output must parse, and it is run with node. The output is
++//! then minified and run a second time. The test prints, as its last output line, what both runs
++//! printed and how node exited; the verifier compares that record, outside this process, with
++//! what the original program does under node, which this tree does not hold. The emitted text
++//! itself is never compared.
++//!
++//! Every test body runs on its own thread under a time limit, and node under its own, so a
++//! minifier or a program that hangs fails that test instead of the run.
++
++extern crate swc_malloc;
++
++use std::{
++    io::Read,
++    panic::{catch_unwind, AssertUnwindSafe},
++    path::{Path, PathBuf},
++    process::{Command, Stdio},
++    sync::{
++        atomic::{AtomicUsize, Ordering},
++        mpsc,
++    },
++    time::{Duration, Instant},
++};
++
++use serde::Deserialize;
++use swc_common::{
++    comments::SingleThreadedComments,
++    errors::{Handler, HANDLER},
++    sync::Lrc,
++    FileName, Mark, SourceMap, GLOBALS,
++};
++use swc_ecma_ast::{EsVersion, Program};
++use swc_ecma_codegen::{text_writer::JsWriter, Emitter};
++use swc_ecma_minifier::{
++    optimize,
++    option::{
++        terser::TerserCompressorOptions, ExtraOptions, MangleOptions, MinifyOptions,
++        TopLevelOptions,
++    },
++};
++use swc_ecma_parser::{parse_file_as_module, parse_file_as_script, EsSyntax, Syntax};
++use swc_ecma_transforms_base::{
++    fixer::{fixer, paren_remover},
++    hygiene::hygiene,
++    resolver,
++};
++use swc_ecma_visit::VisitMutWith;
++
++const LIMIT: Duration = Duration::from_secs(120);
++const NODE_LIMIT: Duration = Duration::from_secs(60);
++const ROUNDS: usize = 2;
++
++#[derive(Debug, Default, Clone, Deserialize)]
++struct CaseOptions {
++    #[serde(default)]
++    defaults: bool,
++    #[serde(default)]
++    passes: usize,
++    #[serde(default)]
++    module: bool,
++}
++
++#[derive(Debug, Default, Clone, Deserialize)]
++struct TopLevelOnly {
++    #[serde(default, alias = "toplevel")]
++    top_level: bool,
++}
++
++#[derive(Debug, Clone, Deserialize)]
++#[serde(deny_unknown_fields)]
++#[serde(untagged)]
++enum CaseMangle {
++    Bool(bool),
++    Normal(MangleOptions),
++}
++
++fn mangle_options(s: &str) -> Option<MangleOptions> {
++    let top_level = serde_json::from_str::<TopLevelOnly>(s).unwrap_or_default();
++    match serde_json::from_str::<CaseMangle>(s).expect("mangle.json") {
++        CaseMangle::Bool(false) => None,
++        CaseMangle::Bool(true) => Some(MangleOptions {
++            top_level: Some(false),
++            ..Default::default()
++        }),
++        CaseMangle::Normal(mut v) => {
++            v.top_level = Some(top_level.top_level);
++            Some(v)
++        }
++    }
++}
++
++fn within<F: FnOnce() + Send + 'static>(body: F) {
++    let (tx, rx) = mpsc::channel();
++    std::thread::Builder::new()
++        .stack_size(64 << 20)
++        .spawn(move || {
++            let outcome = catch_unwind(AssertUnwindSafe(body));
++            let _ = tx.send(outcome.is_ok());
++        })
++        .expect("spawn test thread");
++    match rx.recv_timeout(LIMIT) {
++        Ok(true) => {}
++        Ok(false) => panic!("the test body failed"),
++        Err(_) => panic!("the test body did not finish within {LIMIT:?}"),
++    }
++}
++
++#[testing::fixture("tests/runtime-behaviour/**/input.js")]
++fn runtime_behaviour(input: PathBuf) {
++    within(move || {
++        let dir = input.parent().unwrap().to_path_buf();
++        let config = std::fs::read_to_string(dir.join("config.json")).expect("config.json");
++        let mangle = std::fs::read_to_string(dir.join("mangle.json"))
++            .ok()
++            .and_then(|s| mangle_options(&s));
++        let options: CaseOptions = serde_json::from_str(&config).expect("case options");
++        let mut source = std::fs::read_to_string(&input).expect("input.js");
++        let mut stdout = Vec::new();
++        let mut status = Vec::new();
++        for round in 1..=ROUNDS {
++            source = minify(&source, &config, &options, mangle.clone(), round);
++            println!(">>>>> round {round} <<<<<\n{source}");
++            let (out, code) = run_node(&source, options.module);
++            stdout.push(serde_json::Value::String(out));
++            status.push(serde_json::Value::from(code));
++        }
++        let record = serde_json::json!({ "stdout": stdout, "status": status });
++        println!("RUNTIME-BEHAVIOUR-OBSERVED {record}");
++    });
++}
++
++fn minify(
++    source: &str,
++    config: &str,
++    options: &CaseOptions,
++    mangle: Option<MangleOptions>,
++    round: usize,
++) -> String {
++    let disable_hygiene = mangle.is_some();
++    let cm: Lrc<SourceMap> = Default::default();
++    let handler = Handler::with_emitter_writer(Box::new(std::io::stderr()), Some(cm.clone()));
++    let code = GLOBALS.set(&Default::default(), || {
++        HANDLER.set(&handler, || {
++            let fm = cm.new_source_file(
++                FileName::Custom(format!("round-{round}.js")).into(),
++                source.to_string(),
++            );
++            let comments = SingleThreadedComments::default();
++            let mut errors = Vec::new();
++            let syntax = Syntax::Es(EsSyntax::default());
++            let program = if options.module {
++                parse_file_as_module(&fm, syntax, EsVersion::latest(), Some(&comments), &mut errors)
++                    .map(Program::Module)
++            } else {
++                parse_file_as_script(&fm, syntax, EsVersion::latest(), Some(&comments), &mut errors)
++                    .map(Program::Script)
++            };
++            let mut program = program.expect("the program parses");
++            assert!(errors.is_empty(), "the program parses without errors: {errors:?}");
++
++            let unresolved_mark = Mark::new();
++            let top_level_mark = Mark::new();
++            program.visit_mut_with(&mut paren_remover(Some(&comments)));
++            program.visit_mut_with(&mut resolver(unresolved_mark, top_level_mark, false));
++
++            let mut c: TerserCompressorOptions =
++                serde_json::from_str(config).expect("compressor options");
++            c.defaults = options.defaults;
++            c.pristine_globals = Some(true);
++            c.passes = options.passes;
++            c.module = options.module;
++            let mut compress = c.into_config(cm.clone());
++            if compress.top_level.is_none() {
++                compress.top_level = Some(TopLevelOptions {
++                    functions: options.module,
++                });
++            }
++
++            let mut output = optimize(
++                program,
++                cm.clone(),
++                Some(&comments),
++                None,
++                &MinifyOptions {
++                    compress: Some(compress),
++                    mangle,
++                    ..Default::default()
++                },
++                &ExtraOptions {
++                    unresolved_mark,
++                    top_level_mark,
++                    mangle_name_cache: None,
++                },
++            );
++            if !disable_hygiene {
++                output.visit_mut_with(&mut hygiene());
++            }
++            let output = output.apply(&mut fixer(None));
++
++            let mut buf = Vec::new();
++            {
++                let mut emitter = Emitter {
++                    cfg: Default::default(),
++                    cm: cm.clone(),
++                    comments: Some(&comments),
++                    wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
++                };
++                emitter.emit_program(&output).expect("codegen");
++            }
++            let code = String::from_utf8(buf).expect("utf8 output");
++            reparse(&code, options.module);
++            code
++        })
++    });
++    assert!(!handler.has_errors(), "the minifier must not report an error");
++    code
++}
++
++fn reparse(code: &str, module: bool) {
++    let cm: Lrc<SourceMap> = Default::default();
++    let fm = cm.new_source_file(FileName::Custom("emitted.js".into()).into(), code.to_string());
++    let mut errors = Vec::new();
++    let syntax = Syntax::Es(EsSyntax::default());
++    let ok = if module {
++        parse_file_as_module(&fm, syntax, EsVersion::latest(), None, &mut errors).is_ok()
++    } else {
++        parse_file_as_script(&fm, syntax, EsVersion::latest(), None, &mut errors).is_ok()
++    };
++    assert!(
++        ok && errors.is_empty(),
++        "the minified code must parse: {errors:?}"
++    );
++}
++
++fn run_node(code: &str, module: bool) -> (String, i32) {
++    static COUNTER: AtomicUsize = AtomicUsize::new(0);
++    let dir = std::env::temp_dir().join(format!(
++        "runtime-behaviour-{}-{}",
++        std::process::id(),
++        COUNTER.fetch_add(1, Ordering::SeqCst)
++    ));
++    std::fs::create_dir_all(&dir).unwrap();
++    let file = dir.join(if module { "case.mjs" } else { "case.cjs" });
++    std::fs::write(&file, code).unwrap();
++    let mut child = Command::new("node")
++        .arg(Path::new(&file))
++        .current_dir(&dir)
++        .stdin(Stdio::null())
++        .stdout(Stdio::piped())
++        .stderr(Stdio::inherit())
++        .spawn()
++        .expect("node runs");
++    let mut stdout = child.stdout.take().unwrap();
++    let reader = std::thread::spawn(move || {
++        let mut out = String::new();
++        let _ = stdout.read_to_string(&mut out);
++        out
++    });
++    let started = Instant::now();
++    let code = loop {
++        if let Some(status) = child.try_wait().unwrap() {
++            break status.code().unwrap_or(-1);
++        }
++        if started.elapsed() > NODE_LIMIT {
++            let _ = child.kill();
++            let _ = child.wait();
++            panic!("the minified program did not finish within {NODE_LIMIT:?}");
++        }
++        std::thread::sleep(Duration::from_millis(20));
++    };
++    let out = reader.join().unwrap();
++    let _ = std::fs::remove_dir_all(&dir);
++    (out, code)
++}

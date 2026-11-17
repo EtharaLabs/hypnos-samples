@@ -1,0 +1,30 @@
+{
+ "R1": [
+  "runtime_semantics_tests__runtime_semantics__issue_11514__input_ts",
+  "runtime_semantics_tests__runtime_semantics__issue_11607__input_ts"
+ ],
+ "R2": [
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__cross_body__input_ts",
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__nested__input_ts",
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__emission_identities__input_ts"
+ ],
+ "R3": [
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__shadowing__input_ts",
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__reference_roles__input_ts",
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__writes__input_ts"
+ ],
+ "R4": [
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__ambient_instantiation__input_ts",
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__exported_type_alias__input_ts",
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__private_alias_instantiation__input_ts",
+  "runtime_semantics_tests__runtime_semantics__enum_semantics__ambient_export_initializer__input_ts"
+ ],
+ "R5": [
+  "runtime_semantics_tests__runtime_semantics__enum_semantics__constants__input_ts",
+  "runtime_semantics_tests__runtime_semantics__enum_semantics__body_identity__availability__const_order__input_ts",
+  "runtime_semantics_tests__runtime_semantics__enum_semantics__body_identity__availability__wrapped_iife__input_ts",
+  "runtime_semantics_tests__runtime_semantics__enum_semantics__regions__input_ts",
+  "runtime_semantics_tests__runtime_semantics__semantic_config__mutable_initializers__input_ts",
+  "runtime_semantics_tests__runtime_semantics__namespace_bindings__enum_shadow__input_ts"
+ ]
+}

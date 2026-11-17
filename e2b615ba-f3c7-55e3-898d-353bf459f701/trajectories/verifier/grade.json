@@ -1,0 +1,116 @@
+{
+  "frame": {
+    "failing": {
+      "swc_ecma_transforms_base:test:fixture": {
+        "passed": "243 < base 244",
+        "tests not ok": {
+          "count": 1,
+          "names": [
+            "test_resolver_tests__resolver__issue_7546__input_js"
+          ]
+        }
+      }
+    },
+    "ok": false,
+    "recovered": {
+      "swc_ecma_minifier:test:compress": [
+        "fixture_tests__terser__compress__properties__first_256_hex_chars_as_properties__input_js",
+        "fixture_tests__terser__compress__properties__first_256_unicode_chars_as_properties__input_js"
+      ],
+      "swc_ecma_minifier:test:terser_exec": [
+        "terser_exec_tests__terser__compress__properties__first_256_hex_chars_as_properties__input_js",
+        "terser_exec_tests__terser__compress__properties__first_256_unicode_chars_as_properties__input_js",
+        "terser_exec_tests__terser__compress__template_string__issue_1856__input_js",
+        "terser_exec_tests__terser__compress__template_string__issue_1856_ascii_only__input_js"
+      ]
+    },
+    "targets": 26
+  },
+  "gate": {
+    "any_fail_to_pass": true,
+    "frame_ok": false,
+    "isolated": true,
+    "open": false,
+    "reason": "frame failed"
+  },
+  "items": {
+    "R1": false,
+    "R2": true,
+    "R3": true,
+    "R4": true,
+    "R5": true,
+    "R6": true,
+    "R7": false
+  },
+  "schema": "hypnos.grade/v3",
+  "stages": {
+    "build": "0",
+    "run/01-swc_ecma_ast-0f3ce72796a711af": "0",
+    "run/02-expr-8a8801cf2ff9a313": "0",
+    "run/03-lit-024d2896b2ea1c11": "0",
+    "run/04-swc_ecma_minifier-c171b33231d9603a": "0",
+    "run/05-compress-a451009e2d179129": "101",
+    "run/06-eval-5ad1f1a51d5eb81b": "0",
+    "run/07-exec-e33f43ab65569c4b": "0",
+    "run/08-format-27eb13fa214ee4af": "0",
+    "run/09-mangle-894ceaf9fed24d7c": "0",
+    "run/10-runtime_behaviour-5321234686a3da93": "0",
+    "run/11-size-e704db1a00df5205": "0",
+    "run/12-terser_exec-835e26ea6723d0b5": "0",
+    "run/13-swc_ecma_transforms_base-ca9b92d55b513855": "0",
+    "run/14-fixer-d16624f647d7b241": "0",
+    "run/15-fixer_test262-59de9be959fe88cd": "101",
+    "run/16-fixture-15bf9d9a355bf48e": "101",
+    "run/17-par-5ce7bf35bee54537": "0",
+    "run/18-par_explode-4389e1b7e9e5b131": "0",
+    "run/19-ts_resolver-917732ce50793cbc": "0",
+    "run/20-swc_ecma_transforms_optimization-2b84bc5f1f5d5c3a": "101",
+    "run/21-const_modules-a7950c855c6495db": "0",
+    "run/22-fixture-2d0a028709af2bc7": "0",
+    "run/23-remove_imports_with_side_effects-8fa4f4212ca2c846": "0",
+    "run/24-simplify-72c11099891d8ada": "0",
+    "run/25-simplify_dce-3d4108827aa32472": "0",
+    "run/26-simplify_inlining-7cd00b70ac3dfe10": "0",
+    "run/27-swc_ecma_utils-e16c6168ed35ff72": "0"
+  },
+  "test_phase": {
+    "elapsed_s": 257,
+    "executables_mapped": 27,
+    "survivors": 0,
+    "targets_seen": 27
+  },
+  "tests": {
+    "R1": {
+      "expected": 19,
+      "failing": [
+        "runtime_behaviour_tests__runtime_behaviour__live_imports__top_level_order__input_js"
+      ],
+      "failing_count": 1
+    },
+    "R2": {
+      "expected": 19,
+      "failing": [],
+      "failing_count": 0
+    },
+    "R3": {
+      "expected": 7,
+      "failing": [],
+      "failing_count": 0
+    },
+    "R4": {
+      "expected": 10,
+      "failing": [],
+      "failing_count": 0
+    },
+    "R5": {
+      "expected": 15,
+      "failing": [],
+      "failing_count": 0
+    },
+    "R6": {
+      "expected": 9,
+      "failing": [],
+      "failing_count": 0
+    }
+  }
+}

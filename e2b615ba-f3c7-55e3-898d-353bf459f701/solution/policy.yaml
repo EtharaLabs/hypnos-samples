@@ -1,0 +1,15 @@
+schema: hypnos.capability-policy/v1
+channels:
+  network_egress: denied
+  network_ingress: denied
+  package_registry: denied
+  source_host: denied
+  credentials: denied
+  privilege_escalation: denied
+  host_mounts: denied
+  solution_tree: denied
+  tests_tree: denied
+  workspace_app: allowed
+  workspace_outside_app: restricted
+  process_execution: allowed
+  toolchain: allowed

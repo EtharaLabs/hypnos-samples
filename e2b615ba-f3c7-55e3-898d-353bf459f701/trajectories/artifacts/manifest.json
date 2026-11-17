@@ -1,0 +1,50 @@
+[
+  {
+    "source": "/logs/artifacts",
+    "destination": "artifacts/logs/artifacts",
+    "type": "directory",
+    "status": "empty",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/crates/swc_ecma_minifier/src",
+    "destination": "artifacts/app/crates/swc_ecma_minifier/src",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/crates/swc_ecma_ast/src",
+    "destination": "artifacts/app/crates/swc_ecma_ast/src",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/crates/swc_ecma_transforms_base/src",
+    "destination": "artifacts/app/crates/swc_ecma_transforms_base/src",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/crates/swc_ecma_transforms_optimization/src",
+    "destination": "artifacts/app/crates/swc_ecma_transforms_optimization/src",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/app/crates/swc_ecma_utils/src",
+    "destination": "artifacts/app/crates/swc_ecma_utils/src",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  }
+]

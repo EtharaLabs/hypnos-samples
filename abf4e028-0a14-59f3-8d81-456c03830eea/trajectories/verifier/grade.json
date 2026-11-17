@@ -1,0 +1,101 @@
+{
+  "frame": {
+    "failing": {
+      "swc_ecma_transforms_typescript:test:runtime_semantics": {
+        "tests not ok": {
+          "count": 2,
+          "names": [
+            "runtime_semantics_tests__runtime_semantics__enum_semantics__initializer_write_targets__input_ts",
+            "runtime_semantics_tests__runtime_semantics__namespace_bindings__parameter_type_merge__input_ts"
+          ]
+        }
+      }
+    },
+    "ok": false,
+    "recovered": {
+      "swc_ecma_transforms_typescript:test:strip_correctness": [
+        "identity____swc_ecma_parser__tests__tsc__allowUnescapedParagraphAndLineSeparatorsInStringLiteral_ts",
+        "identity____swc_ecma_parser__tests__typescript__definite_assignment_line_break__input_ts"
+      ]
+    },
+    "targets": 15
+  },
+  "gate": {
+    "any_fail_to_pass": true,
+    "frame_ok": false,
+    "isolated": true,
+    "open": false,
+    "reason": "frame failed"
+  },
+  "items": {
+    "R1": true,
+    "R2": true,
+    "R3": true,
+    "R4": false,
+    "R5": false,
+    "R6": false
+  },
+  "schema": "hypnos.grade/v3",
+  "stages": {
+    "build": "0",
+    "run/01-swc_atoms-562b90040de2514a": "0",
+    "run/02-swc_ecma_transforms_base-0460568c71c500cf": "0",
+    "run/03-fixer-b785e3caf365dfc0": "0",
+    "run/04-fixer_test262-82d477ea5c183c22": "101",
+    "run/05-fixture-3abea319b2b3c4c7": "0",
+    "run/06-par-1699f2ad1239e8cd": "0",
+    "run/07-par_explode-3cbb4b3d14a000a7": "0",
+    "run/08-ts_resolver-b7c0a6672542c735": "0",
+    "run/09-swc_ecma_transforms_typescript-192b9225bf2b6ad3": "0",
+    "run/10-decorators_from_proposal-25c64da9ed1689ba": "101",
+    "run/11-flow_strip_correctness-36b40336bf2bdafa": "0",
+    "run/12-runtime_semantics-b833e53e0a024260": "101",
+    "run/13-strip-1c429954a0f65550": "101",
+    "run/14-strip_correctness-7ebcb7d3b1a80e12": "0",
+    "run/15-swc_ecma_utils-5ef8ef92c1178180": "0"
+  },
+  "test_phase": {
+    "elapsed_s": 91,
+    "executables_mapped": 15,
+    "survivors": 0,
+    "targets_seen": 15
+  },
+  "tests": {
+    "R1": {
+      "expected": 2,
+      "failing": [],
+      "failing_count": 0
+    },
+    "R2": {
+      "expected": 3,
+      "failing": [],
+      "failing_count": 0
+    },
+    "R3": {
+      "expected": 3,
+      "failing": [],
+      "failing_count": 0
+    },
+    "R4": {
+      "expected": 4,
+      "failing": [
+        "runtime_semantics_tests__runtime_semantics__namespace_bindings__ambient_instantiation__input_ts",
+        "runtime_semantics_tests__runtime_semantics__namespace_bindings__exported_type_alias__input_ts",
+        "runtime_semantics_tests__runtime_semantics__namespace_bindings__private_alias_instantiation__input_ts",
+        "runtime_semantics_tests__runtime_semantics__enum_semantics__ambient_export_initializer__input_ts"
+      ],
+      "failing_count": 4
+    },
+    "R5": {
+      "expected": 6,
+      "failing": [
+        "runtime_semantics_tests__runtime_semantics__enum_semantics__constants__input_ts",
+        "runtime_semantics_tests__runtime_semantics__enum_semantics__body_identity__availability__const_order__input_ts",
+        "runtime_semantics_tests__runtime_semantics__enum_semantics__body_identity__availability__wrapped_iife__input_ts",
+        "runtime_semantics_tests__runtime_semantics__enum_semantics__regions__input_ts",
+        "runtime_semantics_tests__runtime_semantics__semantic_config__mutable_initializers__input_ts"
+      ],
+      "failing_count": 5
+    }
+  }
+}

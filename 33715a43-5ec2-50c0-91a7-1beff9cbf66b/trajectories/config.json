@@ -1,0 +1,16 @@
+{
+    "task": {
+        "path": "frozen/33715a43-5ec2-50c0-91a7-1beff9cbf66b"
+    },
+    "trial_name": "33715a43-5ec2-50c0-91a7-1beff9cb__2PPA5cv",
+    "trials_dir": "/home/ec2-user/sd-candidates/jobs-rollout-default/codex-gpt61sol-default-33715a43",
+    "agent": {
+        "name": "codex",
+        "model_name": "openai/gpt-6.1-sol",
+        "extra_allowed_hosts": [
+            "chatgpt.com",
+            "auth.openai.com"
+        ]
+    },
+    "job_id": "568c7e4b-45f0-43aa-9783-e19f29fe8ebc"
+}

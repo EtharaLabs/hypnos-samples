@@ -1,0 +1,55 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+artifacts = ["/app/crates/swc_ecma_minifier/src", "/app/crates/swc_ecma_ast/src", "/app/crates/swc_ecma_transforms_base/src", "/app/crates/swc_ecma_transforms_optimization/src", "/app/crates/swc_ecma_utils/src"]
+
+[task]
+name = "ethara/e2b615ba-f3c7-55e3-898d-353bf459f701"
+version = "1.0.0"
+description = "Fix SWC's JavaScript minifier so that minified programs behave exactly as their source: live ES module imports, parameter defaults that name outer functions or objects, (0, super.method)() calls, names inferred under keep_fnames/keep_classnames, classes referring to themselves under mangle keep_classnames, and non-associative constant multiplications, while everything that works today keeps working."
+authors = [{ name = "piyush.chandra", email = "piyush.chandra@ethara.ai" }]
+keywords = ["rust", "swc", "javascript", "minifier", "miscompilation", "es-modules", "issue-resolution", "rewardkit"]
+
+[metadata]
+null_floor = 0.0
+discrimination_weight = 0.5
+platforms = ["linux/amd64", "linux/arm64"]
+
+[verifier]
+env = { ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}", ANTHROPIC_BASE_URL = "${ANTHROPIC_BASE_URL:-}", OPENAI_API_KEY = "${OPENAI_API_KEY:-}", OPENAI_BASE_URL = "${OPENAI_BASE_URL:-}", REWARDKIT_JUDGE = "${REWARDKIT_JUDGE:-}" }
+timeout_sec = 4500.0
+network_mode = "public"
+environment_mode = "separate"
+user = "0"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 3600.0
+cpus = 8
+memory_mb = 24576
+storage_mb = 40960
+gpus = 0
+
+[agent]
+network_mode = "allowlist"
+allowed_hosts = ["api.openai.com", "api.anthropic.com"]
+timeout_sec = 18000.0
+user = "20001"
+
+[environment]
+network_mode = "no-network"
+build_timeout_sec = 3600.0
+cpus = 8
+memory_mb = 24576
+storage_mb = 40960
+gpus = 0
+
+[upstream_provenance]
+origin = "original"
+provenance_date = "2026-11-14"
+source_kind = "public_repository"
+
+[upstream_provenance.source]
+canonical_repo = "github.com/swc-project/swc"
+fork_ancestry_digest = "sha256:9da8f2f9757ade070e2e65ce884fae174f35639178afd55e7ee2702d90e92961"
+base_commit = "75848acc40ea51b8409ac57b97f2d7fbbc2a3bdd"
+event_timestamp = "2026-10-30T00:00:00Z"

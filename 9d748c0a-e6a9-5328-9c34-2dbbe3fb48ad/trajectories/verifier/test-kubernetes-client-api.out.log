@@ -1,0 +1,460 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< io.fabric8:kubernetes-client-api >------------------
+[INFO] Building Fabric8 :: Kubernetes :: Java Client API 999-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ kubernetes-client-api ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ kubernetes-client-api ---
+[INFO] 
+[INFO] --- templating:3.1.1:filter-sources (default) @ kubernetes-client-api ---
+[INFO] Copying files with filtering to temporary directory.
+[INFO] Copying 1 resource from src/main/java-templates to target/templates-tmp1218955325
+[INFO] No files need to be copied to output directory. Up to date: /tmp/grade/work/src/kubernetes-client-api/target/generated-sources/java-templates
+[INFO] Source directory: /tmp/grade/work/src/kubernetes-client-api/target/generated-sources/java-templates added.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ kubernetes-client-api ---
+[INFO] Copying 0 resource from target/classes to target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/kubernetes-client-api/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ kubernetes-client-api ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 262 source files with javac [debug deprecation release 17] to target/classes
+[INFO] 100%: Builder generation complete.                                                                                      
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/AnyNamespaceOperation.java:[64,31] Possible heap pollution from parameterized vararg type T
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/http/HttpResponse.java:[104,26] unchecked cast
+  required: io.fabric8.kubernetes.client.http.HttpResponse.SupportedResponses.Async<T>
+  found:    io.fabric8.kubernetes.client.http.HttpResponse.SupportedResponses.Async<capture#1 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/http/AsyncBody.java:[49,20] unchecked cast
+  required: U
+  found:    io.fabric8.kubernetes.client.http.AsyncBody.Consumer<T>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Utils.java:[308,44] Possible heap pollution from parameterized vararg type T
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/Utils.java:[358,65] unchecked call to <A>getAnnotation(java.lang.Class<A>) as a member of the raw type java.lang.Class
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/KubernetesClientBuilder.java:[57,97] unchecked cast
+  required: java.lang.Class<io.fabric8.kubernetes.client.KubernetesClient>
+  found:    java.lang.Class<capture#2 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/KubernetesClientBuilder.java:[60,92] unchecked cast
+  required: java.lang.Class<io.fabric8.kubernetes.client.KubernetesClient>
+  found:    java.lang.Class<capture#3 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ClientAdapter.java:[102,18] supportsApiPath(java.lang.String) in io.fabric8.kubernetes.client.Client has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ClientAdapter.java:[103,18] supportsApiPath(java.lang.String) in io.fabric8.kubernetes.client.Client has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[193,22] getVersion() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[136,127] certificateSigningRequests() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[137,23] certificateSigningRequests() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/NamespacedKubernetesClientAdapter.java:[194,23] getVersion() in io.fabric8.kubernetes.client.KubernetesClient has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/CertificatesAPIGroupDSL.java:[25,3] io.fabric8.kubernetes.client.dsl.V1Alpha1CertificatesAPIGroupDSL in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/ExtensionsAPIGroupDSL.java:[62,59] deprecated item is not annotated with @Deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[319,24] unchecked cast
+  required: T
+  found:    java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[330,18] unchecked cast
+  required: T
+  found:    java.util.List<io.fabric8.kubernetes.api.model.KubernetesResource>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[337,24] unchecked method invocation: method addAll in interface java.util.List is applied to given types
+  required: java.util.Collection<? extends E>
+  found:    java.util.List
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[337,67] unchecked conversion
+  required: java.util.Collection<? extends E>
+  found:    java.util.List
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[353,25] unchecked cast
+  required: T
+  found:    io.fabric8.kubernetes.api.model.KubernetesResource
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesSerialization.java:[415,34] unchecked cast
+  required: T
+  found:    capture#4 of ? extends java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[22,18] io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable in io.fabric8.kubernetes.client.dsl has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[77,5] undo() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[69,5] restart() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[61,5] resume() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/dsl/TimeoutImageEditReplacePatchable.java:[52,5] pause() in io.fabric8.kubernetes.client.dsl.ImageEditReplacePatchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/WithRequestCallable.java:[35,65] unchecked cast
+  required: C
+  found:    capture#5 of ? extends io.fabric8.kubernetes.client.Client
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ExtensibleResource.java:[46,25] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ExtensibleResource.java:[55,25] withIndexers(java.util.Map<java.lang.String,java.util.function.Function<T,java.util.List<java.lang.String>>>) in io.fabric8.kubernetes.client.dsl.Informable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[157,12] patchStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[287,12] updateStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[282,30] delete(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[262,12] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[272,12] createOrReplace(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[126,12] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[106,22] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[111,12] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[182,24] withIndexers(java.util.Map<java.lang.String,java.util.function.Function<T,java.util.List<java.lang.String>>>) in io.fabric8.kubernetes.client.dsl.Informable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[267,12] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[277,12] replaceStatus(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[367,12] scale(int,boolean) in io.fabric8.kubernetes.client.dsl.Scalable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[257,12] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[212,16] watch(java.lang.String,io.fabric8.kubernetes.client.Watcher<T>) in io.fabric8.kubernetes.client.dsl.Watchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[107,20] fromServer() in io.fabric8.kubernetes.client.FromServerGettable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[112,20] replaceStatus() in io.fabric8.kubernetes.client.dsl.Replaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[127,20] createOrReplace() in io.fabric8.kubernetes.client.dsl.CreateOrReplaceable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[158,20] patchStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[183,20] withIndexers(java.util.Map<java.lang.String,java.util.function.Function<T,java.util.List<java.lang.String>>>) in io.fabric8.kubernetes.client.dsl.Informable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[213,20] watch(java.lang.String,io.fabric8.kubernetes.client.Watcher<T>) in io.fabric8.kubernetes.client.dsl.Watchable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[258,20] replace() in io.fabric8.kubernetes.client.dsl.Updatable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[263,20] create(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[268,20] replace(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[273,20] createOrReplace(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[278,20] replaceStatus(T) in io.fabric8.kubernetes.client.dsl.ItemReplacable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[283,20] delete(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[288,20] updateStatus(T) in io.fabric8.kubernetes.client.dsl.ItemWritableOperation has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/extension/ResourceAdapter.java:[368,20] scale(int,boolean) in io.fabric8.kubernetes.client.dsl.Scalable has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/http/StandardHttpClient.java:[78,29] unchecked cast
+  required: C
+  found:    io.fabric8.kubernetes.client.http.StandardHttpClient<C,F,T>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/informers/cache/ReducedStateItemStore.java:[121,57] unchecked conversion
+  required: java.util.Map<java.lang.String,java.lang.Object>
+  found:    java.util.Map
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/informers/cache/ReducedStateItemStore.java:[146,62] unchecked cast
+  required: java.util.Map<java.lang.String,java.lang.Object>
+  found:    java.lang.Object
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/KubernetesResourceUtil.java:[479,65] unchecked cast
+  required: java.lang.Class<? extends io.fabric8.kubernetes.api.model.KubernetesResourceList>
+  found:    java.lang.Class<capture#6 of ?>
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/main/java/io/fabric8/kubernetes/client/utils/OpenIDConnectionUtils.java:[278,70] unchecked conversion
+  required: java.util.Map<java.lang.String,java.lang.Object>
+  found:    java.util.Map
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ kubernetes-client-api ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/kubernetes-client-api/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ kubernetes-client-api ---
+[INFO] Copying 86 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ kubernetes-client-api ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 92 source files with javac [debug deprecation release 17] to target/test-classes
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/ConfigConstructorTest.java:[204,104] TLS_1_1 in io.fabric8.kubernetes.client.http.TlsVersion has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/ConfigConstructorTest.java:[353,106] TLS_1_1 in io.fabric8.kubernetes.client.http.TlsVersion has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/ConfigTest.java:[205,104] TLS_1_1 in io.fabric8.kubernetes.client.http.TlsVersion has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/ConfigTest.java:[248,104] TLS_1_1 in io.fabric8.kubernetes.client.http.TlsVersion has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/ConfigTest.java:[296,104] TLS_1_1 in io.fabric8.kubernetes.client.http.TlsVersion has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/ConfigTest.java:[348,56] TLS_1_1 in io.fabric8.kubernetes.client.http.TlsVersion has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/ConfigTest.java:[380,102] TLS_1_1 in io.fabric8.kubernetes.client.http.TlsVersion has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/extended/run/RunConfigUtilTest.java:[116,9] asList() in org.assertj.core.api.AbstractAssert has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/extended/run/RunConfigUtilTest.java:[131,9] asList() in org.assertj.core.api.AbstractAssert has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/extended/run/RunConfigUtilTest.java:[147,9] asList() in org.assertj.core.api.AbstractAssert has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/extension/ExtensibleResourceAdapterTest.java:[44,20] unchecked method invocation: method init in class io.fabric8.kubernetes.client.extension.ExtensibleResourceAdapter is applied to given types
+  required: io.fabric8.kubernetes.client.extension.ExtensibleResource<T>,io.fabric8.kubernetes.client.Client
+  found:    io.fabric8.kubernetes.client.extension.ExtensibleResource,io.fabric8.kubernetes.client.Client
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/extension/ExtensibleResourceAdapterTest.java:[44,33] unchecked conversion
+  required: io.fabric8.kubernetes.client.extension.ExtensibleResource<T>
+  found:    io.fabric8.kubernetes.client.extension.ExtensibleResource
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/KubernetesResourceUtilTest.java:[227,44] isResourceReady(io.fabric8.kubernetes.api.model.HasMetadata) in io.fabric8.kubernetes.client.utils.KubernetesResourceUtil has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/KubernetesResourceUtilTest.java:[246,44] isResourceReady(io.fabric8.kubernetes.api.model.HasMetadata) in io.fabric8.kubernetes.client.utils.KubernetesResourceUtil has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/OpenIDConnectionUtilsBehaviorTest.java:[412,27] getSubjectDN() in java.security.cert.X509Certificate has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[41,18] UNMATCHED_FIELD_TYPE_MODULE in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[54,52] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[74,28] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[86,18] UNMATCHED_FIELD_TYPE_MODULE in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[94,52] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[108,18] UNMATCHED_FIELD_TYPE_MODULE in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[115,52] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationAdditionalPropertiesTest.java:[155,18] UNMATCHED_FIELD_TYPE_MODULE in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationSingleDocumentUnmarshalTest.java:[36,52] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[125,50] asList() in org.assertj.core.api.AbstractAssert has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[150,46] asList() in org.assertj.core.api.AbstractAssert has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[169,28] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[180,44] asList() in org.assertj.core.api.AbstractAssert has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[217,52] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[235,40] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[243,40] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[250,40] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[273,29] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[299,37] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[309,52] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[314,46] asList() in org.assertj.core.api.AbstractAssert has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[476,28] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[494,32] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationTest.java:[514,40] <T>unmarshal(java.io.InputStream) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationYamlTest.java:[40,47] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[WARNING] /tmp/grade/work/src/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/SerializationYamlTest.java:[55,90] <T>unmarshal(java.lang.String) in io.fabric8.kubernetes.client.utils.Serialization has been deprecated
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ kubernetes-client-api ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running io.fabric8.kubernetes.client.ConfigAutoConfigureTest
+[INFO] Running io.fabric8.kubernetes.client.ConfigAutoConfigureTest$FromKubeconfig
+[INFO] Running io.fabric8.kubernetes.client.ConfigConstructorTest
+[INFO] Running io.fabric8.kubernetes.client.ConfigBuilderTest
+[INFO] Running io.fabric8.kubernetes.client.ConfigFromKubeconfigTest
+[INFO] Running io.fabric8.kubernetes.client.ConfigFromKubeconfigTest$SingleContextConfig
+[INFO] Running io.fabric8.kubernetes.client.ConfigDisableAutoConfigurationTest
+[INFO] Running With autoConfigure(false) in ConfigBuilder
+[INFO] Running And kubeconfig present
+[INFO] Running io.fabric8.kubernetes.client.ConfigProxySourceTest
+[INFO] Running io.fabric8.kubernetes.client.ConfigRefreshTest
+[INFO] Running HTTPS Proxy
+[INFO] Running kubeconfig contains proxy-url in cluster configuration
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.200 s -- in io.fabric8.kubernetes.client.ConfigBuilderTest
+[INFO] Running Config auto configured values initialization (autoConfigure=true)
+[INFO] Running (defaultValues=false)
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.197 s -- in And kubeconfig present
+[INFO] Running And system properties configured
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in And system properties configured
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.230 s -- in With autoConfigure(false) in ConfigBuilder
+[INFO] Running via kubernetes.disable.autoConfig=true
+[INFO] Running And kubeconfig present
+[INFO] Running io.fabric8.kubernetes.client.ConfigSourcePrecedenceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in And kubeconfig present
+[INFO] Running And system properties configured
+[INFO] Running With Provided System Properties
+[INFO] Running io.fabric8.kubernetes.client.ConfigTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in And system properties configured
+[INFO] Running And inside Kubernetes Cluster with ServiceAccount mounted
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in And inside Kubernetes Cluster with ServiceAccount mounted
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.044 s -- in via kubernetes.disable.autoConfig=true
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.375 s -- in io.fabric8.kubernetes.client.ConfigDisableAutoConfigurationTest
+[INFO] Running io.fabric8.kubernetes.client.CustomResourceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 s -- in io.fabric8.kubernetes.client.CustomResourceTest
+[INFO] Running io.fabric8.kubernetes.client.KubernetesClientBuilderTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.258 s -- in With Provided System Properties
+[INFO] Running With ServiceAccount mounted
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in With ServiceAccount mounted
+[INFO] Running With provided kubeconfig property
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.304 s -- in io.fabric8.kubernetes.client.ConfigAutoConfigureTest$FromKubeconfig
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.334 s -- in io.fabric8.kubernetes.client.ConfigAutoConfigureTest
+[INFO] Running io.fabric8.kubernetes.client.KubernetesClientExceptionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.045 s -- in (defaultValues=false)
+[INFO] Running (defaultValues=true)
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 s -- in io.fabric8.kubernetes.client.KubernetesClientExceptionTest
+[INFO] Running io.fabric8.kubernetes.client.SundrioConfigBuilderTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.210 s -- in kubeconfig contains proxy-url in cluster configuration
+[INFO] Running all.proxy System property
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.742 s -- in io.fabric8.kubernetes.client.KubernetesClientBuilderTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in io.fabric8.kubernetes.client.SundrioConfigBuilderTest
+[INFO] Running io.fabric8.kubernetes.client.VisitorTest
+[INFO] Running io.fabric8.kubernetes.client.TypeInferenceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 s -- in (defaultValues=true)
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.155 s -- in Config auto configured values initialization (autoConfigure=true)
+[INFO] Running Config default values initialization with system properties for auto configuration
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in io.fabric8.kubernetes.client.TypeInferenceTest
+[INFO] Running io.fabric8.kubernetes.client.WatcherExceptionTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.059 s -- in all.proxy System property
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in io.fabric8.kubernetes.client.VisitorTest
+[INFO] Running withHttpsProxy via builder
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in io.fabric8.kubernetes.client.WatcherExceptionTest
+[INFO] Running io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContextTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in Config default values initialization with system properties for auto configuration
+[INFO] Running io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContextTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContextTest
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.555 s -- in io.fabric8.kubernetes.client.ConfigConstructorTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.327 s -- in io.fabric8.kubernetes.client.ConfigRefreshTest
+[INFO] Running io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest
+[INFO] Running io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$SelectorValue
+[INFO] Running io.fabric8.kubernetes.client.extended.leaderelection.LeaderElectorTest
+[INFO] Running io.fabric8.kubernetes.client.extended.leaderelection.LeaderElectorBuilderTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.050 s -- in withHttpsProxy via builder
+[INFO] Running https.proxy System property
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.486 s -- in io.fabric8.kubernetes.client.ConfigFromKubeconfigTest$SingleContextConfig
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.842 s -- in With provided kubeconfig property
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$SelectorValue
+[INFO] Running io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$Bounds
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.529 s -- in io.fabric8.kubernetes.client.ConfigFromKubeconfigTest
+[INFO] Running io.fabric8.kubernetes.client.extended.leaderelection.resourcelock.ConfigMapLockTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s -- in https.proxy System property
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.389 s -- in HTTPS Proxy
+[INFO] Running HTTP Proxy
+[INFO] Running kubeconfig contains proxy-url in cluster configuration
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.148 s -- in io.fabric8.kubernetes.client.ConfigSourcePrecedenceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.117 s -- in io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContextTest
+[INFO] Running io.fabric8.kubernetes.client.extended.run.RunConfigUtilTest
+[INFO] Running io.fabric8.kubernetes.client.extended.leaderelection.resourcelock.LeaseLockTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.078 s -- in io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$Bounds
+[INFO] Running io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$EvenSplit
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.070 s -- in kubeconfig contains proxy-url in cluster configuration
+[INFO] Running all.proxy System property
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s -- in io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$EvenSplit
+[INFO] Running io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$Expression
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest$Expression
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.192 s -- in io.fabric8.kubernetes.client.dsl.base.ShardSelectorTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in all.proxy System property
+[INFO] Running withHttpProxy via builder
+[INFO] Running io.fabric8.kubernetes.client.extended.run.RunOperationsTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s -- in withHttpProxy via builder
+[INFO] Running http.proxy System property
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.166 s -- in io.fabric8.kubernetes.client.extended.run.RunConfigUtilTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in http.proxy System property
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.186 s -- in HTTP Proxy
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.647 s -- in io.fabric8.kubernetes.client.ConfigProxySourceTest
+[INFO] Running io.fabric8.kubernetes.client.extension.ExtensibleResourceAdapterTest
+[INFO] Running io.fabric8.kubernetes.client.http.BufferUtilTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.074 s -- in io.fabric8.kubernetes.client.http.BufferUtilTest
+[INFO] Running io.fabric8.kubernetes.client.http.StandardHttpClientTest
+[INFO] Running Config.getHomeDir
+[INFO] Running os.name=Windows
+[WARNING] Tests run: 30, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.022 s -- in os.name=Windows
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in Config.getHomeDir
+[INFO] Running load fromKubeConfig
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s -- in load fromKubeConfig
+[INFO] Running kubeconfig present
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in kubeconfig present
+[INFO] Running Inside Kubernetes cluster
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in Inside Kubernetes cluster
+[INFO] Running System Properties Configured
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in System Properties Configured
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.695 s -- in io.fabric8.kubernetes.client.ConfigTest
+[INFO] Running io.fabric8.kubernetes.client.http.StandardHttpRequestTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in io.fabric8.kubernetes.client.http.StandardHttpRequestTest
+[INFO] Running io.fabric8.kubernetes.client.http.TestWebSocketTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.076 s -- in io.fabric8.kubernetes.client.http.TestWebSocketTest
+[INFO] Running io.fabric8.kubernetes.client.http.WebSocketTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.080 s -- in io.fabric8.kubernetes.client.http.WebSocketTest
+[INFO] Running io.fabric8.kubernetes.client.informers.ExceptionHandlerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in io.fabric8.kubernetes.client.informers.ExceptionHandlerTest
+[INFO] Running io.fabric8.kubernetes.client.informers.cache.BasicItemStoreTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.000 s -- in io.fabric8.kubernetes.client.extended.leaderelection.LeaderElectorBuilderTest
+[INFO] Running io.fabric8.kubernetes.client.informers.cache.ListerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in io.fabric8.kubernetes.client.informers.cache.ListerTest
+[INFO] Running io.fabric8.kubernetes.client.informers.cache.ReducedStateItemStoreTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.202 s -- in io.fabric8.kubernetes.client.informers.cache.BasicItemStoreTest
+[INFO] Running io.fabric8.kubernetes.client.internal.CertUtilsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.977 s -- in io.fabric8.kubernetes.client.extended.run.RunOperationsTest
+[INFO] Running KubeConfigUtils.merge
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.189 s -- in io.fabric8.kubernetes.client.extended.leaderelection.resourcelock.LeaseLockTest
+[INFO] Running io.fabric8.kubernetes.client.internal.KubeConfigUtilsTest
+[INFO] Running getFileWithNamedContextInfo
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.056 s -- in io.fabric8.kubernetes.client.extension.ExtensibleResourceAdapterTest
+[INFO] Running io.fabric8.kubernetes.client.internal.UtilsTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in getFileWithNamedContextInfo
+[INFO] Running io.fabric8.kubernetes.client.internal.KubeConfigUtilsTest$PersistKubeConfigIntoFile
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.316 s -- in io.fabric8.kubernetes.client.extended.leaderelection.resourcelock.ConfigMapLockTest
+[INFO] Running io.fabric8.kubernetes.client.readiness.ReadinessTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in io.fabric8.kubernetes.client.internal.KubeConfigUtilsTest$PersistKubeConfigIntoFile
+[INFO] Running io.fabric8.kubernetes.client.internal.KubeConfigUtilsTest$ParseConfig
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s -- in io.fabric8.kubernetes.client.readiness.ReadinessTest
+[INFO] Running io.fabric8.kubernetes.client.utils.ApiVersionUtilTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.076 s -- in io.fabric8.kubernetes.client.internal.KubeConfigUtilsTest$ParseConfig
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.169 s -- in io.fabric8.kubernetes.client.internal.KubeConfigUtilsTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in io.fabric8.kubernetes.client.utils.ApiVersionUtilTest
+[INFO] Running io.fabric8.kubernetes.client.utils.CachedSingleThreadSchedulerTest
+[INFO] Running io.fabric8.kubernetes.client.utils.AsyncUtilsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.437 s -- in io.fabric8.kubernetes.client.informers.cache.ReducedStateItemStoreTest
+[INFO] Running io.fabric8.kubernetes.client.utils.ExponentialBackoffIntervalCalculatorTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.151 s -- in io.fabric8.kubernetes.client.internal.UtilsTest
+[INFO] Running io.fabric8.kubernetes.client.utils.HttpClientUtilsTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in io.fabric8.kubernetes.client.utils.ExponentialBackoffIntervalCalculatorTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.071 s -- in io.fabric8.kubernetes.client.utils.AsyncUtilsTest
+[INFO] Running io.fabric8.kubernetes.client.utils.IpAddressMatcherTest
+[INFO] Running io.fabric8.kubernetes.client.utils.KubernetesResourceUtilTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s -- in io.fabric8.kubernetes.client.utils.IpAddressMatcherTest
+[INFO] Running io.fabric8.kubernetes.client.utils.KubernetesSerializationCallerMapperTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in io.fabric8.kubernetes.client.utils.KubernetesSerializationCallerMapperTest
+[INFO] Running getHttpClientFactory
+[INFO] Running io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.226 s -- in io.fabric8.kubernetes.client.utils.CachedSingleThreadSchedulerTest
+[INFO] Running When merging multiple Configs with context argument, use context from ORIGINAL Config that matches context argument
+[INFO] Running io.fabric8.kubernetes.client.utils.KubernetesSerializationTest
+[INFO] Running Jackson failures
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in When merging multiple Configs with context argument, use context from ORIGINAL Config that matches context argument
+[INFO] Running When merging multiple Configs with context argument, use context from FIRST Config that matches context argument
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in Jackson failures
+[INFO] Running default instance, with user types, keeps the Jackson 2 behavior
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in When merging multiple Configs with context argument, use context from FIRST Config that matches context argument
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in default instance, with user types, keeps the Jackson 2 behavior
+[INFO] Running io.fabric8.kubernetes.client.utils.KubernetesSerializationTest$AsYaml
+[INFO] Running When merging multiple Configs with context argument, use context from Config that matches context argument
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in When merging multiple Configs with context argument, use context from Config that matches context argument
+[INFO] Running When merging multiple Configs with null context, use context from first Config and read context from other
+[INFO] Tests run: 39, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.272 s -- in io.fabric8.kubernetes.client.utils.KubernetesResourceUtilTest
+[INFO] Running io.fabric8.kubernetes.client.utils.KubernetesVersionFactoryTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.071 s -- in When merging multiple Configs with null context, use context from first Config and read context from other
+[INFO] Running When merging multiple Configs with null context, use context from first Config
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s -- in When merging multiple Configs with null context, use context from first Config
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.779 s -- in KubeConfigUtils.merge
+[INFO] Running io.fabric8.kubernetes.client.utils.KubernetesVersionPriorityTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.298 s -- in getHttpClientFactory
+[INFO] Running getProxyUrl
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in io.fabric8.kubernetes.client.utils.KubernetesVersionPriorityTest
+[INFO] Tests run: 37, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.165 s -- in io.fabric8.kubernetes.client.utils.KubernetesVersionFactoryTest
+[INFO] Running io.fabric8.kubernetes.client.utils.OpenIDConnectionUtilsTest
+[INFO] Running io.fabric8.kubernetes.client.utils.OpenIDConnectionUtilsBehaviorTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.371 s -- in io.fabric8.kubernetes.client.utils.KubernetesSerializationJdkTypesTest
+[INFO] Running io.fabric8.kubernetes.client.utils.PodStatusUtilTest
+[INFO] Tests run: 32, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.169 s -- in getProxyUrl
+[INFO] Running decodeBasicCredentials
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in decodeBasicCredentials
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.636 s -- in io.fabric8.kubernetes.client.utils.HttpClientUtilsTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.151 s -- in io.fabric8.kubernetes.client.utils.OpenIDConnectionUtilsTest
+[INFO] Running io.fabric8.kubernetes.client.utils.SerializationSingleDocumentUnmarshalTest
+[INFO] Running io.fabric8.kubernetes.client.utils.SerializationAdditionalPropertiesTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.070 s -- in io.fabric8.kubernetes.client.utils.SerializationSingleDocumentUnmarshalTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.429 s -- in io.fabric8.kubernetes.client.utils.KubernetesSerializationTest$AsYaml
+[INFO] Running with searchClassloaders=false
+[INFO] Running io.fabric8.kubernetes.client.utils.SerializationTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.373 s -- in io.fabric8.kubernetes.client.internal.CertUtilsTest
+[INFO] Running io.fabric8.kubernetes.client.utils.SerializationWrappedPolymorphicTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.103 s -- in io.fabric8.kubernetes.client.utils.SerializationWrappedPolymorphicTest
+[INFO] Running io.fabric8.kubernetes.client.utils.SerializationYamlTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.010 s -- in io.fabric8.kubernetes.client.utils.SerializationYamlTest
+[INFO] Running io.fabric8.kubernetes.client.utils.TokenRefreshInterceptorTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.546 s -- in io.fabric8.kubernetes.client.utils.SerializationAdditionalPropertiesTest
+[INFO] Running io.fabric8.kubernetes.client.utils.URLUtilsTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in io.fabric8.kubernetes.client.utils.URLUtilsTest
+[INFO] Running io.fabric8.kubernetes.client.utils.YamlDumpSettingsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in io.fabric8.kubernetes.client.utils.YamlDumpSettingsTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.745 s -- in with searchClassloaders=false
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.259 s -- in io.fabric8.kubernetes.client.utils.KubernetesSerializationTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.012 s -- in io.fabric8.kubernetes.client.utils.PodStatusUtilTest
+[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.916 s -- in io.fabric8.kubernetes.client.utils.SerializationTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.534 s -- in io.fabric8.kubernetes.client.utils.TokenRefreshInterceptorTest
+[INFO] Running persistOAuthToken()
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.974 s -- in io.fabric8.kubernetes.client.extended.leaderelection.LeaderElectorTest
+[INFO] Running With valid kube config
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.843 s -- in With valid kube config
+[INFO] Running With valid kube config
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.756 s -- in With valid kube config
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.165 s -- in persistOAuthToken()
+[INFO] Running With support for token refresh
+[INFO] Running With valid OpenID Connect Discovery
+[INFO] Running With valid token response
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.630 s -- in With valid token response
+[INFO] Running With invalid token response body
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.841 s -- in With invalid token response body
+[INFO] Running With 404 token response
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.441 s -- in With 404 token response
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.418 s -- in With valid OpenID Connect Discovery
+[INFO] Running With malformed OpenID Connect Discovery response
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.555 s -- in With malformed OpenID Connect Discovery response
+[INFO] Running With 404 OpenID Connect Discovery response
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.592 s -- in With 404 OpenID Connect Discovery response
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.102 s -- in With support for token refresh
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 18.65 s -- in io.fabric8.kubernetes.client.utils.OpenIDConnectionUtilsBehaviorTest
+[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 20.80 s -- in io.fabric8.kubernetes.client.http.StandardHttpClientTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 724, Failures: 0, Errors: 0, Skipped: 3
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  34.245 s
+[INFO] Finished at: 2026-11-13T21:16:52Z
+[INFO] ------------------------------------------------------------------------

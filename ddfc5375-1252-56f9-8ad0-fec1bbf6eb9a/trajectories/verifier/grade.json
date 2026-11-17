@@ -1,0 +1,60 @@
+{
+  "failing_tests": {
+    "R1": [],
+    "R2": [],
+    "R3": [],
+    "R4": [],
+    "R5": [
+      "peephole::remove_unused_declaration::keep_sloppy_duplicate_block_functions"
+    ],
+    "R6": [
+      "peephole::dead_code_elimination::dce_keeps_sloppy_duplicate_block_functions"
+    ],
+    "R7": [
+      "peephole::remove_unused_declaration::keep_exported_iife_init_when_a_dead_cycle_held_its_only_reference",
+      "peephole::remove_unused_declaration::export_observability_ignores_declarations_inside_exported_arrow"
+    ],
+    "R8": [
+      "peephole::remove_unused_declaration::keep_sloppy_annex_b_alias_member_write_after_cycle_removed",
+      "peephole::remove_unused_declaration::keep_using_member_write_observed_by_disposal"
+    ],
+    "R9": []
+  },
+  "frame": {
+    "failing": {},
+    "ok": true,
+    "recovered": {},
+    "targets": 2
+  },
+  "gate": {
+    "any_fail_to_pass": true,
+    "frame_ok": true,
+    "isolated": true,
+    "open": true,
+    "reason": "open"
+  },
+  "items": {
+    "R1": true,
+    "R10": true,
+    "R2": true,
+    "R3": true,
+    "R4": true,
+    "R5": false,
+    "R6": false,
+    "R7": false,
+    "R8": false,
+    "R9": true
+  },
+  "schema": "hypnos.grade/v3",
+  "stages": {
+    "build": "0",
+    "run/01-oxc_minifier-2b92ea689e801c40": "0",
+    "run/02-mod-ecf2002e793758ef": "101"
+  },
+  "test_phase": {
+    "elapsed_s": 21,
+    "executables_mapped": 2,
+    "survivors": 0,
+    "targets_seen": 2
+  }
+}

@@ -1,0 +1,427 @@
+/*
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.fabric8.kubernetes.client.impl;
+
+import io.fabric8.kubernetes.api.model.APIGroup;
+import io.fabric8.kubernetes.api.model.APIGroupList;
+import io.fabric8.kubernetes.api.model.APIResourceList;
+import io.fabric8.kubernetes.api.model.APIVersions;
+import io.fabric8.kubernetes.api.model.GenericKubernetesResource;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
+import io.fabric8.kubernetes.api.model.RootPaths;
+import io.fabric8.kubernetes.client.Client;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder.ExecutorSupplier;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.VersionInfo;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.Resource;
+import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext;
+import io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperationsImpl;
+import io.fabric8.kubernetes.client.dsl.internal.OperationContext;
+import io.fabric8.kubernetes.client.dsl.internal.OperationSupport;
+import io.fabric8.kubernetes.client.extension.ExtensionAdapter;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.utils.ApiVersionUtil;
+import io.fabric8.kubernetes.client.utils.KubernetesSerialization;
+import io.fabric8.kubernetes.client.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Predicate;
+
+public abstract class BaseClient implements Client {
+
+  public static final Logger logger = LoggerFactory.getLogger(BaseClient.class);
+
+  /**
+   * An {@link ExecutorSupplier} that provides an unlimited thread pool {@link Executor} per client.
+   */
+  public static final ExecutorSupplier DEFAULT_EXECUTOR_SUPPLIER = new ExecutorSupplier() {
+
+    @Override
+    public Executor get() {
+      return Executors.newCachedThreadPool(Utils.daemonThreadFactory(this));
+    }
+
+    @Override
+    public void onClose(Executor executor) {
+      ((ExecutorService) executor).shutdownNow();
+    }
+
+  };
+
+  public static final String APIS = "/apis";
+  private static final String API = "/api";
+
+  private URL masterUrl;
+  private String apiVersion;
+  private String namespace;
+  private Predicate<String> matchingGroupPredicate;
+  private final Adapters adapters;
+  private final Handlers handlers;
+  protected Config config;
+  protected HttpClient httpClient;
+  private OperationSupport operationSupport;
+  private ExecutorSupplier executorSupplier;
+  private Executor executor;
+  protected KubernetesSerialization kubernetesSerialization;
+  private CompletableFuture<Void> closed;
+  private Set<AutoCloseable> closable;
+
+  private OperationContext operationContext;
+
+  BaseClient(BaseClient baseClient) {
+    this.closed = baseClient.closed;
+    this.config = baseClient.config;
+    this.httpClient = baseClient.httpClient;
+    this.adapters = baseClient.adapters;
+    this.handlers = baseClient.handlers;
+    this.matchingGroupPredicate = baseClient.matchingGroupPredicate;
+    this.executorSupplier = baseClient.executorSupplier;
+    this.executor = baseClient.executor;
+    this.kubernetesSerialization = baseClient.kubernetesSerialization;
+    this.closable = baseClient.closable;
+    setDerivedFields();
+    if (baseClient.operationContext != null) {
+      operationContext(baseClient.operationContext);
+    }
+  }
+
+  BaseClient(final HttpClient httpClient, Config config, ExecutorSupplier executorSupplier,
+      KubernetesSerialization kubernetesSerialization) {
+    this.closable = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+    this.closed = new CompletableFuture<>();
+    this.config = config;
+    this.httpClient = httpClient;
+    this.handlers = new Handlers();
+    this.adapters = new Adapters(this.handlers);
+    setDerivedFields();
+    if (executorSupplier == null) {
+      executorSupplier = DEFAULT_EXECUTOR_SUPPLIER;
+    }
+    this.executorSupplier = executorSupplier;
+    this.executor = executorSupplier.get();
+    this.kubernetesSerialization = kubernetesSerialization;
+  }
+
+  protected void setDerivedFields() {
+    this.namespace = config.getNamespace();
+    this.apiVersion = config.getApiVersion();
+    if (config.getMasterUrl() == null) {
+      throw new KubernetesClientException("Unknown Kubernetes master URL - " +
+          "please set with the builder, or set with either system property \"" + Config.KUBERNETES_MASTER_SYSTEM_PROPERTY
+          + "\"" +
+          " or environment variable \"" + Utils.convertSystemPropertyNameToEnvVar(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY)
+          + "\"");
+    }
+    try {
+      this.masterUrl = new URL(config.getMasterUrl());
+    } catch (MalformedURLException e) {
+      throw KubernetesClientException.launderThrowable(e);
+    }
+  }
+
+  @Override
+  public void close() {
+    if (closed.complete(null) && logger.isDebugEnabled()) {
+      logger.debug(
+          "The client and associated httpclient {} have been closed, the usage of this or any client using the httpclient will not work after this",
+          httpClient.getClass().getName());
+    }
+    httpClient.close();
+    List<AutoCloseable> toClose = null;
+    synchronized (closable) {
+      toClose = new ArrayList<>(closable);
+      closable.clear();
+    }
+    toClose.forEach(c -> {
+      try {
+        c.close();
+      } catch (Exception e) {
+        logger.warn("Error closing resource", e);
+      }
+    });
+    if (this.executorSupplier != null) {
+      this.executorSupplier.onClose(executor);
+      this.executorSupplier = null;
+    }
+  }
+
+  public CompletableFuture<Void> getClosed() {
+    return closed;
+  }
+
+  @Override
+  public URL getMasterUrl() {
+    return masterUrl;
+  }
+
+  @Override
+  public String getApiVersion() {
+    return apiVersion;
+  }
+
+  @Override
+  public String getNamespace() {
+    return namespace;
+  }
+
+  public void setMatchingGroupPredicate(Predicate<String> unsupportedApiGroups) {
+    this.matchingGroupPredicate = unsupportedApiGroups;
+  }
+
+  @Override
+  public boolean hasApiGroup(String apiGroup, boolean exact) {
+    if (matchingGroupPredicate != null) {
+      return matchingGroupPredicate.test(apiGroup);
+    }
+    if (exact) {
+      return getApiGroup(apiGroup) != null;
+    }
+    APIGroupList apiGroups = getApiGroups();
+    if (apiGroups == null) {
+      return false;
+    }
+    return apiGroups
+        .getGroups()
+        .stream()
+        .anyMatch(g -> g.getName().endsWith(apiGroup));
+  }
+
+  @Override
+  public <R extends KubernetesResource> boolean supports(Class<R> type) {
+    final String typeApiVersion = HasMetadata.getApiVersion(type);
+    if (matchingGroupPredicate != null) {
+      return matchingGroupPredicate.test(typeApiVersion);
+    }
+
+    final String typeKind = HasMetadata.getKind(type);
+    if (Utils.isNullOrEmpty(typeApiVersion) || Utils.isNullOrEmpty(typeKind)) {
+      return false;
+    }
+    return supports(ApiVersionUtil.joinApiGroupAndVersion(
+        HasMetadata.getGroup(type), HasMetadata.getVersion(type)), typeKind);
+  }
+
+  @Override
+  public boolean supports(String apiVersion, String kind) {
+    Utils.checkNotNull(kind, "kind cannot be null");
+    Utils.checkNotNull(apiVersion, "apiVersion cannot be null");
+    final APIResourceList apiResources = getApiResources(apiVersion);
+    if (apiResources == null) {
+      return false;
+    }
+    return apiResources.getResources()
+        .stream()
+        .anyMatch(r -> kind.equals(r.getKind()));
+  }
+
+  @Override
+  public <C extends Client> C adapt(Class<C> type) {
+    if (type.isAssignableFrom(this.getClass())) {
+      return (C) this;
+    }
+    ExtensionAdapter<C> adapter = adapters.get(type);
+    if (adapter == null) {
+      throw new IllegalStateException("No adapter available for type:" + type);
+    }
+    return adapter.adapt(this);
+  }
+
+  @Override
+  public RootPaths rootPaths() {
+    return getOperationSupport().restCall(RootPaths.class);
+  }
+
+  @Override
+  public boolean supportsApiPath(String apiPath) {
+    RootPaths rootPaths = rootPaths();
+    if (rootPaths != null) {
+      List<String> paths = rootPaths.getPaths();
+      if (paths != null) {
+        for (String path : paths) {
+          if (path.equals(apiPath)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public APIGroupList getApiGroups() {
+    return getOperationSupport().restCall(APIGroupList.class, APIS);
+  }
+
+  @Override
+  public APIGroup getApiGroup(String name) {
+    return getOperationSupport().restCall(APIGroup.class, APIS, name);
+  }
+
+  @Override
+  public APIVersions getAPIVersions() {
+    return getOperationSupport().restCall(APIVersions.class, API);
+  }
+
+  private OperationSupport getOperationSupport() {
+    if (operationSupport == null) {
+      this.operationSupport = new OperationSupport(this);
+    }
+    return this.operationSupport;
+  }
+
+  @Override
+  public APIResourceList getApiResources(String groupVersion) {
+    if ("v1".equals(groupVersion)) {
+      return getOperationSupport().restCall(APIResourceList.class, "api", "v1");
+    }
+    return getOperationSupport().restCall(APIResourceList.class, APIS, groupVersion);
+  }
+
+  protected VersionInfo getVersionInfo(String path) {
+    return getOperationSupport().restCall(VersionInfo.class, path);
+  }
+
+  @Override
+  public <T extends HasMetadata, L extends KubernetesResourceList<T>, R extends Resource<T>> MixedOperation<T, L, R> resources(
+      Class<T> resourceType, Class<L> listClass, Class<R> resourceClass) {
+    if (GenericKubernetesResource.class.equals(resourceType)) {
+      throw new KubernetesClientException("resources cannot be called with a generic type");
+    }
+    if (resourceType.isInterface()) {
+      throw new IllegalArgumentException("resources cannot be called with an interface");
+    }
+    try {
+      // TODO: check the Resource class type
+      return handlers.getOperation(resourceType, listClass, this);
+    } catch (Exception e) {
+      //may be the wrong list type, try more general - may still fail if the resource is not properly annotated
+      if (resourceClass == null || Resource.class.equals(resourceClass)) {
+        return (MixedOperation<T, L, R>) newHasMetadataOperation(ResourceDefinitionContext.fromResourceType(resourceType),
+            resourceType, listClass);
+      }
+      throw KubernetesClientException.launderThrowable(e);
+    }
+  }
+
+  public <T extends HasMetadata, L extends KubernetesResourceList<T>> HasMetadataOperationsImpl<T, L> newHasMetadataOperation(
+      ResourceDefinitionContext rdContext, Class<T> resourceType, Class<L> listClass) {
+    return new HasMetadataOperationsImpl<>(this, rdContext, resourceType, listClass);
+  }
+
+  @Override
+  public Config getConfiguration() {
+    return config;
+  }
+
+  @Override
+  public HttpClient getHttpClient() {
+    return httpClient;
+  }
+
+  public Adapters getAdapters() {
+    return adapters;
+  }
+
+  public Handlers getHandlers() {
+    return handlers;
+  }
+
+  /**
+   * Return the default operation context
+   */
+  public OperationContext getOperationContext() {
+    return operationContext;
+  }
+
+  public BaseClient operationContext(OperationContext operationContext) {
+    this.operationContext = operationContext;
+    this.namespace = operationContext.getNamespace();
+    return this;
+  }
+
+  /**
+   * Create a shallow copy with all shared resources.
+   *
+   * @return
+   */
+  abstract BaseClient copy();
+
+  public <C extends Client> C newClient(OperationContext newContext, Class<C> clazz) {
+    BaseClient copy = copy();
+    // set the ReqeustConfig if different
+    if (newContext.getRequestConfig() != null && newContext.getConfig().getRequestConfig() != newContext.getRequestConfig()) {
+      copy.httpClient = copy.httpClient.newBuilder().tag(newContext.getRequestConfig()).build();
+    }
+    newContext = newContext.withClient(copy);
+    return copy.operationContext(newContext).adapt(clazz);
+  }
+
+  public Executor getExecutor() {
+    return executor;
+  }
+
+  @Override
+  public String raw(String uri) {
+    try {
+      return raw(uri, "GET", null);
+    } catch (KubernetesClientException e) {
+      if (e.getCode() != HttpURLConnection.HTTP_NOT_FOUND) {
+        throw e;
+      }
+      return null;
+    }
+  }
+
+  @Override
+  public String raw(String uri, String method, Object payload) {
+    return this.getOperationSupport().handleRaw(String.class, uri, method, payload);
+  }
+
+  public KubernetesSerialization getKubernetesSerialization() {
+    return kubernetesSerialization;
+  }
+
+  public void addToCloseable(AutoCloseable closeable) {
+    synchronized (this.closable) {
+      if (this.closed.isDone()) {
+        throw new KubernetesClientException("Client is already closed");
+      }
+      this.closable.add(closeable);
+    }
+  }
+
+  public void removeFromCloseable(AutoCloseable closeable) {
+    this.closable.remove(closeable);
+  }
+
+}

@@ -1,0 +1,4 @@
+kubernetes-model-common kubernetes-model-generator/kubernetes-model-common
+kubernetes-client-api kubernetes-client-api
+api-v2 crd-generator/api-v2
+test crd-generator/test

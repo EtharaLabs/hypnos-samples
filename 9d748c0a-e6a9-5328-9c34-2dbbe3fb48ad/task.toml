@@ -1,0 +1,56 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+artifacts = ["/app/crd-generator/api-v2/src/main/java", "/app/generator-annotations/src/main/java", "/app/httpclient-vertx/src/main/java", "/app/junit/kube-api-test/client-inject/src/main/java", "/app/junit/kube-api-test/core/src/main/java", "/app/junit/mockwebserver/src/main/java", "/app/kubernetes-client/src/main/java", "/app/kubernetes-client-api/src/main/java", "/app/kubernetes-model-generator/kubernetes-model-apiextensions/src/main/java", "/app/kubernetes-model-generator/kubernetes-model-common/src/main/java", "/app/kubernetes-model-generator/kubernetes-model-coordination/src/main/java", "/app/kubernetes-model-generator/kubernetes-model-core/src/main/java", "/app/zjsonpatch/src/main/java"]
+
+[task]
+name = "ethara/9d748c0a-e6a9-5328-9c34-2dbbe3fb48ad"
+version = "1.0.0"
+description = "Restore the 7.x (Jackson 2) wire format of Year, Month, java.sql.Date and Locale in the Fabric8 Kubernetes client's default serialization through a public Jackson2JdkTypesModule that reads both forms, and make the CRD generator map byte[], ByteBuffer, char[], QName, integers and these JDK types like controller-gen, so generated schemas never reject what the client writes, while everything that works today keeps working."
+authors = [{ name = "adarsh.mishraint17", email = "adarsh.mishraint17@ethara.ai" }]
+keywords = ["java", "maven", "jackson", "kubernetes", "fabric8", "crd-generator", "serialization", "issue-resolution"]
+
+[metadata]
+reward_type = "bounded_continuous"
+null_floor = 0.0
+discrimination_weight = 0.5
+platforms = ["linux/amd64", "linux/arm64"]
+
+[verifier]
+env = { ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}", ANTHROPIC_BASE_URL = "${ANTHROPIC_BASE_URL:-}", OPENAI_API_KEY = "${OPENAI_API_KEY:-}", OPENAI_BASE_URL = "${OPENAI_BASE_URL:-}", REWARDKIT_JUDGE = "${REWARDKIT_JUDGE:-}" }
+timeout_sec = 8400.0
+network_mode = "public"
+environment_mode = "separate"
+user = "0"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 2400.0
+cpus = 8
+memory_mb = 24576
+storage_mb = 20480
+gpus = 0
+
+[agent]
+network_mode = "allowlist"
+allowed_hosts = ["api.openai.com", "api.anthropic.com"]
+timeout_sec = 7200.0
+user = "20001"
+
+[environment]
+network_mode = "no-network"
+build_timeout_sec = 1800.0
+cpus = 8
+memory_mb = 32768
+storage_mb = 20480
+gpus = 0
+
+[upstream_provenance]
+origin = "original"
+provenance_date = "2026-11-01"
+source_kind = "public_repository"
+
+[upstream_provenance.source]
+canonical_repo = "github.com/fabric8io/kubernetes-client"
+fork_ancestry_digest = "sha256:3b4a59fcf1e7be28791f40f14062ac8d6dfcf1eec371cb23ea8f50ee1ea14a5b"
+base_commit = "889d3b1581635424c811a345dc9a664e75520a1a"
+event_timestamp = "2026-09-16T08:37:36Z"

@@ -1,0 +1,3 @@
+a.ts:18:3 lint/nursery/useExhaustiveSwitchCases ["W"]
+a.ts:5:3 lint/nursery/useExhaustiveSwitchCases ["W"]
+rc=1

@@ -1,0 +1,99 @@
+{
+  "cases": {
+    "f1": true,
+    "f2": true,
+    "f3": true,
+    "f4": true,
+    "f5": true,
+    "f6": false,
+    "f7": true,
+    "g1": true,
+    "g2": true,
+    "g3": true,
+    "g4": false,
+    "g5": true,
+    "g6": true,
+    "g7": true,
+    "g8": true
+  },
+  "frame": {
+    "failing": {
+      "biome_js_analyze:test:spec_tests": {
+        "count": 1,
+        "not ok at base-ok names": [
+          "specs::nursery::use_exhaustive_switch_cases::issue7747_valid_ts"
+        ]
+      }
+    },
+    "ok": false,
+    "recovered": {},
+    "targets": 222
+  },
+  "gate": {
+    "any_fail_to_pass": true,
+    "frame_ok": false,
+    "isolated": true,
+    "open": false,
+    "reason": "frame failed"
+  },
+  "items": {
+    "R1": true,
+    "R2": false,
+    "R3": true,
+    "R4": false,
+    "R5": false,
+    "R6": false,
+    "R7": false,
+    "R9": false
+  },
+  "schema": "hypnos.grade/v3",
+  "stages": {
+    "cases/f1": "1",
+    "cases/f2": "1",
+    "cases/f3": "0",
+    "cases/f4": "1",
+    "cases/f5": "1",
+    "cases/f6": "0",
+    "cases/f7": "0",
+    "cases/g1": "0",
+    "cases/g2": "0",
+    "cases/g3": "0",
+    "cases/g4": "1",
+    "cases/g5": "0",
+    "cases/g6": "0",
+    "cases/g7": "0",
+    "cases/g8": "0",
+    "test": "101"
+  },
+  "test_phase": {
+    "elapsed_s": 456,
+    "executables_mapped": 222,
+    "survivors": 0,
+    "targets_seen": 222
+  },
+  "upstream_tests": {
+    "R1": {
+      "specs::nursery::use_exhaustive_switch_cases::issue7747_invalid_ts": true
+    },
+    "R2": {
+      "specs::nursery::use_exhaustive_switch_cases::invalid_numeric_literals_ts": false,
+      "specs::nursery::use_exhaustive_switch_cases::valid_numeric_literals_ts": false
+    },
+    "R3": {
+      "specs::nursery::no_floating_promises::indexed_access_invalid_ts": true,
+      "specs::nursery::no_unsafe_plus_operands::indexed_access_invalid_ts": true,
+      "specs::nursery::no_useless_type_conversion::indexed_access_invalid_ts": true,
+      "specs::nursery::use_await_thenable::indexed_access_invalid_ts": true,
+      "specs::suspicious::no_unnecessary_conditions::indexed_access_invalid_ts": true,
+      "specs::suspicious::no_unnecessary_conditions::indexed_access_valid_ts": true,
+      "specs::suspicious::use_array_sort_compare::indexed_access_invalid_ts": true
+    },
+    "R4": {
+      "specs::nursery::no_useless_type_conversion::invalid_ts": false
+    },
+    "R5": {
+      "normalization::test_normalize_type_projections": false,
+      "normalization::test_type_projections_track_imports_without_whole_module_inference": true
+    }
+  }
+}

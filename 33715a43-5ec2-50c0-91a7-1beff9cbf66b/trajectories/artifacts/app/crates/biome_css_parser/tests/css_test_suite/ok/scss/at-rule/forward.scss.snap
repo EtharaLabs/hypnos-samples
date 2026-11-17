@@ -1,0 +1,396 @@
+---
+source: crates/biome_css_parser/tests/spec_test.rs
+expression: snapshot
+---
+
+## Input
+
+```css
+@forward "theme";
+
+@forward "theme" show $color, button;
+
+@forward "theme" hide $private, internal-mixin;
+
+@forward "theme" as theme-*;
+
+@forward "theme" as theme*;
+
+@forward "theme" with ($spacing: 4px !default);
+
+@forward "theme" as theme-* show $color, button with ($spacing: 4px);
+
+```
+
+
+## AST
+
+```
+CssRoot {
+    bom_token: missing (optional),
+    items: CssRootItemList [
+        CssAtRule {
+            at_token: AT@0..1 "@" [] [],
+            rule: ScssForwardAtRule {
+                forward_token: FORWARD_KW@1..9 "forward" [] [Whitespace(" ")],
+                url: CssString {
+                    value_token: CSS_STRING_LITERAL@9..16 "\"theme\"" [] [],
+                },
+                as_clause: missing (optional),
+                visibility_clause: missing (optional),
+                with_clause: missing (optional),
+                semicolon_token: SEMICOLON@16..17 ";" [] [],
+            },
+        },
+        CssAtRule {
+            at_token: AT@17..20 "@" [Newline("\n"), Newline("\n")] [],
+            rule: ScssForwardAtRule {
+                forward_token: FORWARD_KW@20..28 "forward" [] [Whitespace(" ")],
+                url: CssString {
+                    value_token: CSS_STRING_LITERAL@28..36 "\"theme\"" [] [Whitespace(" ")],
+                },
+                as_clause: missing (optional),
+                visibility_clause: ScssShowClause {
+                    show_token: SHOW_KW@36..41 "show" [] [Whitespace(" ")],
+                    members: ScssModuleMemberList [
+                        ScssVariable {
+                            dollar_token: DOLLAR@41..42 "$" [] [],
+                            name: CssIdentifier {
+                                value_token: IDENT@42..47 "color" [] [],
+                            },
+                        },
+                        COMMA@47..49 "," [] [Whitespace(" ")],
+                        CssIdentifier {
+                            value_token: IDENT@49..55 "button" [] [],
+                        },
+                    ],
+                },
+                with_clause: missing (optional),
+                semicolon_token: SEMICOLON@55..56 ";" [] [],
+            },
+        },
+        CssAtRule {
+            at_token: AT@56..59 "@" [Newline("\n"), Newline("\n")] [],
+            rule: ScssForwardAtRule {
+                forward_token: FORWARD_KW@59..67 "forward" [] [Whitespace(" ")],
+                url: CssString {
+                    value_token: CSS_STRING_LITERAL@67..75 "\"theme\"" [] [Whitespace(" ")],
+                },
+                as_clause: missing (optional),
+                visibility_clause: ScssHideClause {
+                    hide_token: HIDE_KW@75..80 "hide" [] [Whitespace(" ")],
+                    members: ScssModuleMemberList [
+                        ScssVariable {
+                            dollar_token: DOLLAR@80..81 "$" [] [],
+                            name: CssIdentifier {
+                                value_token: IDENT@81..88 "private" [] [],
+                            },
+                        },
+                        COMMA@88..90 "," [] [Whitespace(" ")],
+                        CssIdentifier {
+                            value_token: IDENT@90..104 "internal-mixin" [] [],
+                        },
+                    ],
+                },
+                with_clause: missing (optional),
+                semicolon_token: SEMICOLON@104..105 ";" [] [],
+            },
+        },
+        CssAtRule {
+            at_token: AT@105..108 "@" [Newline("\n"), Newline("\n")] [],
+            rule: ScssForwardAtRule {
+                forward_token: FORWARD_KW@108..116 "forward" [] [Whitespace(" ")],
+                url: CssString {
+                    value_token: CSS_STRING_LITERAL@116..124 "\"theme\"" [] [Whitespace(" ")],
+                },
+                as_clause: ScssForwardAsClause {
+                    as_token: AS_KW@124..127 "as" [] [Whitespace(" ")],
+                    prefix: CssIdentifier {
+                        value_token: IDENT@127..133 "theme-" [] [],
+                    },
+                    star_token: STAR@133..134 "*" [] [],
+                },
+                visibility_clause: missing (optional),
+                with_clause: missing (optional),
+                semicolon_token: SEMICOLON@134..135 ";" [] [],
+            },
+        },
+        CssAtRule {
+            at_token: AT@135..138 "@" [Newline("\n"), Newline("\n")] [],
+            rule: ScssForwardAtRule {
+                forward_token: FORWARD_KW@138..146 "forward" [] [Whitespace(" ")],
+                url: CssString {
+                    value_token: CSS_STRING_LITERAL@146..154 "\"theme\"" [] [Whitespace(" ")],
+                },
+                as_clause: ScssForwardAsClause {
+                    as_token: AS_KW@154..157 "as" [] [Whitespace(" ")],
+                    prefix: CssIdentifier {
+                        value_token: IDENT@157..162 "theme" [] [],
+                    },
+                    star_token: STAR@162..163 "*" [] [],
+                },
+                visibility_clause: missing (optional),
+                with_clause: missing (optional),
+                semicolon_token: SEMICOLON@163..164 ";" [] [],
+            },
+        },
+        CssAtRule {
+            at_token: AT@164..167 "@" [Newline("\n"), Newline("\n")] [],
+            rule: ScssForwardAtRule {
+                forward_token: FORWARD_KW@167..175 "forward" [] [Whitespace(" ")],
+                url: CssString {
+                    value_token: CSS_STRING_LITERAL@175..183 "\"theme\"" [] [Whitespace(" ")],
+                },
+                as_clause: missing (optional),
+                visibility_clause: missing (optional),
+                with_clause: ScssWithClause {
+                    with_token: WITH_KW@183..188 "with" [] [Whitespace(" ")],
+                    configurations: ScssModuleConfigurationList {
+                        l_paren_token: L_PAREN@188..189 "(" [] [],
+                        items: ScssModuleConfigurationItemList [
+                            ScssModuleConfiguration {
+                                name: ScssVariable {
+                                    dollar_token: DOLLAR@189..190 "$" [] [],
+                                    name: CssIdentifier {
+                                        value_token: IDENT@190..197 "spacing" [] [],
+                                    },
+                                },
+                                colon_token: COLON@197..199 ":" [] [Whitespace(" ")],
+                                value: ScssExpression {
+                                    items: ScssExpressionItemList [
+                                        CssRegularDimension {
+                                            value_token: CSS_NUMBER_LITERAL@199..200 "4" [] [],
+                                            unit_token: IDENT@200..203 "px" [] [Whitespace(" ")],
+                                        },
+                                    ],
+                                },
+                                modifier: ScssVariableModifier {
+                                    excl_token: BANG@203..204 "!" [] [],
+                                    value: DEFAULT_KW@204..211 "default" [] [],
+                                },
+                            },
+                        ],
+                        r_paren_token: R_PAREN@211..212 ")" [] [],
+                    },
+                },
+                semicolon_token: SEMICOLON@212..213 ";" [] [],
+            },
+        },
+        CssAtRule {
+            at_token: AT@213..216 "@" [Newline("\n"), Newline("\n")] [],
+            rule: ScssForwardAtRule {
+                forward_token: FORWARD_KW@216..224 "forward" [] [Whitespace(" ")],
+                url: CssString {
+                    value_token: CSS_STRING_LITERAL@224..232 "\"theme\"" [] [Whitespace(" ")],
+                },
+                as_clause: ScssForwardAsClause {
+                    as_token: AS_KW@232..235 "as" [] [Whitespace(" ")],
+                    prefix: CssIdentifier {
+                        value_token: IDENT@235..241 "theme-" [] [],
+                    },
+                    star_token: STAR@241..243 "*" [] [Whitespace(" ")],
+                },
+                visibility_clause: ScssShowClause {
+                    show_token: SHOW_KW@243..248 "show" [] [Whitespace(" ")],
+                    members: ScssModuleMemberList [
+                        ScssVariable {
+                            dollar_token: DOLLAR@248..249 "$" [] [],
+                            name: CssIdentifier {
+                                value_token: IDENT@249..254 "color" [] [],
+                            },
+                        },
+                        COMMA@254..256 "," [] [Whitespace(" ")],
+                        CssIdentifier {
+                            value_token: IDENT@256..263 "button" [] [Whitespace(" ")],
+                        },
+                    ],
+                },
+                with_clause: ScssWithClause {
+                    with_token: WITH_KW@263..268 "with" [] [Whitespace(" ")],
+                    configurations: ScssModuleConfigurationList {
+                        l_paren_token: L_PAREN@268..269 "(" [] [],
+                        items: ScssModuleConfigurationItemList [
+                            ScssModuleConfiguration {
+                                name: ScssVariable {
+                                    dollar_token: DOLLAR@269..270 "$" [] [],
+                                    name: CssIdentifier {
+                                        value_token: IDENT@270..277 "spacing" [] [],
+                                    },
+                                },
+                                colon_token: COLON@277..279 ":" [] [Whitespace(" ")],
+                                value: ScssExpression {
+                                    items: ScssExpressionItemList [
+                                        CssRegularDimension {
+                                            value_token: CSS_NUMBER_LITERAL@279..280 "4" [] [],
+                                            unit_token: IDENT@280..282 "px" [] [],
+                                        },
+                                    ],
+                                },
+                                modifier: missing (optional),
+                            },
+                        ],
+                        r_paren_token: R_PAREN@282..283 ")" [] [],
+                    },
+                },
+                semicolon_token: SEMICOLON@283..284 ";" [] [],
+            },
+        },
+    ],
+    eof_token: EOF@284..285 "" [Newline("\n")] [],
+}
+```
+
+## CST
+
+```
+0: CSS_ROOT@0..285
+  0: (empty)
+  1: CSS_ROOT_ITEM_LIST@0..284
+    0: CSS_AT_RULE@0..17
+      0: AT@0..1 "@" [] []
+      1: SCSS_FORWARD_AT_RULE@1..17
+        0: FORWARD_KW@1..9 "forward" [] [Whitespace(" ")]
+        1: CSS_STRING@9..16
+          0: CSS_STRING_LITERAL@9..16 "\"theme\"" [] []
+        2: (empty)
+        3: (empty)
+        4: (empty)
+        5: SEMICOLON@16..17 ";" [] []
+    1: CSS_AT_RULE@17..56
+      0: AT@17..20 "@" [Newline("\n"), Newline("\n")] []
+      1: SCSS_FORWARD_AT_RULE@20..56
+        0: FORWARD_KW@20..28 "forward" [] [Whitespace(" ")]
+        1: CSS_STRING@28..36
+          0: CSS_STRING_LITERAL@28..36 "\"theme\"" [] [Whitespace(" ")]
+        2: (empty)
+        3: SCSS_SHOW_CLAUSE@36..55
+          0: SHOW_KW@36..41 "show" [] [Whitespace(" ")]
+          1: SCSS_MODULE_MEMBER_LIST@41..55
+            0: SCSS_VARIABLE@41..47
+              0: DOLLAR@41..42 "$" [] []
+              1: CSS_IDENTIFIER@42..47
+                0: IDENT@42..47 "color" [] []
+            1: COMMA@47..49 "," [] [Whitespace(" ")]
+            2: CSS_IDENTIFIER@49..55
+              0: IDENT@49..55 "button" [] []
+        4: (empty)
+        5: SEMICOLON@55..56 ";" [] []
+    2: CSS_AT_RULE@56..105
+      0: AT@56..59 "@" [Newline("\n"), Newline("\n")] []
+      1: SCSS_FORWARD_AT_RULE@59..105
+        0: FORWARD_KW@59..67 "forward" [] [Whitespace(" ")]
+        1: CSS_STRING@67..75
+          0: CSS_STRING_LITERAL@67..75 "\"theme\"" [] [Whitespace(" ")]
+        2: (empty)
+        3: SCSS_HIDE_CLAUSE@75..104
+          0: HIDE_KW@75..80 "hide" [] [Whitespace(" ")]
+          1: SCSS_MODULE_MEMBER_LIST@80..104
+            0: SCSS_VARIABLE@80..88
+              0: DOLLAR@80..81 "$" [] []
+              1: CSS_IDENTIFIER@81..88
+                0: IDENT@81..88 "private" [] []
+            1: COMMA@88..90 "," [] [Whitespace(" ")]
+            2: CSS_IDENTIFIER@90..104
+              0: IDENT@90..104 "internal-mixin" [] []
+        4: (empty)
+        5: SEMICOLON@104..105 ";" [] []
+    3: CSS_AT_RULE@105..135
+      0: AT@105..108 "@" [Newline("\n"), Newline("\n")] []
+      1: SCSS_FORWARD_AT_RULE@108..135
+        0: FORWARD_KW@108..116 "forward" [] [Whitespace(" ")]
+        1: CSS_STRING@116..124
+          0: CSS_STRING_LITERAL@116..124 "\"theme\"" [] [Whitespace(" ")]
+        2: SCSS_FORWARD_AS_CLAUSE@124..134
+          0: AS_KW@124..127 "as" [] [Whitespace(" ")]
+          1: CSS_IDENTIFIER@127..133
+            0: IDENT@127..133 "theme-" [] []
+          2: STAR@133..134 "*" [] []
+        3: (empty)
+        4: (empty)
+        5: SEMICOLON@134..135 ";" [] []
+    4: CSS_AT_RULE@135..164
+      0: AT@135..138 "@" [Newline("\n"), Newline("\n")] []
+      1: SCSS_FORWARD_AT_RULE@138..164
+        0: FORWARD_KW@138..146 "forward" [] [Whitespace(" ")]
+        1: CSS_STRING@146..154
+          0: CSS_STRING_LITERAL@146..154 "\"theme\"" [] [Whitespace(" ")]
+        2: SCSS_FORWARD_AS_CLAUSE@154..163
+          0: AS_KW@154..157 "as" [] [Whitespace(" ")]
+          1: CSS_IDENTIFIER@157..162
+            0: IDENT@157..162 "theme" [] []
+          2: STAR@162..163 "*" [] []
+        3: (empty)
+        4: (empty)
+        5: SEMICOLON@163..164 ";" [] []
+    5: CSS_AT_RULE@164..213
+      0: AT@164..167 "@" [Newline("\n"), Newline("\n")] []
+      1: SCSS_FORWARD_AT_RULE@167..213
+        0: FORWARD_KW@167..175 "forward" [] [Whitespace(" ")]
+        1: CSS_STRING@175..183
+          0: CSS_STRING_LITERAL@175..183 "\"theme\"" [] [Whitespace(" ")]
+        2: (empty)
+        3: (empty)
+        4: SCSS_WITH_CLAUSE@183..212
+          0: WITH_KW@183..188 "with" [] [Whitespace(" ")]
+          1: SCSS_MODULE_CONFIGURATION_LIST@188..212
+            0: L_PAREN@188..189 "(" [] []
+            1: SCSS_MODULE_CONFIGURATION_ITEM_LIST@189..211
+              0: SCSS_MODULE_CONFIGURATION@189..211
+                0: SCSS_VARIABLE@189..197
+                  0: DOLLAR@189..190 "$" [] []
+                  1: CSS_IDENTIFIER@190..197
+                    0: IDENT@190..197 "spacing" [] []
+                1: COLON@197..199 ":" [] [Whitespace(" ")]
+                2: SCSS_EXPRESSION@199..203
+                  0: SCSS_EXPRESSION_ITEM_LIST@199..203
+                    0: CSS_REGULAR_DIMENSION@199..203
+                      0: CSS_NUMBER_LITERAL@199..200 "4" [] []
+                      1: IDENT@200..203 "px" [] [Whitespace(" ")]
+                3: SCSS_VARIABLE_MODIFIER@203..211
+                  0: BANG@203..204 "!" [] []
+                  1: DEFAULT_KW@204..211 "default" [] []
+            2: R_PAREN@211..212 ")" [] []
+        5: SEMICOLON@212..213 ";" [] []
+    6: CSS_AT_RULE@213..284
+      0: AT@213..216 "@" [Newline("\n"), Newline("\n")] []
+      1: SCSS_FORWARD_AT_RULE@216..284
+        0: FORWARD_KW@216..224 "forward" [] [Whitespace(" ")]
+        1: CSS_STRING@224..232
+          0: CSS_STRING_LITERAL@224..232 "\"theme\"" [] [Whitespace(" ")]
+        2: SCSS_FORWARD_AS_CLAUSE@232..243
+          0: AS_KW@232..235 "as" [] [Whitespace(" ")]
+          1: CSS_IDENTIFIER@235..241
+            0: IDENT@235..241 "theme-" [] []
+          2: STAR@241..243 "*" [] [Whitespace(" ")]
+        3: SCSS_SHOW_CLAUSE@243..263
+          0: SHOW_KW@243..248 "show" [] [Whitespace(" ")]
+          1: SCSS_MODULE_MEMBER_LIST@248..263
+            0: SCSS_VARIABLE@248..254
+              0: DOLLAR@248..249 "$" [] []
+              1: CSS_IDENTIFIER@249..254
+                0: IDENT@249..254 "color" [] []
+            1: COMMA@254..256 "," [] [Whitespace(" ")]
+            2: CSS_IDENTIFIER@256..263
+              0: IDENT@256..263 "button" [] [Whitespace(" ")]
+        4: SCSS_WITH_CLAUSE@263..283
+          0: WITH_KW@263..268 "with" [] [Whitespace(" ")]
+          1: SCSS_MODULE_CONFIGURATION_LIST@268..283
+            0: L_PAREN@268..269 "(" [] []
+            1: SCSS_MODULE_CONFIGURATION_ITEM_LIST@269..282
+              0: SCSS_MODULE_CONFIGURATION@269..282
+                0: SCSS_VARIABLE@269..277
+                  0: DOLLAR@269..270 "$" [] []
+                  1: CSS_IDENTIFIER@270..277
+                    0: IDENT@270..277 "spacing" [] []
+                1: COLON@277..279 ":" [] [Whitespace(" ")]
+                2: SCSS_EXPRESSION@279..282
+                  0: SCSS_EXPRESSION_ITEM_LIST@279..282
+                    0: CSS_REGULAR_DIMENSION@279..282
+                      0: CSS_NUMBER_LITERAL@279..280 "4" [] []
+                      1: IDENT@280..282 "px" [] []
+                3: (empty)
+            2: R_PAREN@282..283 ")" [] []
+        5: SEMICOLON@283..284 ";" [] []
+  2: EOF@284..285 "" [Newline("\n")] []
+
+```

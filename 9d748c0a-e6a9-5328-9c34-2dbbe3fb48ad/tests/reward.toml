@@ -1,0 +1,8 @@
+# The rubric's weighted mean: compiled items R1 to R7 carry 29 weight points, judged R8 carries 3.
+[[reward]]
+name = "reward"
+aggregation = "weighted-mean"
+weights = { test_output = 29, judge = 3 }
+
+[scoring.test_output]
+aggregation = "weighted-mean"

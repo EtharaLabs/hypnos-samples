@@ -1,0 +1,45 @@
+---
+source: crates/biome_formatter_test/src/snapshot_builder.rs
+info: css/suppression_trailing_comments.css
+---
+
+# Input
+
+```css
+.card {
+	/* biome-ignore format: preserve the nested declaration formatting */
+	background: linear-gradient( 90deg, red,   blue ); /* keep this trailing comment after the suppressed declaration */
+	color: red;
+}
+
+/* before rule */
+/* biome-ignore format: preserve the entire rule */
+.suppressed { /* first */ color:   red; /* between */ margin:1px  2px; /* last */ } /* after rule */
+.formatted{color:blue;}
+
+```
+
+
+# Formatted
+
+```css
+.card {
+	/* biome-ignore format: preserve the nested declaration formatting */
+	background: linear-gradient( 90deg, red,   blue ); /* keep this trailing comment after the suppressed declaration */
+	color: red;
+}
+
+/* before rule */
+/* biome-ignore format: preserve the entire rule */
+.suppressed { /* first */ color:   red; /* between */ margin:1px  2px; /* last */ } /* after rule */
+.formatted {
+	color: blue;
+}
+
+```
+
+# Lines exceeding max width of 80 characters
+```
+    3: 	background: linear-gradient( 90deg, red,   blue ); /* keep this trailing comment after the suppressed declaration */
+    9: .suppressed { /* first */ color:   red; /* between */ margin:1px  2px; /* last */ } /* after rule */
+```

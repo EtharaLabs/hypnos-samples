@@ -1,0 +1,2383 @@
+diff --git a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/example/types/TypeMappingsSpec.java b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/example/types/TypeMappingsSpec.java
+index 6f47d5e2e..bd8782653 100644
+--- a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/example/types/TypeMappingsSpec.java
++++ b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/example/types/TypeMappingsSpec.java
+@@ -15,8 +15,20 @@
+  */
+ package io.fabric8.crdv2.example.types;
+ 
++import io.fabric8.generator.annotation.Size;
++import tools.jackson.core.JsonGenerator;
++import tools.jackson.databind.JavaType;
++import tools.jackson.databind.SerializationContext;
++import tools.jackson.databind.annotation.JsonSerialize;
++import tools.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
++import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
++import tools.jackson.databind.ser.std.StdSerializer;
++import tools.jackson.databind.ser.std.ToStringSerializer;
++import tools.jackson.databind.util.StdConverter;
++
+ import java.math.BigDecimal;
+ import java.math.BigInteger;
++import java.nio.ByteBuffer;
+ import java.sql.Time;
+ import java.sql.Timestamp;
+ import java.time.Duration;
+@@ -24,16 +36,27 @@ import java.time.Instant;
+ import java.time.LocalDate;
+ import java.time.LocalDateTime;
+ import java.time.LocalTime;
++import java.time.Month;
+ import java.time.MonthDay;
+ import java.time.OffsetDateTime;
+ import java.time.OffsetTime;
+ import java.time.Period;
++import java.time.Year;
+ import java.time.YearMonth;
+ import java.time.ZonedDateTime;
+ import java.util.Calendar;
+ import java.util.Date;
++import java.util.List;
++import java.util.Locale;
++import java.util.Map;
+ import java.util.Optional;
++import java.util.OptionalInt;
++import java.util.OptionalLong;
+ import java.util.UUID;
++import java.util.concurrent.atomic.AtomicInteger;
++import java.util.concurrent.atomic.AtomicLong;
++
++import javax.xml.namespace.QName;
+ 
+ public class TypeMappingsSpec {
+ 
+@@ -56,6 +79,8 @@ public class TypeMappingsSpec {
+   public Calendar calendar;
+   public Optional<Instant> optionalInstant;
+   public Optional<Duration> optionalDuration;
++  public Year year;
++  public Month month;
+ 
+   // Number related types
+   public short aShort;
+@@ -71,6 +96,20 @@ public class TypeMappingsSpec {
+   public Number aNumber;
+   public BigInteger aBigInteger;
+   public BigDecimal aBigDecimal;
++  public Optional<Integer> optionalInteger;
++  public OptionalInt optionalInt;
++  public OptionalLong optionalLong;
++  public AtomicInteger atomicInteger;
++  public AtomicLong atomicLong;
++  public int[] intArray;
++  public long[] longArray;
++  public List<Integer> integerList;
++  public Map<String, Long> longMap;
++  /** Written as decimals by the property's serializer or converter, which report a number. */
++  @JsonSerialize(using = RatioSerializer.class)
++  public Integer ratio;
++  @JsonSerialize(converter = RatioConverter.class)
++  public Long convertedRatio;
+ 
+   // Boolean related types
+   public boolean aBoolean;
+@@ -83,10 +122,90 @@ public class TypeMappingsSpec {
+   public CharSequence aCharSequence;
+   public String aString;
+   public String[] aStringArray;
++  public Locale locale;
++  public QName qname;
++  /** Jackson describes the types it has already seen with a reference to the first one. */
++  public QName otherQname;
++  public List<QName> qnameList;
++  public Map<String, QName> qnameMap;
+ 
++  // Binary related types
+   public byte aByte;
+   public Byte aByteObj;
+   public byte[] aByteArray;
++  public ByteBuffer byteBuffer;
++  public Optional<byte[]> optionalByteArray;
++  public List<byte[]> byteArrayList;
++  public Map<String, byte[]> byteArrayMap;
++  public Byte[] boxedByteArray;
++  public List<Byte> byteList;
++  @Size(min = 1, max = 1024)
++  public byte[] sizedByteArray;
++  @Size(min = 3, max = 6)
++  public ByteBuffer sizedByteBuffer;
++  public List<@Size(max = 3) ByteBuffer> sizedByteBufferList;
++  /** Written by a serializer that reports a plain string, @Size limits that string. */
++  @JsonSerialize(using = ToStringSerializer.class)
++  @Size(max = 3)
++  public byte[] stringSerializedBytes;
++  @JsonSerialize(using = NumbersSerializer.class)
++  public byte[] numberSerializedBytes;
++  @JsonSerialize(contentUsing = NumbersSerializer.class)
++  public List<byte[]> numberSerializedByteArrays;
++  @JsonSerialize(contentUsing = NumbersSerializer.class)
++  public Optional<byte[]> numberSerializedOptionalBytes;
+ 
+   public UUID uuid;
++
++  /**
++   * Writes a percentage as a ratio.
++   */
++  public static class RatioSerializer extends StdSerializer<Integer> {
++
++    public RatioSerializer() {
++      super(Integer.class);
++    }
++
++    @Override
++    public void serialize(Integer value, JsonGenerator gen, SerializationContext provider) {
++      gen.writeNumber(value / 100d);
++    }
++
++    @Override
++    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
++      visitor.expectNumberFormat(typeHint);
++    }
++  }
++
++  public static class RatioConverter extends StdConverter<Long, Double> {
++
++    @Override
++    public Double convert(Long value) {
++      return value / 100d;
++    }
++  }
++
++  /**
++   * Writes a byte[] as an array of numbers, like Jackson does for a Byte[].
++   */
++  public static class NumbersSerializer extends StdSerializer<byte[]> {
++
++    public NumbersSerializer() {
++      super(byte[].class);
++    }
++
++    @Override
++    public void serialize(byte[] value, JsonGenerator gen, SerializationContext provider) {
++      gen.writeStartArray();
++      for (byte b : value) {
++        gen.writeNumber(b);
++      }
++      gen.writeEndArray();
++    }
++
++    @Override
++    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
++      visitArrayFormat(visitor, typeHint, JsonFormatTypes.INTEGER);
++    }
++  }
+ }
+diff --git a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/PrinterColumnTypeTest.java b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/PrinterColumnTypeTest.java
+new file mode 100644
+index 000000000..32978acc4
+--- /dev/null
++++ b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/PrinterColumnTypeTest.java
+@@ -0,0 +1,81 @@
++/*
++ * Copyright (C) 2015 Red Hat, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *         http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package io.fabric8.crdv2.generator;
++
++import io.fabric8.crd.generator.annotation.PrinterColumn;
++import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceColumnDefinition;
++import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
++import io.fabric8.kubernetes.client.CustomResource;
++import io.fabric8.kubernetes.client.utils.KubernetesSerialization;
++import io.fabric8.kubernetes.model.annotation.Group;
++import io.fabric8.kubernetes.model.annotation.Version;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.io.TempDir;
++
++import java.io.File;
++import java.io.IOException;
++import java.io.InputStream;
++import java.nio.file.Files;
++import java.nio.file.Path;
++import java.time.Instant;
++import java.time.LocalDate;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.tuple;
++
++class PrinterColumnTypeTest {
++
++  @TempDir
++  File tempDir;
++
++  @Test
++  @DisplayName("@PrinterColumn on a date or date-time property is a string column, the API server renders a date column as the age of an RFC 3339 timestamp")
++  void temporalPropertiesAreStringColumns() throws IOException {
++    final String crdName = CustomResourceInfo.fromClass(TemporalColumns.class).crdName();
++    final CRDGenerationInfo info = new CRDGenerator()
++        .inOutputDir(tempDir)
++        .customResourceClasses(TemporalColumns.class)
++        .forCRDVersions("v1")
++        .detailedGenerate();
++
++    final CustomResourceDefinition crd;
++    try (InputStream is = Files.newInputStream(Path.of(info.getCRDInfos(crdName).get("v1").getFilePath()))) {
++      crd = new KubernetesSerialization().unmarshal(is, CustomResourceDefinition.class);
++    }
++
++    assertThat(crd.getSpec().getVersions().get(0).getAdditionalPrinterColumns())
++        .extracting(CustomResourceColumnDefinition::getJsonPath, CustomResourceColumnDefinition::getType)
++        .containsExactly(
++            tuple(".spec.instant", "string"),
++            tuple(".spec.localDate", "string"),
++            tuple(".spec.sqlDate", "string"));
++  }
++
++  @Group("sample.fabric8.io")
++  @Version("v1")
++  public static class TemporalColumns extends CustomResource<TemporalColumnsSpec, Void> {
++  }
++
++  public static class TemporalColumnsSpec {
++    @PrinterColumn
++    public Instant instant;
++    @PrinterColumn
++    public LocalDate localDate;
++    @PrinterColumn
++    public java.sql.Date sqlDate;
++  }
++}
+diff --git a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/ResolvingContextMapperTest.java b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/ResolvingContextMapperTest.java
+index be40da195..052fe4ab0 100644
+--- a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/ResolvingContextMapperTest.java
++++ b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/ResolvingContextMapperTest.java
+@@ -24,6 +24,10 @@ import tools.jackson.databind.json.JsonMapper;
+ import java.time.Duration;
+ import java.time.Instant;
+ import java.time.LocalDateTime;
++import java.time.Month;
++import java.time.Year;
++import java.util.LinkedHashMap;
++import java.util.Locale;
+ import java.util.Map;
+ 
+ import static org.assertj.core.api.Assertions.assertThat;
+@@ -35,17 +39,21 @@ import static org.assertj.core.api.Assertions.assertThat;
+  */
+ class ResolvingContextMapperTest {
+ 
+-  private static final Map<String, Object> SAMPLE = Map.of(
+-      "instant", Instant.ofEpochSecond(1_700_000_000L),
+-      "duration", Duration.ofMinutes(90),
+-      "localDateTime", LocalDateTime.of(2026, 1, 1, 10, 15, 30),
+-      "offsetTime", java.time.OffsetTime.parse("10:15:30+01:00"),
+-      "yearMonth", java.time.YearMonth.of(2026, 1),
+-      "monthDay", java.time.MonthDay.of(12, 25),
+-      "timestamp", new java.sql.Timestamp(1_700_000_000_000L));
++  private static final Map<String, Object> SAMPLE = Map.ofEntries(
++      Map.entry("instant", Instant.ofEpochSecond(1_700_000_000L)),
++      Map.entry("duration", Duration.ofMinutes(90)),
++      Map.entry("localDateTime", LocalDateTime.of(2026, 1, 1, 10, 15, 30)),
++      Map.entry("offsetTime", java.time.OffsetTime.parse("10:15:30+01:00")),
++      Map.entry("yearMonth", java.time.YearMonth.of(2026, 1)),
++      Map.entry("monthDay", java.time.MonthDay.of(12, 25)),
++      Map.entry("timestamp", new java.sql.Timestamp(1_700_000_000_000L)),
++      Map.entry("year", Year.of(2024)),
++      Map.entry("month", Month.JANUARY),
++      Map.entry("sqlDate", java.sql.Date.valueOf("2024-01-15")),
++      Map.entry("locale", Locale.forLanguageTag("zh-Hant-TW")));
+ 
+   @Test
+-  @DisplayName("Default schema mapper serializes dates and durations like KubernetesSerialization does")
++  @DisplayName("Default schema mapper serializes dates, durations and JDK types like KubernetesSerialization does")
+   void defaultMapperMatchesClientSerialization() {
+     final String fromSchemaMapper = ResolvingContext.defaultResolvingContext(false).objectMapper.writeValueAsString(SAMPLE);
+ 
+@@ -53,7 +61,20 @@ class ResolvingContextMapperTest {
+   }
+ 
+   @Test
+-  @DisplayName("A caller-supplied mapper serializes dates and durations like KubernetesSerialization does")
++  @DisplayName("Default schema mapper writes Year, Month, java.sql.Date and Locale in their Jackson 2 form")
++  void defaultMapperWritesJackson2JdkTypes() {
++    final Map<String, Object> jdkTypes = new LinkedHashMap<>();
++    jdkTypes.put("year", Year.of(2024));
++    jdkTypes.put("month", Month.JANUARY);
++    jdkTypes.put("sqlDate", java.sql.Date.valueOf("2024-01-15"));
++    jdkTypes.put("locale", Locale.forLanguageTag("zh-Hant-TW"));
++
++    assertThat(ResolvingContext.defaultResolvingContext(false).objectMapper.writeValueAsString(jdkTypes))
++        .isEqualTo("{\"year\":\"2024\",\"month\":\"JANUARY\",\"sqlDate\":\"2024-01-15\",\"locale\":\"zh_TW_#Hant\"}");
++  }
++
++  @Test
++  @DisplayName("A caller-supplied mapper serializes dates, durations and JDK types like KubernetesSerialization does")
+   void callerSuppliedMapperMatchesClientSerialization() {
+     final ObjectMapper mapper = JsonMapper.builderWithJackson2Defaults().build();
+     final KubernetesSerialization kubernetesSerialization = new KubernetesSerialization(mapper, false);
+diff --git a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/JsonSchemaTest.java b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/JsonSchemaTest.java
+index 2ec4e5172..ad965f4d6 100644
+--- a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/JsonSchemaTest.java
++++ b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/JsonSchemaTest.java
+@@ -136,8 +136,8 @@ class JsonSchemaTest {
+     assertTrue(spec.containsKey("anEnum"));
+ 
+     Function<String, JSONSchemaPropsBuilder> type = t -> new JSONSchemaPropsBuilder().withType(t);
+-    assertEquals(type.apply("integer").withMinimum(-5.0).build(), spec.get("min"));
+-    assertEquals(type.apply("integer").withMaximum(5.0).build(), spec.get("max"));
++    assertEquals(type.apply("integer").withFormat("int32").withMinimum(-5.0).build(), spec.get("min"));
++    assertEquals(type.apply("integer").withFormat("int32").withMaximum(5.0).build(), spec.get("max"));
+     assertEquals(type.apply("string").withPattern("\\b[1-9]\\b").build(), spec.get("singleDigit"));
+     assertEquals(type.apply("string").withNullable(true).build(), spec.get("nullable"));
+     assertEquals(type.apply("string").withDefault(StringNode.valueOf("my-value")).build(), spec.get("defaultValue"));
+diff --git a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/TypeMappingsTest.java b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/TypeMappingsTest.java
+index 35e591893..2f3c996b4 100644
+--- a/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/TypeMappingsTest.java
++++ b/crd-generator/api-v2/src/test/java/io/fabric8/crdv2/generator/v1/TypeMappingsTest.java
+@@ -18,9 +18,11 @@ package io.fabric8.crdv2.generator.v1;
+ import io.fabric8.crdv2.example.types.TypeMappingsSpec;
+ import io.fabric8.kubernetes.api.model.apiextensions.v1.JSONSchemaProps;
+ import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Test;
+ import org.junit.jupiter.params.ParameterizedTest;
+ import org.junit.jupiter.params.provider.Arguments;
+ import org.junit.jupiter.params.provider.MethodSource;
++import tools.jackson.databind.JsonNode;
+ 
+ import java.util.Map;
+ import java.util.stream.Stream;
+@@ -59,10 +61,63 @@ class TypeMappingsTest {
+         .isEqualTo(expectedFormat);
+   }
+ 
++  @ParameterizedTest(name = "{0} {1} map to {2} with format {3}")
++  @MethodSource("nestedCases")
++  @DisplayName("Collection items and map values map like properties of their type")
++  void nested(String propertyName, String nesting, String expectedType, String expectedFormat) {
++    final JSONSchemaProps property = PROPERTIES.get(propertyName);
++    final JSONSchemaProps nested = "items".equals(nesting) ? property.getItems().getSchema()
++        : property.getAdditionalProperties().getSchema();
++
++    assertThat(nested)
++        .extracting(JSONSchemaProps::getType, JSONSchemaProps::getFormat)
++        .containsExactly(expectedType, expectedFormat);
++  }
++
++  @Test
++  @DisplayName("Month lists its names, like the enum Jackson writes it as")
++  void monthIsAnEnum() {
++    assertThat(PROPERTIES.get("month").getEnum())
++        .extracting(JsonNode::asString)
++        .containsExactly("APRIL", "AUGUST", "DECEMBER", "FEBRUARY", "JANUARY", "JULY", "JUNE", "MARCH", "MAY",
++            "NOVEMBER", "OCTOBER", "SEPTEMBER");
++  }
++
++  /**
++   * n bytes are 4 * ceil(n / 3) base64 characters, so the bounds never reject a value within the byte limits.
++   */
++  @ParameterizedTest(name = "{0} has minLength {1} and maxLength {2}")
++  @MethodSource("sizeCases")
++  @DisplayName("@Size on a binary type bounds the length of its base64 string, not the number of items")
++  void sizeBounds(String propertyName, Long expectedMinLength, Long expectedMaxLength) {
++    assertThat(PROPERTIES.get(propertyName))
++        .extracting(JSONSchemaProps::getMinLength, JSONSchemaProps::getMaxLength, JSONSchemaProps::getMinItems,
++            JSONSchemaProps::getMaxItems)
++        .containsExactly(expectedMinLength, expectedMaxLength, null, null);
++  }
++
++  static Stream<Arguments> sizeCases() {
++    return Stream.of(
++        Arguments.of("sizedByteArray", 4L, 1368L),
++        Arguments.of("sizedByteBuffer", 4L, 8L),
++        // its serializer writes a plain string, which @Size bounds as is
++        Arguments.of("stringSerializedBytes", null, 3L));
++  }
++
++  @Test
++  @DisplayName("@Size on a binary type argument bounds the length of the base64 items")
++  void typeUseSizeBoundsBase64Items() {
++    assertThat(PROPERTIES.get("sizedByteBufferList").getItems().getSchema())
++        .extracting(JSONSchemaProps::getType, JSONSchemaProps::getFormat, JSONSchemaProps::getMaxLength)
++        .containsExactly("string", "byte", 4L);
++  }
++
+   /**
+    * The API server rejects values that don't match a date-time (RFC 3339, offset required) or date format, so only
+    * the types that always write a matching value keep one, see AbstractJsonSchema#writesFormat. The API server
+    * behavior is verified in crd-generator-test's GeneratedCRDsOnApiServerTest.
++   * <p>
++   * Binary and integer types get the format controller-gen gives their Go counterparts ([]byte, int32, int64).
+    */
+   static Stream<Arguments> targetFormatCases() {
+     return Stream.of(
+@@ -76,7 +131,7 @@ class TypeMappingsTest {
+         Arguments.of("yearMonth", null),
+         Arguments.of("monthDay", null),
+         Arguments.of("timestamp", "date-time"),
+-        Arguments.of("sqlDate", "date-time"),
++        Arguments.of("sqlDate", "date"),
+         Arguments.of("sqlTime", null),
+         Arguments.of("calendar", "date-time"),
+         Arguments.of("instant", "date-time"),
+@@ -84,9 +139,62 @@ class TypeMappingsTest {
+         Arguments.of("period", null),
+         Arguments.of("optionalInstant", "date-time"),
+         Arguments.of("optionalDuration", null),
++        Arguments.of("year", null),
++        Arguments.of("month", null),
+         Arguments.of("uuid", "uuid"),
+         Arguments.of("aString", null),
+-        Arguments.of("aInt", null));
++        Arguments.of("aCharArray", null),
++        Arguments.of("locale", null),
++        Arguments.of("qname", null),
++        Arguments.of("otherQname", null),
++        Arguments.of("aShort", null),
++        Arguments.of("aShortObj", null),
++        Arguments.of("aInt", "int32"),
++        Arguments.of("aIntegerObj", "int32"),
++        Arguments.of("optionalInteger", "int32"),
++        Arguments.of("optionalInt", "int32"),
++        Arguments.of("atomicInteger", "int32"),
++        Arguments.of("aLong", "int64"),
++        Arguments.of("aLongObj", "int64"),
++        Arguments.of("optionalLong", "int64"),
++        Arguments.of("atomicLong", "int64"),
++        // the property's serializer or converter writes decimals
++        Arguments.of("ratio", null),
++        Arguments.of("convertedRatio", null),
++        Arguments.of("aBigInteger", null),
++        Arguments.of("aDouble", null),
++        Arguments.of("aDoubleObj", null),
++        Arguments.of("aFloat", null),
++        Arguments.of("aFloatObj", null),
++        Arguments.of("aNumber", null),
++        Arguments.of("aBigDecimal", null),
++        Arguments.of("aByte", null),
++        Arguments.of("aByteObj", null),
++        Arguments.of("aByteArray", "byte"),
++        Arguments.of("byteBuffer", "byte"),
++        Arguments.of("optionalByteArray", "byte"),
++        Arguments.of("sizedByteArray", "byte"),
++        Arguments.of("sizedByteBuffer", "byte"),
++        // a serializer other than Jackson's writes something else than base64
++        Arguments.of("stringSerializedBytes", null));
++  }
++
++  static Stream<Arguments> nestedCases() {
++    return Stream.of(
++        Arguments.of("intArray", "items", "integer", "int32"),
++        Arguments.of("integerList", "items", "integer", "int32"),
++        Arguments.of("longArray", "items", "integer", "int64"),
++        Arguments.of("longMap", "values", "integer", "int64"),
++        Arguments.of("byteArrayList", "items", "string", "byte"),
++        Arguments.of("byteArrayMap", "values", "string", "byte"),
++        // Jackson writes these as arrays of numbers, like Go's [N]byte
++        Arguments.of("boxedByteArray", "items", "integer", null),
++        Arguments.of("byteList", "items", "integer", null),
++        Arguments.of("numberSerializedBytes", "items", "integer", null),
++        Arguments.of("numberSerializedByteArrays", "items", "array", null),
++        Arguments.of("numberSerializedOptionalBytes", "items", "integer", null),
++        Arguments.of("qnameList", "items", "string", null),
++        Arguments.of("qnameMap", "values", "string", null));
+   }
+ 
+   static Stream<Arguments> targetTypeCases() {
+@@ -103,12 +211,14 @@ class TypeMappingsTest {
+         Arguments.of("instant", "string"),
+         Arguments.of("duration", "string"),
+         Arguments.of("period", "string"),
+-        Arguments.of("timestamp", "string"), // to review, see #8109
++        Arguments.of("timestamp", "string"),
+         Arguments.of("sqlDate", "string"),
+         Arguments.of("sqlTime", "string"),
+         Arguments.of("calendar", "string"),
+         Arguments.of("optionalInstant", "string"),
+         Arguments.of("optionalDuration", "string"),
++        Arguments.of("year", "string"),
++        Arguments.of("month", "string"),
+         Arguments.of("aShort", "integer"),
+         Arguments.of("aShortObj", "integer"),
+         Arguments.of("aInt", "integer"),
+@@ -122,17 +232,46 @@ class TypeMappingsTest {
+         Arguments.of("aNumber", "number"),
+         Arguments.of("aBigInteger", "integer"),
+         Arguments.of("aBigDecimal", "number"),
++        Arguments.of("optionalInteger", "integer"),
++        Arguments.of("optionalInt", "integer"),
++        Arguments.of("optionalLong", "integer"),
++        Arguments.of("atomicInteger", "integer"),
++        Arguments.of("atomicLong", "integer"),
++        Arguments.of("intArray", "array"),
++        Arguments.of("longArray", "array"),
++        Arguments.of("integerList", "array"),
++        Arguments.of("longMap", "object"),
++        Arguments.of("ratio", "number"),
++        Arguments.of("convertedRatio", "number"),
+         Arguments.of("aBoolean", "boolean"),
+         Arguments.of("aBooleanObj", "boolean"),
+         Arguments.of("aChar", "string"),
+         Arguments.of("aCharacterObj", "string"),
+-        Arguments.of("aCharArray", "array"),
++        Arguments.of("aCharArray", "string"),
+         Arguments.of("aCharSequence", "string"),
+         Arguments.of("aString", "string"),
+         Arguments.of("aStringArray", "array"),
++        Arguments.of("locale", "string"),
++        Arguments.of("qname", "string"),
++        Arguments.of("otherQname", "string"),
++        Arguments.of("qnameList", "array"),
++        Arguments.of("qnameMap", "object"),
+         Arguments.of("aByte", "integer"),
+         Arguments.of("aByteObj", "integer"),
+-        Arguments.of("aByteArray", "array"), // to review, should be string (base64), see #8109
++        Arguments.of("aByteArray", "string"),
++        Arguments.of("byteBuffer", "string"),
++        Arguments.of("optionalByteArray", "string"),
++        Arguments.of("byteArrayList", "array"),
++        Arguments.of("byteArrayMap", "object"),
++        Arguments.of("boxedByteArray", "array"),
++        Arguments.of("byteList", "array"),
++        Arguments.of("sizedByteArray", "string"),
++        Arguments.of("sizedByteBuffer", "string"),
++        Arguments.of("sizedByteBufferList", "array"),
++        Arguments.of("stringSerializedBytes", "string"),
++        Arguments.of("numberSerializedBytes", "array"),
++        Arguments.of("numberSerializedByteArrays", "array"),
++        Arguments.of("numberSerializedOptionalBytes", "array"),
+         Arguments.of("uuid", "string"));
+   }
+ }
+diff --git a/crd-generator/api-v2/src/test/resources/complexkinds.example.com-v1.yml b/crd-generator/api-v2/src/test/resources/complexkinds.example.com-v1.yml
+index 5bc075002..f06d6b4d0 100644
+--- a/crd-generator/api-v2/src/test/resources/complexkinds.example.com-v1.yml
++++ b/crd-generator/api-v2/src/test/resources/complexkinds.example.com-v1.yml
+@@ -43,12 +43,14 @@ spec:
+           spec:
+             properties:
+               actuatorPort:
++                format: "int32"
+                 type: "integer"
+               configMapName:
+                 type: "string"
+               metricsPath:
+                 type: "string"
+               metricsPort:
++                format: "int32"
+                 type: "integer"
+               services:
+                 items:
+@@ -63,6 +65,7 @@ spec:
+                         creationTimestamp:
+                           type: "string"
+                         deletionGracePeriodSeconds:
++                          format: "int64"
+                           type: "integer"
+                         deletionTimestamp:
+                           type: "string"
+@@ -73,6 +76,7 @@ spec:
+                         generateName:
+                           type: "string"
+                         generation:
++                          format: "int64"
+                           type: "integer"
+                         labels:
+                           additionalProperties:
+@@ -110,6 +114,7 @@ spec:
+                         externalTrafficPolicy:
+                           type: "string"
+                         healthCheckNodePort:
++                          format: "int32"
+                           type: "integer"
+                         internalTrafficPolicy:
+                           type: "string"
+@@ -152,6 +157,7 @@ spec:
+                       creationTimestamp:
+                         type: "string"
+                       deletionGracePeriodSeconds:
++                        format: "int64"
+                         type: "integer"
+                       deletionTimestamp:
+                         type: "string"
+@@ -162,6 +168,7 @@ spec:
+                       generateName:
+                         type: "string"
+                       generation:
++                        format: "int64"
+                         type: "integer"
+                       labels:
+                         additionalProperties:
+@@ -182,12 +189,15 @@ spec:
+                     description: "The spec of this StatefulSet"
+                     properties:
+                       minReadySeconds:
++                        format: "int32"
+                         type: "integer"
+                       podManagementPolicy:
+                         type: "string"
+                       replicas:
++                        format: "int32"
+                         type: "integer"
+                       revisionHistoryLimit:
++                        format: "int32"
+                         type: "integer"
+                       serviceName:
+                         type: "string"
+diff --git a/crd-generator/api-v2/src/test/resources/k8svalidations.samples.fabric8.io-v1.yml b/crd-generator/api-v2/src/test/resources/k8svalidations.samples.fabric8.io-v1.yml
+index 39cac710b..a8b848b96 100644
+--- a/crd-generator/api-v2/src/test/resources/k8svalidations.samples.fabric8.io-v1.yml
++++ b/crd-generator/api-v2/src/test/resources/k8svalidations.samples.fabric8.io-v1.yml
+@@ -62,10 +62,13 @@ spec:
+                 - message: "cannot be changed once set"
+                   rule: "self == oldSelf"
+               maxReplicas:
++                format: "int32"
+                 type: "integer"
+               minReplicas:
++                format: "int32"
+                 type: "integer"
+               monotonicCounter:
++                format: "int32"
+                 type: "integer"
+                 x-kubernetes-validations:
+                 - message: "cannot decrease value once set"
+@@ -117,6 +120,7 @@ spec:
+                   rule: "!(self == 'high' && oldSelf == 'low') && !(self == 'low'\
+                     \ && oldSelf == 'high')"
+               replicas:
++                format: "int32"
+                 type: "integer"
+               simple:
+                 type: "string"
+@@ -146,6 +150,7 @@ spec:
+           status:
+             properties:
+               availableReplicas:
++                format: "int32"
+                 type: "integer"
+             type: "object"
+         type: "object"
+diff --git a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.java b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.java
+index c0d7aae96..49e9c2a38 100644
+--- a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.java
++++ b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.java
+@@ -21,6 +21,7 @@ import io.fabric8.crd.generator.approvaltests.complex.Complex;
+ import io.fabric8.crd.generator.approvaltests.described.Described;
+ import io.fabric8.crd.generator.approvaltests.inherited.Child;
+ import io.fabric8.crd.generator.approvaltests.jackson3.Jackson3;
++import io.fabric8.crd.generator.approvaltests.jdktypes.JdkTypes;
+ import io.fabric8.crd.generator.approvaltests.json.ContainingJson;
+ import io.fabric8.crd.generator.approvaltests.k8svalidation.K8sValidation;
+ import io.fabric8.crd.generator.approvaltests.map.ContainingMaps;
+@@ -109,6 +110,7 @@ class CRDGeneratorApprovalTest {
+     cases.add(new TestCase("children.sample.fabric8.io", Child.class));
+     cases.add(new TestCase("containingjsons.sample.fabric8.io", ContainingJson.class));
+     cases.add(new TestCase("jackson3s.samples.fabric8.io", Jackson3.class));
++    cases.add(new TestCase("jdktypes.samples.fabric8.io", JdkTypes.class));
+     cases.add(new TestCase("k8svalidations.samples.fabric8.io", K8sValidation.class));
+     cases.add(new TestCase("containingmaps.sample.fabric8.io", ContainingMaps.class));
+     cases.add(new TestCase("replicas.samples.fabric8.io", Replica.class));
+diff --git a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/GeneratedCRDsOnApiServerTest.java b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/GeneratedCRDsOnApiServerTest.java
+index 25fe72236..3e42c63bd 100644
+--- a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/GeneratedCRDsOnApiServerTest.java
++++ b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/GeneratedCRDsOnApiServerTest.java
+@@ -15,6 +15,8 @@
+  */
+ package io.fabric8.crd.generator.approvaltests;
+ 
++import io.fabric8.crd.generator.approvaltests.jdktypes.JdkTypes;
++import io.fabric8.crd.generator.approvaltests.jdktypes.JdkTypesSpec;
+ import io.fabric8.crd.generator.approvaltests.shapes.Shapes;
+ import io.fabric8.crd.generator.approvaltests.shapes.ShapesSpec;
+ import io.fabric8.crdv2.generator.CRDGenerator;
+@@ -25,6 +27,7 @@ import io.fabric8.kubernetes.api.model.GenericKubernetesResource;
+ import io.fabric8.kubernetes.api.model.GenericKubernetesResourceBuilder;
+ import io.fabric8.kubernetes.api.model.HasMetadata;
+ import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
++import io.fabric8.kubernetes.api.model.StatusCause;
+ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
+ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionBuilder;
+ import io.fabric8.kubernetes.api.model.apiextensions.v1.JSONSchemaProps;
+@@ -33,6 +36,7 @@ import io.fabric8.kubernetes.client.CustomResource;
+ import io.fabric8.kubernetes.client.KubernetesClient;
+ import io.fabric8.kubernetes.client.KubernetesClientException;
+ import io.fabric8.kubernetes.client.utils.KubernetesSerialization;
++import org.assertj.core.api.InstanceOfAssertFactories;
+ import org.junit.jupiter.api.DisplayName;
+ import org.junit.jupiter.api.Test;
+ import org.junit.jupiter.api.io.TempDir;
+@@ -43,15 +47,18 @@ import org.junit.jupiter.params.provider.MethodSource;
+ import java.io.File;
+ import java.io.IOException;
+ import java.io.InputStream;
++import java.nio.ByteBuffer;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.time.Instant;
+ import java.time.LocalDate;
+ import java.time.LocalDateTime;
++import java.time.Month;
+ import java.time.MonthDay;
+ import java.time.OffsetDateTime;
+ import java.time.OffsetTime;
+ import java.time.Period;
++import java.time.Year;
+ import java.time.YearMonth;
+ import java.time.ZoneId;
+ import java.time.ZoneOffset;
+@@ -60,6 +67,7 @@ import java.util.Calendar;
+ import java.util.Date;
+ import java.util.GregorianCalendar;
+ import java.util.List;
++import java.util.Locale;
+ import java.util.Map;
+ import java.util.Optional;
+ import java.util.TimeZone;
+@@ -68,7 +76,10 @@ import java.util.concurrent.TimeUnit;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
+ 
++import javax.xml.namespace.QName;
++
+ import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+ import static org.assertj.core.api.Assertions.assertThatThrownBy;
+ import static org.awaitility.Awaitility.await;
+ 
+@@ -113,6 +124,45 @@ class GeneratedCRDsOnApiServerTest {
+         .isEqualTo(written.getAdditionalProperties().get("spec"));
+   }
+ 
++  @Test
++  @DisplayName("A populated JdkTypes resource round-trips through the API server without being rejected or pruned")
++  void jdkTypesRoundTrip() {
++    establish(generate("jdktypes.samples.fabric8.io", JdkTypes.class));
++    final JdkTypes jdkTypes = new JdkTypes();
++    jdkTypes.setMetadata(new ObjectMetaBuilder().withName("all-jdk-types").withNamespace(NAMESPACE).build());
++    jdkTypes.setSpec(populatedJdkTypes());
++    // through JSON, a conversion would keep the binary values as byte[] instead of their base64 string
++    final GenericKubernetesResource written = client.getKubernetesSerialization()
++        .unmarshal(client.getKubernetesSerialization().asJson(jdkTypes), GenericKubernetesResource.class);
++
++    createOnceServed(written);
++
++    final GenericKubernetesResource stored = client.genericKubernetesResources("samples.fabric8.io/v1", "JdkTypes")
++        .inNamespace(NAMESPACE).withName("all-jdk-types").get();
++    assertThat(stored.getAdditionalProperties().get("spec"))
++        .isEqualTo(written.getAdditionalProperties().get("spec"));
++  }
++
++  /**
++   * Pins the reason the migration guide recommends leaving empty binary values null or omitting them.
++   */
++  @Test
++  @DisplayName("An empty byte[] is rejected, the client writes it as an empty string and format: byte doesn't accept it")
++  void emptyByteArrayIsRejected() {
++    establish(generate("jdktypes.samples.fabric8.io", JdkTypes.class));
++    final JdkTypes jdkTypes = new JdkTypes();
++    jdkTypes.setMetadata(new ObjectMetaBuilder().withName("empty-bytes").withNamespace(NAMESPACE).build());
++    jdkTypes.setSpec(new JdkTypesSpec());
++    jdkTypes.getSpec().setBytes(new byte[0]);
++
++    assertThatExceptionOfType(KubernetesClientException.class)
++        .isThrownBy(() -> createOnceServed(jdkTypes))
++        .satisfies(e -> assertThat(e.getCode()).isEqualTo(422))
++        .extracting(e -> e.getStatus().getDetails().getCauses(), InstanceOfAssertFactories.list(StatusCause.class))
++        .extracting(StatusCause::getField)
++        .containsExactly("spec.bytes");
++  }
++
+   /**
+    * Jackson reports date-time for every JDK date and time type, and the generator only keeps it for some.
+    * Each value the client writes is sent to a CRD that declares date-time for every property: the API server
+@@ -244,6 +294,42 @@ class GeneratedCRDsOnApiServerTest {
+     return spec;
+   }
+ 
++  private static JdkTypesSpec populatedJdkTypes() {
++    // 100 bytes are 136 base64 characters, more than the 76 per line a MIME encoder writes
++    final byte[] bytes = new byte[100];
++    for (int i = 0; i < bytes.length; i++) {
++      bytes[i] = (byte) (i * 7);
++    }
++    final JdkTypesSpec spec = new JdkTypesSpec();
++    spec.setBytes(bytes);
++    spec.setByteBuffer(ByteBuffer.wrap(bytes));
++    spec.setOptionalBytes(Optional.of(bytes));
++    spec.setByteArrays(List.of(bytes, new byte[] { 1 }));
++    spec.setByteArrayMap(Map.of("key", bytes));
++    spec.setMaxSizedBytes(bytes);
++    spec.setMinSizedBytes(new byte[] { 1, 2 });
++    spec.setEmptyBytes(new byte[0]);
++    spec.setBoxedBytes(new Byte[] { 1, -1 });
++    spec.setByteList(List.of((byte) 1, (byte) -1));
++    spec.setChars("chars".toCharArray());
++    spec.setQname(new QName("urn:example", "local", "ex"));
++    spec.setQnames(List.of(new QName("local"), new QName("urn:example", "other")));
++    spec.setYear(Year.of(2024));
++    spec.setYears(List.of(Year.of(2024), Year.of(2025)));
++    spec.setMonth(Month.JANUARY);
++    spec.setMonths(Map.of("first", Month.JANUARY, "last", Month.DECEMBER));
++    spec.setSqlDate(java.sql.Date.valueOf("2024-01-15"));
++    spec.setSqlDates(List.of(java.sql.Date.valueOf("2024-01-15"), java.sql.Date.valueOf("2024-12-31")));
++    spec.setLocale(Locale.forLanguageTag("zh-Hant-TW"));
++    spec.setLocales(Map.of("es", Locale.forLanguageTag("es-ES"), "th", Locale.forLanguageTag("th-TH-u-nu-thai")));
++    spec.setLocaleKeys(Map.of(Locale.forLanguageTag("zh-Hant-TW"), "zh"));
++    spec.setMaxInt(Integer.MAX_VALUE);
++    spec.setMaxLong(Long.MAX_VALUE);
++    spec.setInts(List.of(Integer.MIN_VALUE, Integer.MAX_VALUE));
++    spec.setLongs(Map.of("min", Long.MIN_VALUE, "max", Long.MAX_VALUE));
++    return spec;
++  }
++
+   @SafeVarargs
+   private static CustomResourceDefinition generate(String crdName, Class<? extends CustomResource<?, ?>>... crClasses) {
+     final String file = new CRDGenerator()
+diff --git a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/jdktypes/JdkTypes.java b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/jdktypes/JdkTypes.java
+new file mode 100644
+index 000000000..f97a30924
+--- /dev/null
++++ b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/jdktypes/JdkTypes.java
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (C) 2015 Red Hat, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *         http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package io.fabric8.crd.generator.approvaltests.jdktypes;
++
++import io.fabric8.kubernetes.api.model.Namespaced;
++import io.fabric8.kubernetes.client.CustomResource;
++import io.fabric8.kubernetes.model.annotation.Group;
++import io.fabric8.kubernetes.model.annotation.Version;
++
++@Group("samples.fabric8.io")
++@Version("v1")
++public class JdkTypes extends CustomResource<JdkTypesSpec, Void> implements Namespaced {
++}
+diff --git a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/jdktypes/JdkTypesSpec.java b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/jdktypes/JdkTypesSpec.java
+new file mode 100644
+index 000000000..ca3002eeb
+--- /dev/null
++++ b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/jdktypes/JdkTypesSpec.java
+@@ -0,0 +1,76 @@
++/*
++ * Copyright (C) 2015 Red Hat, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *         http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package io.fabric8.crd.generator.approvaltests.jdktypes;
++
++import com.fasterxml.jackson.annotation.JsonInclude;
++import io.fabric8.generator.annotation.Size;
++import lombok.Getter;
++import lombok.Setter;
++
++import java.nio.ByteBuffer;
++import java.time.Month;
++import java.time.Year;
++import java.util.List;
++import java.util.Locale;
++import java.util.Map;
++import java.util.Optional;
++
++import javax.xml.namespace.QName;
++
++/**
++ * The JDK types Jackson writes differently from what it reports (binary types, char[] and QName are strings), that
++ * Jackson2JdkTypesModule writes in their Jackson 2 form, and the integers controller-gen gives a range-checked format.
++ * GeneratedCRDsOnApiServerTest round-trips a populated instance through a real API server.
++ */
++@Getter
++@Setter
++public class JdkTypesSpec {
++
++  private byte[] bytes;
++  private ByteBuffer byteBuffer;
++  private Optional<byte[]> optionalBytes;
++  private List<byte[]> byteArrays;
++  private Map<String, byte[]> byteArrayMap;
++  /** Bounds the base64 length, the round-trip writes exactly the maximum. */
++  @Size(max = 100)
++  private byte[] maxSizedBytes;
++  /** Bounds the base64 length, the round-trip writes exactly the minimum. */
++  @Size(min = 2)
++  private byte[] minSizedBytes;
++  /** The API server rejects an empty string for format: byte. */
++  @JsonInclude(JsonInclude.Include.NON_EMPTY)
++  private byte[] emptyBytes;
++  /** Written as arrays of numbers. */
++  private Byte[] boxedBytes;
++  private List<Byte> byteList;
++  private char[] chars;
++  private QName qname;
++  /** Jackson describes the QNames after the first one with a reference to it. */
++  private List<QName> qnames;
++  private Year year;
++  private List<Year> years;
++  private Month month;
++  private Map<String, Month> months;
++  private java.sql.Date sqlDate;
++  private List<java.sql.Date> sqlDates;
++  private Locale locale;
++  private Map<String, Locale> locales;
++  private Map<Locale, String> localeKeys;
++  private Integer maxInt;
++  private Long maxLong;
++  private List<Integer> ints;
++  private Map<String, Long> longs;
++}
+diff --git a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/printercolum/PrinterColumnSpec.java b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/printercolum/PrinterColumnSpec.java
+index 7a3e81012..cd03c7362 100644
+--- a/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/printercolum/PrinterColumnSpec.java
++++ b/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/printercolum/PrinterColumnSpec.java
+@@ -18,12 +18,18 @@ package io.fabric8.crd.generator.approvaltests.printercolum;
+ import io.fabric8.crd.generator.annotation.PrinterColumn;
+ import lombok.Data;
+ 
++import java.time.LocalDate;
++
+ @Data
+ public class PrinterColumnSpec {
+ 
+   @PrinterColumn
+   private String id;
+ 
++  /** A string column, a date column shows the age of an RFC 3339 timestamp, see AbstractCustomResourceHandler. */
++  @PrinterColumn
++  private LocalDate since;
++
+   private DeepLevel1 deepLevel1;
+ 
+   @Data
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.annotateds.samples.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.annotateds.samples.fabric8.io.v1.approved.yml
+index 5a7d26f97..8893dbef9 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.annotateds.samples.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.annotateds.samples.fabric8.io.v1.approved.yml
+@@ -30,9 +30,11 @@ spec:
+                 type: "number"
+               defaultInt:
+                 default: 1337
++                format: "int32"
+                 type: "integer"
+               defaultInteger:
+                 default: 1337
++                format: "int32"
+                 type: "integer"
+               defaultValue:
+                 default: "my-value"
+@@ -49,6 +51,7 @@ spec:
+                 type: "string"
+               from-getter:
+                 description: "from-getter-description"
++                format: "int32"
+                 type: "integer"
+               kubernetesValidationRule:
+                 type: "string"
+@@ -63,9 +66,11 @@ spec:
+                 - reason: "FieldValueForbidden"
+                   rule: "self != 'forbidden'"
+               max:
++                format: "int32"
+                 maximum: 5.0
+                 type: "integer"
+               min:
++                format: "int32"
+                 minimum: -5.0
+                 type: "integer"
+               nullable:
+@@ -75,6 +80,7 @@ spec:
+                 pattern: "\\b[1-9]\\b"
+                 type: "string"
+               sizedField:
++                format: "int32"
+                 type: "integer"
+               unnamed:
+                 type: "string"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.children.sample.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.children.sample.fabric8.io.v1.approved.yml
+index e26ca3d92..8e29059fb 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.children.sample.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.children.sample.fabric8.io.v1.approved.yml
+@@ -18,6 +18,7 @@ spec:
+           spec:
+             properties:
+               baseInt:
++                format: "int32"
+                 type: "integer"
+               supported:
+                 additionalProperties:
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.complexkinds.samples.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.complexkinds.samples.fabric8.io.v1.approved.yml
+index f672df01f..498f5b7bf 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.complexkinds.samples.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.complexkinds.samples.fabric8.io.v1.approved.yml
+@@ -27,12 +27,14 @@ spec:
+           spec:
+             properties:
+               actuatorPort:
++                format: "int32"
+                 type: "integer"
+               configMapName:
+                 type: "string"
+               metricsPath:
+                 type: "string"
+               metricsPort:
++                format: "int32"
+                 type: "integer"
+               services:
+                 items:
+@@ -47,6 +49,7 @@ spec:
+                         creationTimestamp:
+                           type: "string"
+                         deletionGracePeriodSeconds:
++                          format: "int64"
+                           type: "integer"
+                         deletionTimestamp:
+                           type: "string"
+@@ -57,6 +60,7 @@ spec:
+                         generateName:
+                           type: "string"
+                         generation:
++                          format: "int64"
+                           type: "integer"
+                         labels:
+                           additionalProperties:
+@@ -94,6 +98,7 @@ spec:
+                         externalTrafficPolicy:
+                           type: "string"
+                         healthCheckNodePort:
++                          format: "int32"
+                           type: "integer"
+                         internalTrafficPolicy:
+                           type: "string"
+@@ -136,6 +141,7 @@ spec:
+                       creationTimestamp:
+                         type: "string"
+                       deletionGracePeriodSeconds:
++                        format: "int64"
+                         type: "integer"
+                       deletionTimestamp:
+                         type: "string"
+@@ -146,6 +152,7 @@ spec:
+                       generateName:
+                         type: "string"
+                       generation:
++                        format: "int64"
+                         type: "integer"
+                       labels:
+                         additionalProperties:
+@@ -166,12 +173,15 @@ spec:
+                     description: "The spec of this StatefulSet"
+                     properties:
+                       minReadySeconds:
++                        format: "int32"
+                         type: "integer"
+                       podManagementPolicy:
+                         type: "string"
+                       replicas:
++                        format: "int32"
+                         type: "integer"
+                       revisionHistoryLimit:
++                        format: "int32"
+                         type: "integer"
+                       serviceName:
+                         type: "string"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingjsons.sample.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingjsons.sample.fabric8.io.v1.approved.yml
+index 7f4c64721..46fd1a735 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingjsons.sample.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingjsons.sample.fabric8.io.v1.approved.yml
+@@ -18,6 +18,7 @@ spec:
+           spec:
+             properties:
+               field:
++                format: "int32"
+                 type: "integer"
+               free:
+                 x-kubernetes-preserve-unknown-fields: true
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingmaps.sample.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingmaps.sample.fabric8.io.v1.approved.yml
+index 5771468a4..132a90860 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingmaps.sample.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.containingmaps.sample.fabric8.io.v1.approved.yml
+@@ -24,42 +24,49 @@ spec:
+               stringToIntMultiMap1:
+                 additionalProperties:
+                   items:
++                    format: "int32"
+                     type: "integer"
+                   type: "array"
+                 type: "object"
+               stringToIntMultiMap2:
+                 additionalProperties:
+                   items:
++                    format: "int32"
+                     type: "integer"
+                   type: "array"
+                 type: "object"
+               stringToIntMultiMap3:
+                 additionalProperties:
+                   items:
++                    format: "int32"
+                     type: "integer"
+                   type: "array"
+                 type: "object"
+               stringToIntMultiMap4:
+                 additionalProperties:
+                   items:
++                    format: "int32"
+                     type: "integer"
+                   type: "array"
+                 type: "object"
+               stringToIntMultiMap5:
+                 additionalProperties:
+                   items:
++                    format: "int32"
+                     type: "integer"
+                   type: "array"
+                 type: "object"
+               stringToIntMultiMap6:
+                 additionalProperties:
+                   items:
++                    format: "int32"
+                     type: "integer"
+                   type: "array"
+                 type: "object"
+               stringToIntMultiMap7:
+                 additionalProperties:
+                   items:
++                    format: "int32"
+                     type: "integer"
+                   type: "array"
+                 type: "object"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.jdktypes.samples.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.jdktypes.samples.fabric8.io.v1.approved.yml
+new file mode 100644
+index 000000000..f520cb57b
+--- /dev/null
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.jdktypes.samples.fabric8.io.v1.approved.yml
+@@ -0,0 +1,142 @@
++# Generated by Fabric8 CRDGenerator, manual edits might get overwritten!
++apiVersion: "apiextensions.k8s.io/v1"
++kind: "CustomResourceDefinition"
++metadata:
++  name: "jdktypes.samples.fabric8.io"
++spec:
++  group: "samples.fabric8.io"
++  names:
++    kind: "JdkTypes"
++    plural: "jdktypes"
++    singular: "jdktypes"
++  scope: "Namespaced"
++  versions:
++  - name: "v1"
++    schema:
++      openAPIV3Schema:
++        properties:
++          spec:
++            properties:
++              boxedBytes:
++                items:
++                  type: "integer"
++                type: "array"
++              byteArrayMap:
++                additionalProperties:
++                  format: "byte"
++                  type: "string"
++                type: "object"
++              byteArrays:
++                items:
++                  format: "byte"
++                  type: "string"
++                type: "array"
++              byteBuffer:
++                format: "byte"
++                type: "string"
++              byteList:
++                items:
++                  type: "integer"
++                type: "array"
++              bytes:
++                format: "byte"
++                type: "string"
++              chars:
++                type: "string"
++              emptyBytes:
++                format: "byte"
++                type: "string"
++              ints:
++                items:
++                  format: "int32"
++                  type: "integer"
++                type: "array"
++              locale:
++                type: "string"
++              localeKeys:
++                additionalProperties:
++                  type: "string"
++                type: "object"
++              locales:
++                additionalProperties:
++                  type: "string"
++                type: "object"
++              longs:
++                additionalProperties:
++                  format: "int64"
++                  type: "integer"
++                type: "object"
++              maxInt:
++                format: "int32"
++                type: "integer"
++              maxLong:
++                format: "int64"
++                type: "integer"
++              maxSizedBytes:
++                format: "byte"
++                maxLength: 136
++                type: "string"
++              minSizedBytes:
++                format: "byte"
++                minLength: 4
++                type: "string"
++              month:
++                enum:
++                - "APRIL"
++                - "AUGUST"
++                - "DECEMBER"
++                - "FEBRUARY"
++                - "JANUARY"
++                - "JULY"
++                - "JUNE"
++                - "MARCH"
++                - "MAY"
++                - "NOVEMBER"
++                - "OCTOBER"
++                - "SEPTEMBER"
++                type: "string"
++              months:
++                additionalProperties:
++                  enum:
++                  - "APRIL"
++                  - "AUGUST"
++                  - "DECEMBER"
++                  - "FEBRUARY"
++                  - "JANUARY"
++                  - "JULY"
++                  - "JUNE"
++                  - "MARCH"
++                  - "MAY"
++                  - "NOVEMBER"
++                  - "OCTOBER"
++                  - "SEPTEMBER"
++                  type: "string"
++                type: "object"
++              optionalBytes:
++                format: "byte"
++                type: "string"
++              qname:
++                type: "string"
++              qnames:
++                items:
++                  type: "string"
++                type: "array"
++              sqlDate:
++                format: "date"
++                type: "string"
++              sqlDates:
++                items:
++                  type: "string"
++                type: "array"
++              year:
++                type: "string"
++              years:
++                items:
++                  type: "string"
++                type: "array"
++            type: "object"
++          status:
++            type: "object"
++        type: "object"
++    served: true
++    storage: true
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.k8svalidations.samples.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.k8svalidations.samples.fabric8.io.v1.approved.yml
+index 2358e6567..9e630a81d 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.k8svalidations.samples.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.k8svalidations.samples.fabric8.io.v1.approved.yml
+@@ -46,10 +46,13 @@ spec:
+                 - message: "cannot be changed once set"
+                   rule: "self == oldSelf"
+               maxReplicas:
++                format: "int32"
+                 type: "integer"
+               minReplicas:
++                format: "int32"
+                 type: "integer"
+               monotonicCounter:
++                format: "int32"
+                 type: "integer"
+                 x-kubernetes-validations:
+                 - message: "cannot decrease value once set"
+@@ -101,6 +104,7 @@ spec:
+                   rule: "!(self == 'high' && oldSelf == 'low') && !(self == 'low'\
+                     \ && oldSelf == 'high')"
+               replicas:
++                format: "int32"
+                 type: "integer"
+               simple:
+                 type: "string"
+@@ -130,6 +134,7 @@ spec:
+           status:
+             properties:
+               availableReplicas:
++                format: "int32"
+                 type: "integer"
+             type: "object"
+         type: "object"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.nocyclics.sample.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.nocyclics.sample.fabric8.io.v1.approved.yml
+index f8073b28c..657578bf9 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.nocyclics.sample.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.nocyclics.sample.fabric8.io.v1.approved.yml
+@@ -22,6 +22,7 @@ spec:
+                   inner:
+                     type: "object"
+                   ref:
++                    format: "int32"
+                     type: "integer"
+                 type: "object"
+               ref2:
+@@ -29,6 +30,7 @@ spec:
+                   inner:
+                     type: "object"
+                   ref:
++                    format: "int32"
+                     type: "integer"
+                 type: "object"
+             type: "object"
+@@ -41,6 +43,7 @@ spec:
+                   inner:
+                     type: "object"
+                   ref:
++                    format: "int32"
+                     type: "integer"
+                 type: "object"
+             type: "object"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.printercolumns.sample.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.printercolumns.sample.fabric8.io.v1.approved.yml
+index 99a40df80..fd1120c58 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.printercolumns.sample.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.printercolumns.sample.fabric8.io.v1.approved.yml
+@@ -28,6 +28,10 @@ spec:
+       name: "ID"
+       priority: 0
+       type: "string"
++    - jsonPath: ".spec.since"
++      name: "SINCE"
++      priority: 0
++      type: "string"
+     name: "v1alpha1"
+     schema:
+       openAPIV3Schema:
+@@ -42,12 +46,16 @@ spec:
+                         type: "boolean"
+                     type: "object"
+                   fromLevel1:
++                    format: "int32"
+                     type: "integer"
+                   name:
+                     type: "string"
+                 type: "object"
+               id:
+                 type: "string"
++              since:
++                format: "date"
++                type: "string"
+             type: "object"
+           status:
+             type: "object"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.replicas.samples.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.replicas.samples.fabric8.io.v1.approved.yml
+index 1378540ad..7221ae3ea 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.replicas.samples.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.replicas.samples.fabric8.io.v1.approved.yml
+@@ -18,6 +18,7 @@ spec:
+           spec:
+             properties:
+               replicas:
++                format: "int32"
+                 type: "integer"
+             type: "object"
+           status:
+@@ -25,6 +26,7 @@ spec:
+               labelSelector:
+                 type: "string"
+               replicas:
++                format: "int32"
+                 type: "integer"
+             type: "object"
+         type: "object"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.selectablefields.sample.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.selectablefields.sample.fabric8.io.v1.approved.yml
+index c3ac0aaa7..b5eb9f946 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.selectablefields.sample.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.selectablefields.sample.fabric8.io.v1.approved.yml
+@@ -25,6 +25,7 @@ spec:
+                         type: "boolean"
+                     type: "object"
+                   fromLevel1:
++                    format: "int32"
+                     type: "integer"
+                   name:
+                     type: "string"
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.shapes.samples.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.shapes.samples.fabric8.io.v1.approved.yml
+index 00f4e739c..89606d0fb 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.shapes.samples.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.shapes.samples.fabric8.io.v1.approved.yml
+@@ -61,8 +61,10 @@ spec:
+                 items:
+                   properties:
+                     x:
++                      format: "int32"
+                       type: "integer"
+                     "y":
++                      format: "int32"
+                       type: "integer"
+                   type: "object"
+                   x-kubernetes-preserve-unknown-fields: true
+diff --git a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.validations.sample.fabric8.io.v1.approved.yml b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.validations.sample.fabric8.io.v1.approved.yml
+index 3c600e80e..c8f78c575 100644
+--- a/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.validations.sample.fabric8.io.v1.approved.yml
++++ b/crd-generator/test/src/test/resources/io/fabric8/crd/generator/approvaltests/CRDGeneratorApprovalTest.approvalTest.validations.sample.fabric8.io.v1.approved.yml
+@@ -193,57 +193,69 @@ spec:
+                 properties:
+                   listItemMax1:
+                     items:
++                      format: "int32"
+                       maximum: 1.0
+                       type: "integer"
+                     type: "array"
+                   listItemMin1:
+                     items:
++                      format: "int32"
+                       minimum: 1.0
+                       type: "integer"
+                     type: "array"
+                   listItemMin1Max3:
+                     items:
++                      format: "int32"
+                       maximum: 3.0
+                       minimum: 1.0
+                       type: "integer"
+                     type: "array"
+                   mapItemMax1:
+                     additionalProperties:
++                      format: "int32"
+                       maximum: 1.0
+                       type: "integer"
+                     type: "object"
+                   mapItemMin1:
+                     additionalProperties:
++                      format: "int32"
+                       minimum: 1.0
+                       type: "integer"
+                     type: "object"
+                   mapItemMin1Max3:
+                     additionalProperties:
++                      format: "int32"
+                       maximum: 3.0
+                       minimum: 1.0
+                       type: "integer"
+                     type: "object"
+                   maximum1:
++                    format: "int32"
+                     maximum: 1.0
+                     type: "integer"
+                   maximumExclusive1:
+                     exclusiveMaximum: true
++                    format: "int32"
+                     maximum: 1.0
+                     type: "integer"
+                   minimum1:
++                    format: "int32"
+                     minimum: 1.0
+                     type: "integer"
+                   minimum1Maximum3:
++                    format: "int32"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1:
+                     exclusiveMinimum: true
++                    format: "int32"
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1MaximumExclusive3:
+                     exclusiveMaximum: true
+                     exclusiveMinimum: true
++                    format: "int32"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+@@ -251,26 +263,32 @@ spec:
+               onIntegerPrim:
+                 properties:
+                   maximum1:
++                    format: "int32"
+                     maximum: 1.0
+                     type: "integer"
+                   maximumExclusive1:
+                     exclusiveMaximum: true
++                    format: "int32"
+                     maximum: 1.0
+                     type: "integer"
+                   minimum1:
++                    format: "int32"
+                     minimum: 1.0
+                     type: "integer"
+                   minimum1Maximum3:
++                    format: "int32"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1:
+                     exclusiveMinimum: true
++                    format: "int32"
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1MaximumExclusive3:
+                     exclusiveMaximum: true
+                     exclusiveMinimum: true
++                    format: "int32"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+@@ -298,57 +316,69 @@ spec:
+                 properties:
+                   listItemMax1:
+                     items:
++                      format: "int64"
+                       maximum: 1.0
+                       type: "integer"
+                     type: "array"
+                   listItemMin1:
+                     items:
++                      format: "int64"
+                       minimum: 1.0
+                       type: "integer"
+                     type: "array"
+                   listItemMin1Max3:
+                     items:
++                      format: "int64"
+                       maximum: 3.0
+                       minimum: 1.0
+                       type: "integer"
+                     type: "array"
+                   mapItemMax1:
+                     additionalProperties:
++                      format: "int64"
+                       maximum: 1.0
+                       type: "integer"
+                     type: "object"
+                   mapItemMin1:
+                     additionalProperties:
++                      format: "int64"
+                       minimum: 1.0
+                       type: "integer"
+                     type: "object"
+                   mapItemMin1Max3:
+                     additionalProperties:
++                      format: "int64"
+                       maximum: 3.0
+                       minimum: 1.0
+                       type: "integer"
+                     type: "object"
+                   maximum1:
++                    format: "int64"
+                     maximum: 1.0
+                     type: "integer"
+                   maximumExclusive1:
+                     exclusiveMaximum: true
++                    format: "int64"
+                     maximum: 1.0
+                     type: "integer"
+                   minimum1:
++                    format: "int64"
+                     minimum: 1.0
+                     type: "integer"
+                   minimum1Maximum3:
++                    format: "int64"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1:
+                     exclusiveMinimum: true
++                    format: "int64"
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1MaximumExclusive3:
+                     exclusiveMaximum: true
+                     exclusiveMinimum: true
++                    format: "int64"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+@@ -356,26 +386,32 @@ spec:
+               onLongPrim:
+                 properties:
+                   maximum1:
++                    format: "int64"
+                     maximum: 1.0
+                     type: "integer"
+                   maximumExclusive1:
+                     exclusiveMaximum: true
++                    format: "int64"
+                     maximum: 1.0
+                     type: "integer"
+                   minimum1:
++                    format: "int64"
+                     minimum: 1.0
+                     type: "integer"
+                   minimum1Maximum3:
++                    format: "int64"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1:
+                     exclusiveMinimum: true
++                    format: "int64"
+                     minimum: 1.0
+                     type: "integer"
+                   minimumExclusive1MaximumExclusive3:
+                     exclusiveMaximum: true
+                     exclusiveMinimum: true
++                    format: "int64"
+                     maximum: 3.0
+                     minimum: 1.0
+                     type: "integer"
+diff --git a/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/KubernetesSerializationJdkTypesTest.java b/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/KubernetesSerializationJdkTypesTest.java
+new file mode 100644
+index 000000000..c82f4c7ae
+--- /dev/null
++++ b/kubernetes-client-api/src/test/java/io/fabric8/kubernetes/client/utils/KubernetesSerializationJdkTypesTest.java
+@@ -0,0 +1,325 @@
++/*
++ * Copyright (C) 2015 Red Hat, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *         http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package io.fabric8.kubernetes.client.utils;
++
++import org.junit.jupiter.api.AfterEach;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.params.ParameterizedTest;
++import org.junit.jupiter.params.provider.ValueSource;
++import tools.jackson.core.type.TypeReference;
++import tools.jackson.dataformat.yaml.YAMLMapper;
++
++import java.io.IOException;
++import java.io.InputStream;
++import java.math.BigDecimal;
++import java.math.BigInteger;
++import java.net.InetAddress;
++import java.net.InetSocketAddress;
++import java.net.URI;
++import java.net.URL;
++import java.nio.ByteBuffer;
++import java.nio.charset.Charset;
++import java.nio.charset.StandardCharsets;
++import java.time.DayOfWeek;
++import java.time.Duration;
++import java.time.Instant;
++import java.time.LocalDate;
++import java.time.LocalDateTime;
++import java.time.LocalTime;
++import java.time.Month;
++import java.time.MonthDay;
++import java.time.OffsetDateTime;
++import java.time.OffsetTime;
++import java.time.Period;
++import java.time.Year;
++import java.time.YearMonth;
++import java.time.ZoneId;
++import java.time.ZoneOffset;
++import java.time.ZonedDateTime;
++import java.util.Calendar;
++import java.util.Currency;
++import java.util.Date;
++import java.util.EnumMap;
++import java.util.EnumSet;
++import java.util.GregorianCalendar;
++import java.util.LinkedHashMap;
++import java.util.List;
++import java.util.Locale;
++import java.util.Map;
++import java.util.Set;
++import java.util.TimeZone;
++import java.util.UUID;
++import java.util.concurrent.atomic.AtomicBoolean;
++import java.util.concurrent.atomic.AtomicInteger;
++import java.util.concurrent.atomic.AtomicLong;
++import java.util.concurrent.atomic.AtomicReference;
++import java.util.regex.Pattern;
++
++import javax.xml.datatype.DatatypeFactory;
++import javax.xml.datatype.XMLGregorianCalendar;
++import javax.xml.namespace.QName;
++
++import static org.assertj.core.api.Assertions.assertThat;
++
++/**
++ * The default serialization keeps the 7.x wire format of the JDK types. The golden file is what 7.9.0 wrote for
++ * {@link JdkTypes#sample()}, in any timezone. {@code Optional} values are left out, 7.x failed to write them.
++ */
++class KubernetesSerializationJdkTypesTest {
++
++  private static final String[] RESTORED_FIELDS = { "year", "month", "sqlDate", "locale", "localeWithScript",
++      "localeWithExtension", "yearKeys", "monthKeys", "localeKeys" };
++
++  private TimeZone defaultTimeZone;
++  private KubernetesSerialization kubernetesSerialization;
++
++  @BeforeEach
++  void setUp() {
++    defaultTimeZone = TimeZone.getDefault();
++    kubernetesSerialization = new KubernetesSerialization();
++  }
++
++  @AfterEach
++  void tearDown() {
++    TimeZone.setDefault(defaultTimeZone);
++  }
++
++  @ParameterizedTest(name = "in {0}")
++  @ValueSource(strings = { "America/New_York", "UTC", "Asia/Tokyo" })
++  @DisplayName("asJson, writes every JDK type exactly like 7.9.0")
++  void asJsonWritesLike790(String timeZone) throws Exception {
++    TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
++
++    assertThat(kubernetesSerialization.asJson(JdkTypes.sample())).isEqualTo(golden());
++  }
++
++  @ParameterizedTest(name = "in {0}")
++  @ValueSource(strings = { "America/New_York", "UTC", "Asia/Tokyo" })
++  @DisplayName("unmarshal, reads Year, Month, java.sql.Date and Locale (values and map keys) as 7.9.0 wrote them")
++  void unmarshalReads790(String timeZone) throws Exception {
++    TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
++    final JdkTypes expected = JdkTypes.sample();
++
++    assertThat(kubernetesSerialization.unmarshal(golden(), JdkTypes.class))
++        .extracting(RESTORED_FIELDS)
++        .containsExactly(expected.year, expected.month, expected.sqlDate, expected.locale, expected.localeWithScript,
++            expected.localeWithExtension, expected.yearKeys, expected.monthKeys, expected.localeKeys);
++  }
++
++  @Test
++  @DisplayName("unmarshal, reads Year, Month, java.sql.Date and Locale (values and map keys) as plain Jackson 3 writes them")
++  void unmarshalReadsJackson3Form() throws Exception {
++    TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
++    final JdkTypes expected = JdkTypes.sample();
++
++    assertThat(kubernetesSerialization.unmarshal("{\"year\":2024,\"month\":0," +
++        "\"sqlDate\":\"2024-01-15T05:00:00.000+00:00\",\"locale\":\"es-ES\",\"localeWithScript\":\"zh-Hant-TW\"," +
++        "\"localeWithExtension\":\"th-TH-u-nu-thai\",\"yearKeys\":{\"2024\":\"year\"},\"monthKeys\":{\"JANUARY\":\"month\"}," +
++        "\"localeKeys\":{\"es-ES\":\"es\",\"zh-Hant-TW\":\"zh\",\"th-TH-u-nu-thai\":\"th\"}}", JdkTypes.class))
++        .extracting(RESTORED_FIELDS)
++        .containsExactly(expected.year, expected.month, expected.sqlDate, expected.locale, expected.localeWithScript,
++            expected.localeWithExtension, expected.yearKeys, expected.monthKeys, expected.localeKeys);
++  }
++
++  @Test
++  @SuppressWarnings("deprecation")
++  @DisplayName("Serialization.yamlMapper, writes Month, java.sql.Date and Locale like 7.9.0's yamlMapper")
++  void yamlMapperWritesLike790() {
++    TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
++    final Map<String, Object> values = new LinkedHashMap<>();
++    values.put("month", Month.JANUARY);
++    values.put("sqlDate", java.sql.Date.valueOf("2024-01-15"));
++    values.put("locale", Locale.forLanguageTag("zh-Hant-TW"));
++    values.put("localeKeys", Map.of(Locale.forLanguageTag("zh-Hant-TW"), "zh"));
++
++    // 7.9.0's yamlMapper kept Jackson's default of writing dates as timestamps
++    assertThat(YAMLMapper.builder().build().readValue(Serialization.yamlMapper().writeValueAsString(values),
++        new TypeReference<Map<String, Object>>() {
++        }))
++        .containsExactly(
++            Map.entry("month", "JANUARY"),
++            Map.entry("sqlDate", 1705294800000L),
++            Map.entry("locale", "zh_TW_#Hant"),
++            Map.entry("localeKeys", Map.of("zh_TW_#Hant", "zh")));
++  }
++
++  private static String golden() throws IOException {
++    try (
++        InputStream is = KubernetesSerializationJdkTypesTest.class.getResourceAsStream("/serialization/jdk-types-7.9.0.json")) {
++      return new String(is.readAllBytes(), StandardCharsets.UTF_8).trim();
++    }
++  }
++
++  public static class JdkTypes {
++    public String string;
++    public boolean aBoolean;
++    public char aChar;
++    public byte aByte;
++    public short aShort;
++    public int anInt;
++    public long aLong;
++    public float aFloat;
++    public double aDouble;
++    public BigInteger bigInteger;
++    public BigDecimal bigDecimal;
++    public StringBuilder stringBuilder;
++    public byte[] byteArray;
++    public ByteBuffer byteBuffer;
++    public Byte[] boxedByteArray;
++    public char[] charArray;
++    public short[] shortArray;
++    public int[] intArray;
++    public long[] longArray;
++    public float[] floatArray;
++    public double[] doubleArray;
++    public boolean[] booleanArray;
++    public String[] stringArray;
++    public List<Integer> integerList;
++    public AtomicBoolean atomicBoolean;
++    public AtomicInteger atomicInteger;
++    public AtomicLong atomicLong;
++    public AtomicReference<String> atomicReference;
++    public Instant instant;
++    public Date date;
++    public Calendar calendar;
++    public java.sql.Date sqlDate;
++    public java.sql.Time sqlTime;
++    public java.sql.Timestamp sqlTimestamp;
++    public LocalDate localDate;
++    public LocalDateTime localDateTime;
++    public LocalTime localTime;
++    public OffsetDateTime offsetDateTime;
++    public OffsetTime offsetTime;
++    public ZonedDateTime zonedDateTime;
++    public Year year;
++    public YearMonth yearMonth;
++    public MonthDay monthDay;
++    public Month month;
++    public DayOfWeek dayOfWeek;
++    public Duration duration;
++    public Period period;
++    public ZoneId zoneId;
++    public ZoneOffset zoneOffset;
++    public TimeZone timeZone;
++    public XMLGregorianCalendar xmlGregorianCalendar;
++    public javax.xml.datatype.Duration xmlDuration;
++    public Locale locale;
++    public Locale localeWithScript;
++    public Locale localeWithExtension;
++    public UUID uuid;
++    public URI uri;
++    public URL url;
++    public InetAddress inetAddress;
++    public InetSocketAddress inetSocketAddress;
++    public Currency currency;
++    public Charset charset;
++    public Pattern pattern;
++    public Class<?> clazz;
++    public QName qname;
++    public Map<Year, String> yearKeys;
++    public Map<Month, String> monthKeys;
++    public Map<Locale, String> localeKeys;
++    public Map<DayOfWeek, String> enumMap;
++    public Set<DayOfWeek> enumSet;
++
++    /**
++     * Created in the default timezone, java.sql.Date and java.sql.Time are local.
++     */
++    static JdkTypes sample() throws Exception {
++      final Instant instant = Instant.parse("2026-01-02T10:15:30Z");
++      final LocalDateTime localDateTime = LocalDateTime.of(2026, 1, 2, 10, 15, 30);
++      final GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
++      calendar.setTimeInMillis(instant.toEpochMilli());
++      final JdkTypes sample = new JdkTypes();
++      sample.string = "text";
++      sample.aBoolean = true;
++      sample.aChar = 'c';
++      sample.aByte = 1;
++      sample.aShort = 2;
++      sample.anInt = Integer.MAX_VALUE;
++      sample.aLong = Long.MAX_VALUE;
++      sample.aFloat = 1.5f;
++      sample.aDouble = 2.5d;
++      sample.bigInteger = new BigInteger("123456789012345678901234567890");
++      sample.bigDecimal = new BigDecimal("1.10");
++      sample.stringBuilder = new StringBuilder("builder");
++      sample.byteArray = new byte[] { 1, 2, 3 };
++      sample.byteBuffer = ByteBuffer.wrap(new byte[] { 1, 2, 3 });
++      sample.boxedByteArray = new Byte[] { 1, 2, 3 };
++      sample.charArray = new char[] { 'a', 'b' };
++      sample.shortArray = new short[] { 1, 2 };
++      sample.intArray = new int[] { 1, 2 };
++      sample.longArray = new long[] { 1L, 2L };
++      sample.floatArray = new float[] { 1.5f };
++      sample.doubleArray = new double[] { 2.5d };
++      sample.booleanArray = new boolean[] { true, false };
++      sample.stringArray = new String[] { "a", "b" };
++      sample.integerList = List.of(1, 2);
++      sample.atomicBoolean = new AtomicBoolean(true);
++      sample.atomicInteger = new AtomicInteger(3);
++      sample.atomicLong = new AtomicLong(4);
++      sample.atomicReference = new AtomicReference<>("ref");
++      sample.instant = instant;
++      sample.date = Date.from(instant);
++      sample.calendar = calendar;
++      sample.sqlDate = java.sql.Date.valueOf("2024-01-15");
++      sample.sqlTime = java.sql.Time.valueOf("10:15:30");
++      sample.sqlTimestamp = java.sql.Timestamp.from(instant);
++      sample.localDate = LocalDate.of(2026, 1, 2);
++      sample.localDateTime = localDateTime;
++      sample.localTime = localDateTime.toLocalTime();
++      sample.offsetDateTime = OffsetDateTime.of(localDateTime, ZoneOffset.ofHours(1));
++      sample.offsetTime = OffsetTime.of(localDateTime.toLocalTime(), ZoneOffset.ofHours(1));
++      sample.zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("Europe/Madrid"));
++      sample.year = Year.of(2024);
++      sample.yearMonth = YearMonth.of(2026, 1);
++      sample.monthDay = MonthDay.of(12, 25);
++      sample.month = Month.JANUARY;
++      sample.dayOfWeek = DayOfWeek.MONDAY;
++      sample.duration = Duration.ofMinutes(90);
++      sample.period = Period.ofDays(3);
++      sample.zoneId = ZoneId.of("Europe/Madrid");
++      sample.zoneOffset = ZoneOffset.ofHours(1);
++      sample.timeZone = TimeZone.getTimeZone("Europe/Madrid");
++      sample.xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
++      sample.xmlDuration = DatatypeFactory.newInstance().newDuration("P1DT2H");
++      sample.locale = Locale.forLanguageTag("es-ES");
++      sample.localeWithScript = Locale.forLanguageTag("zh-Hant-TW");
++      sample.localeWithExtension = Locale.forLanguageTag("th-TH-u-nu-thai");
++      sample.uuid = UUID.fromString("9f1c7a5e-3b2d-4c1e-8f6a-0d9e8b7c6a5f");
++      sample.uri = URI.create("https://example.com/a?b=c");
++      sample.url = URI.create("https://example.com/a?b=c").toURL();
++      sample.inetAddress = InetAddress.getByName("127.0.0.1");
++      sample.inetSocketAddress = InetSocketAddress.createUnresolved("example.com", 8080);
++      sample.currency = Currency.getInstance("EUR");
++      sample.charset = StandardCharsets.UTF_8;
++      sample.pattern = Pattern.compile("a+b");
++      sample.clazz = String.class;
++      sample.qname = new QName("urn:example", "local", "ex");
++      sample.yearKeys = new LinkedHashMap<>(Map.of(Year.of(2024), "year"));
++      sample.monthKeys = new LinkedHashMap<>(Map.of(Month.JANUARY, "month"));
++      sample.localeKeys = new LinkedHashMap<>();
++      sample.localeKeys.put(Locale.forLanguageTag("es-ES"), "es");
++      sample.localeKeys.put(Locale.forLanguageTag("zh-Hant-TW"), "zh");
++      sample.localeKeys.put(Locale.forLanguageTag("th-TH-u-nu-thai"), "th");
++      sample.enumMap = new EnumMap<>(Map.of(DayOfWeek.MONDAY, "monday"));
++      sample.enumSet = EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.FRIDAY);
++      return sample;
++    }
++  }
++}
+diff --git a/kubernetes-client-api/src/test/resources/serialization/jdk-types-7.9.0.json b/kubernetes-client-api/src/test/resources/serialization/jdk-types-7.9.0.json
+new file mode 100644
+index 000000000..28c77d0c6
+--- /dev/null
++++ b/kubernetes-client-api/src/test/resources/serialization/jdk-types-7.9.0.json
+@@ -0,0 +1 @@
++{"string":"text","aBoolean":true,"aChar":"c","aByte":1,"aShort":2,"anInt":2147483647,"aLong":9223372036854775807,"aFloat":1.5,"aDouble":2.5,"bigInteger":123456789012345678901234567890,"bigDecimal":1.10,"stringBuilder":"builder","byteArray":"AQID","byteBuffer":"AQID","boxedByteArray":[1,2,3],"charArray":"ab","shortArray":[1,2],"intArray":[1,2],"longArray":[1,2],"floatArray":[1.5],"doubleArray":[2.5],"booleanArray":[true,false],"stringArray":["a","b"],"integerList":[1,2],"atomicBoolean":true,"atomicInteger":3,"atomicLong":4,"atomicReference":"ref","instant":"2026-01-02T10:15:30Z","date":"2026-01-02T10:15:30.000+00:00","calendar":"2026-01-02T10:15:30.000+00:00","sqlDate":"2024-01-15","sqlTime":"10:15:30","sqlTimestamp":"2026-01-02T10:15:30.000+00:00","localDate":"2026-01-02","localDateTime":"2026-01-02T10:15:30","localTime":"10:15:30","offsetDateTime":"2026-01-02T10:15:30+01:00","offsetTime":"10:15:30+01:00","zonedDateTime":"2026-01-02T10:15:30+01:00","year":"2024","yearMonth":"2026-01","monthDay":"--12-25","month":"JANUARY","dayOfWeek":"MONDAY","duration":"PT1H30M","period":"P3D","zoneId":"Europe/Madrid","zoneOffset":"+01:00","timeZone":"Europe/Madrid","xmlGregorianCalendar":"2026-01-02T10:15:30.000+00:00","xmlDuration":"P1DT2H","locale":"es_ES","localeWithScript":"zh_TW_#Hant","localeWithExtension":"th_TH_#u-nu-thai","uuid":"9f1c7a5e-3b2d-4c1e-8f6a-0d9e8b7c6a5f","uri":"https://example.com/a?b=c","url":"https://example.com/a?b=c","inetAddress":"127.0.0.1","inetSocketAddress":"example.com:8080","currency":"EUR","charset":"UTF-8","pattern":"a+b","clazz":"java.lang.String","qname":"{urn:example}local","yearKeys":{"2024":"year"},"monthKeys":{"JANUARY":"month"},"localeKeys":{"es_ES":"es","zh_TW_#Hant":"zh","th_TH_#u-nu-thai":"th"},"enumMap":{"MONDAY":"monday"},"enumSet":["MONDAY","FRIDAY"]}
+diff --git a/kubernetes-model-generator/kubernetes-model-common/src/test/java/io/fabric8/kubernetes/model/jackson/Jackson2JdkTypesModuleTest.java b/kubernetes-model-generator/kubernetes-model-common/src/test/java/io/fabric8/kubernetes/model/jackson/Jackson2JdkTypesModuleTest.java
+new file mode 100644
+index 000000000..e0b761a6d
+--- /dev/null
++++ b/kubernetes-model-generator/kubernetes-model-common/src/test/java/io/fabric8/kubernetes/model/jackson/Jackson2JdkTypesModuleTest.java
+@@ -0,0 +1,359 @@
++/*
++ * Copyright (C) 2015 Red Hat, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *         http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package io.fabric8.kubernetes.model.jackson;
++
++import com.fasterxml.jackson.annotation.JsonFormat;
++import org.junit.jupiter.api.AfterEach;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Nested;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.params.ParameterizedTest;
++import org.junit.jupiter.params.provider.Arguments;
++import org.junit.jupiter.params.provider.MethodSource;
++import org.junit.jupiter.params.provider.ValueSource;
++import tools.jackson.core.type.TypeReference;
++import tools.jackson.databind.JavaType;
++import tools.jackson.databind.ObjectMapper;
++import tools.jackson.databind.cfg.DateTimeFeature;
++import tools.jackson.databind.cfg.EnumFeature;
++import tools.jackson.databind.json.JsonMapper;
++import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
++import tools.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
++import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
++import tools.jackson.databind.jsonFormatVisitors.JsonValueFormat;
++
++import java.time.LocalDate;
++import java.time.Month;
++import java.time.Year;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.Locale;
++import java.util.Map;
++import java.util.Set;
++import java.util.TimeZone;
++import java.util.stream.Stream;
++
++import static org.assertj.core.api.Assertions.assertThat;
++
++/**
++ * Expected values are what Jackson 2.21 (with jackson-datatype-jsr310) writes for the same input.
++ */
++class Jackson2JdkTypesModuleTest {
++
++  // local midnight in the default timezone, so it has to be created after the timezone is set
++  private static java.sql.Date sqlDate() {
++    return java.sql.Date.valueOf("2024-01-15");
++  }
++
++  private TimeZone defaultTimeZone;
++  private ObjectMapper mapper;
++
++  @BeforeEach
++  void setUp() {
++    defaultTimeZone = TimeZone.getDefault();
++    // west of UTC, where Jackson 2 read yyyy-MM-dd as the previous day
++    TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
++    mapper = JsonMapper.builderWithJackson2Defaults()
++        .addModule(new Jackson2JdkTypesModule())
++        .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
++        // @JsonFormat patterns format with the default locale, e.g. th_TH writes Buddhist years
++        .defaultLocale(Locale.ROOT)
++        .build();
++  }
++
++  @AfterEach
++  void tearDown() {
++    TimeZone.setDefault(defaultTimeZone);
++  }
++
++  @Nested
++  @DisplayName("Serialization")
++  class Serialization {
++
++    @Test
++    @DisplayName("writes Year, Month, java.sql.Date and Locale in the Jackson 2 form")
++    void writesJackson2Form() {
++      assertThat(mapper.writeValueAsString(new Plain()))
++          .isEqualTo("{\"year\":\"2024\",\"month\":\"JANUARY\",\"sqlDate\":\"2024-01-15\",\"locale\":\"zh_TW_#Hant\"}");
++    }
++
++    @Test
++    @DisplayName("with WRITE_DATES_AS_TIMESTAMPS, writes Year and java.sql.Date as numbers, like Jackson 2")
++    void writesTimestampsWhenEnabled() {
++      final ObjectMapper timestamps = mapper.rebuild().enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS).build();
++
++      assertThat(timestamps.writeValueAsString(new Plain()))
++          .isEqualTo("{\"year\":2024,\"month\":\"JANUARY\",\"sqlDate\":" + sqlDate().getTime()
++              + ",\"locale\":\"zh_TW_#Hant\"}");
++    }
++
++    @Test
++    @DisplayName("honors @JsonFormat patterns and shapes, like Jackson 2")
++    void honorsJsonFormat() {
++      assertThat(mapper.writeValueAsString(new Annotated()))
++          .isEqualTo("{\"year\":\"24\",\"month\":0,\"sqlDate\":\"15/01/2024\",\"stringYear\":\"2024\",\"numberSqlDate\":"
++              + sqlDate().getTime() + "}");
++    }
++
++    @Test
++    @DisplayName("with WRITE_ENUMS_USING_INDEX, writes Month as its index, like any other enum")
++    void writesMonthIndexWhenEnabled() {
++      final ObjectMapper index = mapper.rebuild().enable(EnumFeature.WRITE_ENUMS_USING_INDEX).build();
++
++      assertThat(index.writeValueAsString(Map.of("month", Month.JANUARY))).isEqualTo("{\"month\":0}");
++    }
++
++    @Test
++    @DisplayName("writes Locale map keys in the Jackson 2 form")
++    void writesLocaleKeysInJackson2Form() {
++      assertThat(mapper.writeValueAsString(Map.of(Locale.forLanguageTag("zh-Hant-TW"), "zh")))
++          .isEqualTo("{\"zh_TW_#Hant\":\"zh\"}");
++    }
++  }
++
++  /**
++   * The CRD generator describes the types with what their serializers report.
++   */
++  @Nested
++  @DisplayName("Schema")
++  class Schema {
++
++    @Test
++    @DisplayName("reports what it writes: Year as a string without format, java.sql.Date as a date, Month by name")
++    void reportsWhatItWrites() {
++      assertThat(reportedSchema(mapper, Year.class)).containsExactly("string");
++      assertThat(reportedSchema(mapper, java.sql.Date.class)).containsExactly("string", "format date");
++      assertThat(reportedSchema(mapper, Month.class))
++          .containsExactly("string", "enum " + Stream.of(Month.values()).map(Month::name).sorted().toList());
++    }
++
++    @Test
++    @DisplayName("with WRITE_DATES_AS_TIMESTAMPS, reports Year and java.sql.Date as integers, like Jackson 2")
++    void reportsTimestampsWhenEnabled() {
++      final ObjectMapper timestamps = mapper.rebuild().enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS).build();
++
++      assertThat(reportedSchema(timestamps, Year.class)).containsExactly("integer");
++      assertThat(reportedSchema(timestamps, java.sql.Date.class)).containsExactly("integer", "format utc-millisec");
++    }
++
++    /**
++     * The JSON type the serializer of the type reports, and its format or enum values.
++     */
++    private List<String> reportedSchema(ObjectMapper objectMapper, Class<?> type) {
++      final List<String> reported = new ArrayList<>();
++      objectMapper.acceptJsonFormatVisitor(type, new JsonFormatVisitorWrapper.Base() {
++        @Override
++        public JsonStringFormatVisitor expectStringFormat(JavaType typeHint) {
++          reported.add("string");
++          return new JsonStringFormatVisitor.Base() {
++            @Override
++            public void format(JsonValueFormat format) {
++              reported.add("format " + format);
++            }
++
++            @Override
++            public void enumTypes(Set<String> enums) {
++              reported.add("enum " + enums.stream().sorted().toList());
++            }
++          };
++        }
++
++        @Override
++        public JsonIntegerFormatVisitor expectIntegerFormat(JavaType typeHint) {
++          reported.add("integer");
++          return new JsonIntegerFormatVisitor.Base() {
++            @Override
++            public void format(JsonValueFormat format) {
++              reported.add("format " + format);
++            }
++          };
++        }
++      });
++      return reported;
++    }
++  }
++
++  @Nested
++  @DisplayName("java.sql.Date deserialization")
++  class SqlDateDeserialization {
++
++    @ParameterizedTest(name = "in {0}")
++    @ValueSource(strings = { "America/New_York", "UTC", "Asia/Tokyo" })
++    @DisplayName("reads yyyy-MM-dd as a local date, so the day doesn't depend on the timezone")
++    void readsLocalDate(String timeZone) {
++      TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
++
++      assertThat(mapper.readValue("\"2024-01-15\"", java.sql.Date.class).toLocalDate())
++          .isEqualTo(LocalDate.of(2024, 1, 15));
++    }
++
++    @ParameterizedTest(name = "{0}")
++    @ValueSource(strings = { "1705276800000", "\"2024-01-15T00:00:00.000+00:00\"", "\"2024-02-30\"", "\"\"" })
++    @DisplayName("reads anything else like Jackson does")
++    void readsAnythingElseLikeJackson(String json) {
++      final ObjectMapper plain = JsonMapper.builderWithJackson2Defaults().build();
++
++      assertThat(readSqlDate(mapper, json)).isEqualTo(readSqlDate(plain, json));
++    }
++
++    /**
++     * The value read, or the type of the exception thrown.
++     */
++    private Object readSqlDate(ObjectMapper objectMapper, String json) {
++      try {
++        return objectMapper.readValue(json, java.sql.Date.class);
++      } catch (RuntimeException e) {
++        return e.getClass();
++      }
++    }
++
++    @Test
++    @DisplayName("with a @JsonFormat pattern, reads with that pattern and its timezone like Jackson does")
++    void readsWithPattern() {
++      final ObjectMapper plain = JsonMapper.builderWithJackson2Defaults().build();
++      final String json = "{\"sqlDate\":\"2024-01-15\"}";
++
++      assertThat(mapper.readValue(json, UtcPattern.class).sqlDate)
++          .isEqualTo(plain.readValue(json, UtcPattern.class).sqlDate);
++    }
++  }
++
++  @Nested
++  @DisplayName("Locale deserialization")
++  class LocaleDeserialization {
++
++    @ParameterizedTest(name = "{0}")
++    @MethodSource("io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest#locales")
++    @DisplayName("reads the Jackson 2 form (Locale#toString) back into the same locale")
++    void readsJackson2Form(Locale locale) {
++      assertThat(mapper.readValue("\"" + locale + "\"", Locale.class)).isEqualTo(locale);
++    }
++
++    @ParameterizedTest(name = "{0}")
++    @MethodSource("io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest#locales")
++    @DisplayName("reads the BCP 47 form (Locale#toLanguageTag) back into the same locale")
++    void readsBcp47Form(Locale locale) {
++      assertThat(mapper.readValue("\"" + locale.toLanguageTag() + "\"", Locale.class)).isEqualTo(locale);
++    }
++
++    @ParameterizedTest(name = "{0}")
++    @MethodSource("io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest#locales")
++    @DisplayName("reads map keys in the Jackson 2 and BCP 47 forms back into the same locale")
++    void readsKeysInBothForms(Locale locale) {
++      final TypeReference<Map<Locale, String>> type = new TypeReference<>() {
++      };
++
++      assertThat(mapper.readValue("{\"" + locale + "\":\"a\"}", type)).containsOnlyKeys(locale);
++      assertThat(mapper.readValue("{\"" + locale.toLanguageTag() + "\":\"a\"}", type)).containsOnlyKeys(locale);
++    }
++
++    @ParameterizedTest(name = "{0}")
++    @MethodSource("io.fabric8.kubernetes.model.jackson.Jackson2JdkTypesModuleTest#legacyLocales")
++    @DisplayName("reads the Jackson 2 form of legacy locales, which BCP 47 can't express, back into the same locale")
++    void readsLegacyLocales(Locale locale) {
++      final TypeReference<Map<Locale, String>> type = new TypeReference<>() {
++      };
++
++      assertThat(mapper.readValue("\"" + locale + "\"", Locale.class)).isEqualTo(locale);
++      assertThat(mapper.readValue("{\"" + locale + "\":\"a\"}", type)).containsOnlyKeys(locale);
++    }
++
++    @Test
++    @DisplayName("reads an empty string as the root locale, like Jackson does")
++    void readsEmptyStringAsRoot() {
++      assertThat(mapper.readValue("\"\"", Locale.class)).isEqualTo(Locale.ROOT);
++    }
++
++    @Test
++    @DisplayName("reads und, how Jackson 3 writes the root locale, as the root locale (values and map keys)")
++    void readsUndAsRoot() {
++      assertThat(mapper.readValue("\"und\"", Locale.class)).isEqualTo(Locale.ROOT);
++      assertThat(mapper.readValue("{\"und\":\"a\"}", new TypeReference<Map<Locale, String>>() {
++      })).containsOnlyKeys(Locale.ROOT);
++    }
++
++    @Test
++    @DisplayName("reads an empty map key as the root locale, like Jackson 2 did")
++    void readsEmptyKeyAsRoot() {
++      assertThat(mapper.readValue("{\"\":\"a\"}", new TypeReference<Map<Locale, String>>() {
++      })).containsOnlyKeys(Locale.ROOT);
++    }
++  }
++
++  /**
++   * Created with the Locale constructor, which keeps what BCP 47 can't express (long or legacy variants and regions).
++   */
++  @SuppressWarnings("deprecation")
++  static Stream<Arguments> legacyLocales() {
++    return Stream.of(
++        new Locale("es", "ES", "Traditional_WIN"),
++        new Locale("en", "USA"),
++        new Locale("", "US"),
++        new Locale("x", "US"),
++        new Locale("en", "", "a-b"),
++        // the POSIX locale, and other languages without separators that aren't valid BCP 47
++        new Locale("C"),
++        new Locale("x"))
++        .map(Arguments::of);
++  }
++
++  static Stream<Arguments> locales() {
++    return Stream.of(
++        "es",
++        "es-ES",
++        "zh-Hant-TW",
++        "en-Latn",
++        "th-TH-u-nu-thai",
++        "de-DE-u-co-phonebk-ka-shifted",
++        "en-US-u-ca-gregory-x-priv",
++        "sr-Latn-RS-x-lvariant-POSIX",
++        "de-x-lvariant-POSIX",
++        "ja-JP-u-ca-japanese-x-lvariant-JP",
++        "sl-rozaj-biske",
++        "en-US-x-priv-lvariant-POSIX")
++        .map(Locale::forLanguageTag)
++        .map(Arguments::of);
++  }
++
++  public static class Plain {
++    public Year year = Year.of(2024);
++    public Month month = Month.JANUARY;
++    public java.sql.Date sqlDate = sqlDate();
++    public Locale locale = Locale.forLanguageTag("zh-Hant-TW");
++  }
++
++  /**
++   * A pattern that also matches yyyy-MM-dd, read as midnight in UTC like Jackson does, not as a local date.
++   */
++  public static class UtcPattern {
++    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
++    public java.sql.Date sqlDate;
++  }
++
++  public static class Annotated {
++    @JsonFormat(pattern = "yy")
++    public Year year = Year.of(2024);
++    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
++    public Month month = Month.JANUARY;
++    @JsonFormat(pattern = "dd/MM/yyyy")
++    public java.sql.Date sqlDate = sqlDate();
++    @JsonFormat(shape = JsonFormat.Shape.STRING)
++    public Year stringYear = Year.of(2024);
++    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
++    public java.sql.Date numberSqlDate = sqlDate();
++  }
++}

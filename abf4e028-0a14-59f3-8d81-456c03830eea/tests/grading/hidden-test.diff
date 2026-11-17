@@ -1,0 +1,1745 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index fee15edc736446b091b04b4fad380470116c44ee..210821c1d8e6eae2f3fb92ad444779bdea80e83e 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -6954,6 +6954,7 @@ name = "swc_ecma_utils"
+ version = "36.0.0"
+ dependencies = [
+  "dragonbox_ecma",
++ "hashbrown 0.14.5",
+  "indexmap",
+  "num_cpus",
+  "once_cell",
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__ambient_export_initializer/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__ambient_export_initializer/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a9c681971eb42fefb660a49e2cb9809e8be13850
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__ambient_export_initializer/input.ts
+@@ -0,0 +1,11 @@
++const enum AmbientValue { One = 1 }
++namespace AmbientExport {
++    export declare const value = AmbientValue.One;
++    export declare const literal = 2;
++}
++namespace RuntimeExport {
++    export const value = AmbientValue.One;
++}
++
++expect(AmbientExport).toEqual({});
++expect(RuntimeExport.value).toBe(1);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__ambient_export_initializer/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__ambient_export_initializer/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__ambient_export_initializer/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28989db7d8f34b326f99f0a0db70e67c259522aa
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity/input.ts
+@@ -0,0 +1,16 @@
++enum E { A = 1 }
++enum E { B = 2 }
++namespace N { export enum E { A = "a" } }
++namespace N { export enum E { B = "b" } }
++class Box {
++    constructor(public value = (() => {
++        enum Local { A = 3 }
++        enum Local { B = 4 }
++        return [Reflect.get(Local, "A"), Reflect.get(Local, "B")];
++    })()) {}
++}
++expect(Reflect.get(E, "A")).toBe(1);
++expect(Reflect.get(E, "B")).toBe(2);
++expect(Reflect.get(N.E, "A")).toBe("a");
++expect(Reflect.get(N.E, "B")).toBe("b");
++expect(new Box().value).toEqual([3, 4]);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__ambient_empty/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__ambient_empty/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..80ec9ab71e095edda09c0b1924de6e43a3315e31
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__ambient_empty/input.ts
+@@ -0,0 +1,19 @@
++declare enum Ambient { A = 1 }
++enum Ambient { B = 2 }
++enum Ambient { C = 3 }
++enum Empty {}
++enum Empty { A = 4 }
++enum Empty {}
++enum Empty { B = 5 }
++declare namespace Types { enum E { A = 6 } }
++function make() {
++    const enum Erased { Value = 7 }
++    enum Local { A = 8 }
++    enum Local { B = 9 }
++    return [Erased.Value, Reflect.get(Local, "A"), Reflect.get(Local, "B")];
++}
++expect(Reflect.get(Ambient, "B")).toBe(2);
++expect(Reflect.get(Ambient, "C")).toBe(3);
++expect(Reflect.get(Empty, "A")).toBe(4);
++expect(Reflect.get(Empty, "B")).toBe(5);
++expect(make()).toEqual([7, 8, 9]);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__ambient_empty/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__ambient_empty/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__ambient_empty/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__const_order/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__const_order/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..bd65d2282f8128890769eea5b0e5298e92121cfe
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__const_order/input.ts
+@@ -0,0 +1,19 @@
++const first = "a", second = first + "b";
++enum Chain { A = second, B = A + first }
++function prime() { enum Deferred { A = later } return Deferred; }
++function forward() { enum Before { A = local } const local = "local"; return Before; }
++function cycle() { const a = b, b = a; enum Cycle { A = a } return Cycle; }
++function self() { const a = a; enum Self { A = a } return Self; }
++function typed() { enum Before { A = local } const local: string = "typed"; return Before; }
++const later = "later";
++enum After { A = later }
++namespace N { export const a = "namespace"; }
++namespace N { export const b = a + "!"; export enum E { A = b } }
++expect(Chain).toEqual({ A: "ab", B: "aba" });
++expect(prime()).toEqual({ A: "later" });
++expect(forward).toThrow(ReferenceError);
++expect(cycle).toThrow(ReferenceError);
++expect(self).toThrow(ReferenceError);
++expect(typed).toThrow(ReferenceError);
++expect(After).toEqual({ A: "later" });
++expect(N.E).toEqual({ A: "namespace!" });
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__const_order/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__const_order/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__const_order/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__wrapped_iife/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__wrapped_iife/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa3375d5482bb54be9b39a91efbb05899ade0818
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__wrapped_iife/input.ts
+@@ -0,0 +1,47 @@
++function asArrow() {
++    ((<T>() => { enum E { A = later } return E.A; }) as any)();
++    const later = 1;
++}
++function asFunction() {
++    ((function<T>() { enum E { A = later } return E.A; }) as any)();
++    const later = 1;
++}
++function satisfiesArrow() {
++    ((<T>() => { enum E { A = later } return E.A; }) satisfies Function)();
++    const later = 1;
++}
++function nonNullFunction() {
++    ((function<T>() { enum E { A = later } return E.A; })!)();
++    const later = 1;
++}
++function assertionArrow() {
++    (<any>(<T>() => { enum E { A = later } return E.A; }))();
++    const later = 1;
++}
++function instantiationFunction() {
++    ((function<T>() { enum E { A = later } return E.A; })<number>)();
++    const later = 1;
++}
++function parenthesizedArrow() {
++    (((() => { enum E { A = later } return E.A; })))();
++    const later = 1;
++}
++function parenthesizedFunction() {
++    (((function() { enum E { A = later } return E.A; })))();
++    const later = 1;
++}
++function wrappedLocalArrow() {
++    ((() => { enum E { A = later } const later = 1; return E.A; }) as any)();
++}
++// Type wrappers keep TypeScript's deferred-function analysis boundary.
++expect(asArrow).not.toThrow();
++expect(asFunction).not.toThrow();
++expect(satisfiesArrow).not.toThrow();
++expect(nonNullFunction).not.toThrow();
++expect(assertionArrow).not.toThrow();
++expect(instantiationFunction).not.toThrow();
++// Grouping alone preserves direct invocation, and local declarations still
++// obey declaration order within a deferred function.
++expect(parenthesizedArrow).toThrow(ReferenceError);
++expect(parenthesizedFunction).toThrow(ReferenceError);
++expect(wrappedLocalArrow).toThrow(ReferenceError);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__wrapped_iife/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__wrapped_iife/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__body_identity__availability__wrapped_iife/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__builtins/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__builtins/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..b37ec685aed74b91922b38cb294c09e21838830a
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__builtins/input.ts
+@@ -0,0 +1,21 @@
++namespace Numbers {
++    export const Infinity = 7;
++    export const NaN = 8;
++    export enum E { A = Infinity, B = NaN }
++}
++function shadowed(Infinity: number) { enum E { A = Infinity } return E.A; }
++enum Numeric {
++    NegativeZero = -0,
++    NegativeInfinity = 1 / NegativeZero,
++    Nan = 1 ** Infinity,
++    Shift = -1 >>> 1,
++    Signed = 0xffffffff | 0,
++    Raw = 0x10,
++    Computed = Raw + 1
++}
++const result = [Numbers.E.A, Numbers.E.B, Numeric.Shift, Numeric.Signed];
++
++expect(result).toEqual([7, 8, 2147483647, -1]);
++expect(shadowed(5)).toBe(5);
++expect(Numeric.NegativeInfinity).toBe(-Infinity);
++expect(Number.isNaN(Numeric.Nan)).toBe(true);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__builtins/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__builtins/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__builtins/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constant_dependencies/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constant_dependencies/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..2f4750294f91a6adf7d2cf2cdf5e2730c69dcca7
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constant_dependencies/input.ts
+@@ -0,0 +1,5 @@
++const source = 10;
++const intermediate = source + 2;
++const enum Dependent { A = intermediate, B }
++expect([Dependent.A, Dependent.B]).toEqual([12, 13]);
++expect(eval("typeof Dependent")).toBe("undefined");
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constant_dependencies/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constant_dependencies/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constant_dependencies/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constants/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constants/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..f2e6b29263e599a6953d9282400ee0929eaf8e36
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constants/input.ts
+@@ -0,0 +1,26 @@
++namespace Fixture {
++    namespace N {
++        export namespace Inner {
++            export const x = 40;
++            export const y = x + 2;
++            export const annotated: number = 9;
++        }
++        export import Y = N.Inner.y;
++        export import Z = N.Y;
++    }
++    import Inner = N.Inner;
++    import X = Inner.x;
++    import Y = N.Z;
++    const seed = X + 2;
++    enum Values {
++        A = seed,
++        B,
++        C = Y,
++        D = Inner.y,
++        E = Inner.annotated,
++        S = `value=${Values.A}`
++    }
++    const result = [Values.A, Values.B, Values.C, Values.D, Values.E, Values.S];
++
++    expect(result).toEqual([42, 43, 42, 42, 9, "value=42"]);
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constants/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constants/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__constants/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__initializer_write_targets/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__initializer_write_targets/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..1deb63f4da551a1b308b33e6b2dda21f3b31c373
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__initializer_write_targets/input.ts
+@@ -0,0 +1,24 @@
++enum Values {
++    A = 1,
++    Postfix = A++,
++    Prefix = ++A,
++    TypedPrefix = ++(A as any),
++    Assigned = (A = 7),
++    Deleted = +(delete (A)),
++}
++
++enum Iterated {
++    A = 1,
++    Last = (() => {
++        for ((A) of [2, 3]) {}
++        return Reflect.get(Iterated, "A");
++    })(),
++}
++
++expect(Values.Postfix).toBe(1);
++expect(Values.Prefix).toBe(3);
++expect(Values.TypedPrefix).toBe(4);
++expect(Values.Assigned).toBe(7);
++expect(Values.Deleted).toBe(1);
++expect(Object.hasOwn(Values, "A")).toBe(false);
++expect(Iterated.Last).toBe(3);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__initializer_write_targets/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__initializer_write_targets/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__initializer_write_targets/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__iterative_assignment_wrappers/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__iterative_assignment_wrappers/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..2a3118222854cd63306c7e58e74b7438be171ca8
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__iterative_assignment_wrappers/input.ts
+@@ -0,0 +1,16 @@
++// Every target keeps its reference identity after erasing type syntax.
++enum WrappedAssertions {
++    A = 1,
++    NonNull = ((A!) = 2),
++    TypeAssertion = ((<number>A) = 3),
++    Satisfies = ((A satisfies number) = 4),
++    Instantiation = ((A<number>) = 6),
++    Nested = (((((<number>(A as number))!) satisfies number) as number) = 7),
++}
++
++expect(WrappedAssertions.NonNull).toBe(2);
++expect(WrappedAssertions.TypeAssertion).toBe(3);
++expect(WrappedAssertions.Satisfies).toBe(4);
++expect(WrappedAssertions.Instantiation).toBe(6);
++expect(WrappedAssertions.Nested).toBe(7);
++expect(Reflect.get(WrappedAssertions, "A")).toBe(7);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__iterative_assignment_wrappers/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__iterative_assignment_wrappers/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__iterative_assignment_wrappers/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__nested_emission/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__nested_emission/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..531d92842b5fb8a73b981c36f4b24a45b8c7113e
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__nested_emission/input.ts
+@@ -0,0 +1,32 @@
++const visits: number[] = [];
++enum Outer {
++    First = (() => {
++        enum Local { Value = 3, Next }
++        visits.push(Local.Next);
++        return Local.Next;
++    })(),
++    Second = (() => {
++        enum Local { Value = 7 }
++        namespace Local { export const extra = 2; }
++        visits.push(Local.Value);
++        return Local.Value + Local.extra;
++    })(),
++    After = Second + 1,
++}
++namespace Container {
++    export enum Outer {
++        First = (() => {
++            enum Inner { Value = 11 }
++            visits.push(Inner.Value);
++            return Inner.Value;
++        })(),
++        Second = First + 1,
++    }
++    export const result = Outer.Second;
++}
++const result = [
++    Outer.First, Outer.Second, Outer.After,
++    Container.Outer.First, Container.result, ...visits,
++];
++
++expect(result).toEqual([4, 9, 10, 11, 12, 4, 7, 11]);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__nested_emission/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__nested_emission/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__nested_emission/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__parentheses/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__parentheses/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..2d27aa440f2ec14577cd2fcb0b2a87bb41edbe6b
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__parentheses/input.ts
+@@ -0,0 +1,21 @@
++namespace N {
++    export const x = 31;
++    export enum E { A = 2, "\ud800" = "surrogate" }
++}
++enum Values {
++    Dot = ((N)).x,
++    Computed = N[("x")],
++    AfterComputed,
++    Enum = ((N)[("E")])[("A")],
++    AfterEnum
++}
++const grouped = ((N)[("E")])[("A")];
++const surrogate = (N.E)[("\ud800")];
++
++expect(Values.Dot).toBe(31);
++expect(Values.Computed).toBe(31);
++expect(Values.AfterComputed).toBeUndefined();
++expect(Values.Enum).toBe(2);
++expect(Values.AfterEnum).toBeUndefined();
++expect(grouped).toBe(2);
++expect(surrogate).toBe("surrogate");
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__parentheses/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__parentheses/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__parentheses/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regions/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regions/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c9beef67777490ad7658c1749c8ca6a1025c4708
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regions/input.ts
+@@ -0,0 +1,30 @@
++function deferred() {
++    const value = outer;
++    enum E { A = value, B }
++    return E.B;
++}
++class Instance {
++    value = (() => { enum E { A = outer, B } return E.B; })();
++}
++class Methods {
++    [(() => { enum E { A = outer, B } return E.B; })()]() { return 1; }
++    get [(() => { enum E { A = outer } return E.A; })()]() { return 2; }
++}
++const methods = {
++    [(() => { enum E { A = outer, B } return E.B; })()]() { return 3; },
++    get [(() => { enum E { A = outer } return E.A; })()]() { return 4; }
++};
++const outer = 42;
++let immediateFailed = false;
++try {
++    (() => { enum E { A = later, B } return E.B; })();
++} catch { immediateFailed = true; }
++const later = 7;
++
++expect(deferred()).toBe(43);
++expect(new Instance().value).toBe(43);
++expect(new Methods()[43]()).toBe(1);
++expect(new Methods()[42]).toBe(2);
++expect(methods[43]()).toBe(3);
++expect(methods[42]).toBe(4);
++expect(immediateFailed).toBe(true);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regions/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regions/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regions/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regular_import_uses/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regular_import_uses/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4275df21bbdd6376ad6755e8aebb47046e7ef1e7
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regular_import_uses/input.ts
+@@ -0,0 +1,16 @@
++const runtime = 13;
++
++enum Literal {
++    A = 7,
++    B = A + 1,
++}
++
++enum Dynamic {
++    A = runtime,
++}
++
++function read(runtime: number) {
++    return runtime + Literal.B;
++}
++
++expect([Dynamic.A, read(3), Literal.B]).toEqual([13, 11, 8]);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regular_import_uses/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regular_import_uses/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__regular_import_uses/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__self_reference/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__self_reference/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..8e6ea3c90847dd181c5af0931d37b764c6117c21
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__self_reference/input.ts
+@@ -0,0 +1,10 @@
++function runtime() { return 3; }
++enum E {
++    A = runtime(),
++    B = E.A,
++    C = A + 1,
++    Deferred = (() => E.C)()
++}
++const result = [E.A, E.B, E.C, E.Deferred];
++
++expect(result).toEqual([3, 3, 4, 4]);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__self_reference/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__self_reference/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__self_reference/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__strings/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__strings/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..b18b509546090a2473773eeb0704377cdbc9006c
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__strings/input.ts
+@@ -0,0 +1,18 @@
++function runtime() { return "value"; }
++const text = `prefix:${runtime()}`;
++const wrapped = (`prefix:${runtime()}` as string);
++enum E {
++    Template = `prefix:${runtime()}`,
++    Addition = "prefix:" + runtime(),
++    Constant = `prefix:${1 + 2}`,
++    ThroughConst = text,
++    Asserted = (`prefix:${runtime()}` as string),
++    Satisfies = ("value" satisfies string),
++    NonNull = "value"!,
++    ThroughWrapped = wrapped
++}
++const result = [E.Template, E.Addition, E.Constant, E.ThroughConst, E.Asserted];
++
++expect(result).toEqual(["prefix:value", "prefix:value", "prefix:3", "prefix:value", "prefix:value"]);
++expect(Object.prototype.hasOwnProperty.call(E, "prefix:value")).toBe(true);
++expect(Object.prototype.hasOwnProperty.call(E, "prefix:3")).toBe(false);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__strings/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__strings/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__strings/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__wrapped_assignment_targets/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__wrapped_assignment_targets/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..257392024900ef64ead07d736069e2ded7d84dff
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__wrapped_assignment_targets/input.ts
+@@ -0,0 +1,28 @@
++enum WrappedTargets {
++    A = 1,
++    Grouped = ((A) = 3),
++    Typed = ((A as any) = 5),
++    Compound = (((A as any)) += 2),
++    Destructured = (() => {
++        [(A)] = [11];
++        ({ value: (A as any) } = { value: 13 });
++        return Reflect.get(WrappedTargets, "A");
++    })(),
++}
++
++enum ReceiverReads {
++    Index = 0,
++    Result = (() => {
++        const values = [{ value: 1 }];
++        (values[Index].value) = 8;
++        ((values[Index].value) as number) += 2;
++        return values[0].value;
++    })(),
++}
++
++expect(WrappedTargets.Grouped).toBe(3);
++expect(WrappedTargets.Typed).toBe(5);
++expect(WrappedTargets.Compound).toBe(7);
++expect(WrappedTargets.Destructured).toBe(13);
++expect(Reflect.get(WrappedTargets, "A")).toBe(13);
++expect(ReceiverReads.Result).toBe(10);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__wrapped_assignment_targets/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__wrapped_assignment_targets/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/enum_semantics__wrapped_assignment_targets/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11514/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11514/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..d768160a19fc779c4f14f7335551a3ba505aaf11
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11514/input.ts
+@@ -0,0 +1,7 @@
++export namespace Test {
++    export const a = 1;
++}
++
++export namespace Test {
++    export const b = a + 1;
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11514/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11514/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11514/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11607/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11607/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..fc344392a45d3d7babe4fe658eec97a43dc2eb55
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11607/input.ts
+@@ -0,0 +1,11 @@
++namespace Test {
++    export const a = 1;
++}
++
++const a = "out";
++
++namespace Test {
++    export const b = a + 1; // Here, `a` should reference Test.a, not the outer `a`
++}
++
++expect(Test.b).toBe(2);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11607/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11607/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/issue_11607/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__alias_owner_links/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__alias_owner_links/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..b72a2b5cf214cee4a1b04785e93776132a4c82a6
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__alias_owner_links/input.ts
+@@ -0,0 +1,20 @@
++namespace Source {
++    export const value = 1;
++    export namespace Nested { export const value = 2; }
++}
++namespace Other { export const value = 3; }
++namespace Aliases {
++    export import Whole = Source;
++    export import Value = Source.value;
++    export import NestedValue = Source.Nested.value;
++    export import OtherValue = Other.value;
++}
++namespace Aliases {
++    export import Forward = Aliases.NestedValue;
++}
++
++expect(Aliases.Whole.value).toBe(1);
++expect(Aliases.Value).toBe(1);
++expect(Aliases.NestedValue).toBe(2);
++expect(Aliases.OtherValue).toBe(3);
++expect(Aliases.Forward).toBe(2);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__alias_owner_links/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__alias_owner_links/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__alias_owner_links/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_aliases/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_aliases/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3ab0fbd4f7e3c75ae7fbb654e5c6b32df3ff66e5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_aliases/input.ts
+@@ -0,0 +1,23 @@
++const enum E { A = 1 }
++declare namespace Ambient {
++    export import Alias = E;
++    namespace Nested { export import Other = Alias; }
++}
++declare namespace Qualified.Inner { export import Alias = E; }
++declare module "ambient-alias-fixture" {
++    export import Alias = E;
++    namespace Nested { export import Other = Alias; }
++}
++declare global {
++    namespace GlobalAmbient { export import Alias = E; }
++}
++const value: Ambient.Alias = E.A;
++enum RuntimeValue { A = 2 }
++namespace Runtime { export import Alias = RuntimeValue; }
++
++expect(value).toBe(1);
++expect(eval("typeof E")).toBe("undefined");
++expect(eval("typeof Ambient")).toBe("undefined");
++expect(eval("typeof Qualified")).toBe("undefined");
++expect(eval("typeof GlobalAmbient")).toBe("undefined");
++expect(Runtime.Alias.A).toBe(2);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_aliases/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_aliases/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_aliases/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_instantiation/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_instantiation/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..27cf328a0f9b0c392924ec4a4ac5b50d2e7652bf
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_instantiation/input.ts
+@@ -0,0 +1,14 @@
++namespace FunctionOnly { declare function value(): void; }
++expect(FunctionOnly).toEqual({});
++
++namespace Merged { interface Value {} }
++namespace Merged { declare function value(): void; }
++namespace Merged {}
++expect(Merged).toEqual({});
++namespace Merged { export const later = 1; }
++expect(Merged.later).toBe(1);
++
++namespace Outer {
++    declare namespace Inner { function value(): void; }
++}
++expect(Outer).toEqual({});
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_instantiation/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_instantiation/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__ambient_instantiation/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__cross_body/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__cross_body/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..9dc67650ecf45cb2e3ed995ba669898447e9c280
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__cross_body/input.ts
+@@ -0,0 +1,11 @@
++namespace N {
++    export function f() { return value; }
++    export class C { get() { return value; } }
++    f();
++}
++namespace N {
++    export const value = 1;
++    export const result = f() + new C().get();
++}
++console.log(N.result);
++expect(N.result).toBe(2);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__cross_body/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__cross_body/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__cross_body/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__emission_identities/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__emission_identities/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..42a578c4c249abdc5d18c2692347626c3dab1863
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__emission_identities/input.ts
+@@ -0,0 +1,46 @@
++namespace Fixture {
++    const value = 100;
++
++    namespace First {
++        export const value = 1;
++        export class Box {
++            get() { return value; }
++        }
++        export function read(value: number) {
++            return value + First.value;
++        }
++        export const object = { value };
++        export namespace Child {
++            export const value = 3;
++            export const total = value + First.value;
++            export function read(value: number) { return value + First.value; }
++        }
++    }
++
++    namespace Second {
++        export const value = 2;
++        export class Box {
++            get() { return value; }
++        }
++        export const object = { value };
++    }
++
++    namespace First {
++        export interface value { typeOnly: true }
++    }
++
++    namespace First {
++        export const previous = value + new Box().get();
++        export const fromChild = Child.total;
++    }
++
++    function read(value: number) {
++        return value + First.value + Second.value;
++    }
++    const object = { value };
++
++    expect([value, read(4), First.read(5), First.previous, First.fromChild,
++        First.object.value, Second.object.value, new Second.Box().get(),
++        First.Child.read(5), object.value])
++        .toEqual([100, 7, 6, 2, 4, 1, 2, 2, 6, 100]);
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__emission_identities/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__emission_identities/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__emission_identities/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__enum_shadow/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__enum_shadow/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a534488a6b0434c5ae6567c48486798fdf6283f5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__enum_shadow/input.ts
+@@ -0,0 +1,9 @@
++namespace N {
++    export const A = 100;
++    export enum E { A = 1, B = A + 1 }
++}
++namespace N {
++    export const result = E.B;
++}
++console.log(N.result);
++expect(N.result).toBe(2);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__enum_shadow/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__enum_shadow/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__enum_shadow/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__exported_type_alias/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__exported_type_alias/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..d68f3ca033f6495409f8a8a809b483fdc7f2fddc
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__exported_type_alias/input.ts
+@@ -0,0 +1,18 @@
++namespace Types {
++    export interface Shape {}
++    export type ShapeAlias = Shape;
++}
++namespace Direct { export import X = Types.Shape; }
++namespace Aliased { export import X = Types.ShapeAlias; }
++namespace Nested {
++    export namespace Inner { export import X = Types.Shape; }
++}
++namespace Dotted.Inner { export import X = Types.Shape; }
++namespace Private { import X = Types.Shape; }
++namespace Values { export const X = 1; }
++namespace ValueAlias { export import X = Values.X; }
++const observed = [Direct, Aliased, Nested.Inner, Dotted.Inner, ValueAlias.X];
++
++expect(observed).toEqual([{}, {}, {}, {}, 1]);
++expect(eval("typeof Types")).toBe("undefined");
++expect(eval("typeof Private")).toBe("undefined");
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__exported_type_alias/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__exported_type_alias/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__exported_type_alias/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__fused_type_uses/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__fused_type_uses/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..57cf2b209d02f7e253838e47d804b1972614336c
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__fused_type_uses/input.ts
+@@ -0,0 +1,22 @@
++namespace Fixture {
++    namespace Models {
++        export class Value {
++            value = 1;
++        }
++    }
++
++    import Erased = Models.Value;
++    import Live = Models.Value;
++
++    type AliasUse = Erased;
++    interface TypeUse {
++        value: Erased;
++    }
++
++    function scoped<Value>(Value: number) {
++        type Snapshot = typeof Value;
++        return Value;
++    }
++
++    expect(new Live().value + scoped(4)).toBe(5);
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__fused_type_uses/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__fused_type_uses/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__fused_type_uses/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__nested/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__nested/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..5ec7b0a297552a1d48182c9220b5d0209a0915b6
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__nested/input.ts
+@@ -0,0 +1,18 @@
++namespace N {
++    export namespace M {
++        export const x = 1;
++    }
++}
++namespace N {
++    export namespace M {
++        export const y = x + 1;
++    }
++    import Inner = M;
++    export const result = Inner.y;
++}
++namespace N.M {
++    export function get() { return y; }
++}
++console.log(N.result, N.M.get());
++expect(N.result).toBe(2);
++expect(N.M.get()).toBe(2);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__nested/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__nested/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__nested/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__parameter_type_merge/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__parameter_type_merge/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d73741e9702ce9414cff07fd973beb3053099aa
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__parameter_type_merge/input.ts
+@@ -0,0 +1,11 @@
++// The parameter contributes a value even when a type shares its resolved ID.
++function read(Value: number) {
++    type Value = { nested: true };
++    namespace Local {
++        export import Alias = Value;
++        export const result = Alias;
++    }
++    return Local.result;
++}
++
++expect(read(7)).toBe(7);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__parameter_type_merge/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__parameter_type_merge/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__parameter_type_merge/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__private_alias_instantiation/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__private_alias_instantiation/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..d1980bec333e14f177402270eb02917560c64175
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__private_alias_instantiation/input.ts
+@@ -0,0 +1,43 @@
++namespace Types { export interface T {} }
++namespace Values { export const value = 1; }
++
++namespace PrivateType { import A = Types; }
++namespace TypeAliases { export import Q = PrivateType; }
++namespace PrivateValue { import A = Values; }
++namespace ValueAliases { export import Q = PrivateValue; }
++
++namespace Exported { export import A = Types; }
++namespace ExportedAliases { export import Q = Exported; }
++
++namespace Nested.Inner { import A = Types; }
++namespace NestedAliases { export import Q = Nested.Inner; }
++namespace NestedExported.Inner { export import A = Types; }
++namespace NestedExportedAliases { export import Q = NestedExported.Inner; }
++
++namespace Merged { import A = Types; }
++namespace Merged { export const value = 2; }
++namespace MergedAliases { export import Q = Merged; }
++
++namespace Used {
++    import A = Values;
++    export const value = A.value;
++}
++namespace ForwardPrivate { import A = Later; }
++namespace ForwardAliases { export import Q = ForwardPrivate; }
++namespace Later { export const value = 3; }
++
++expect([
++    TypeAliases,
++    ValueAliases,
++    ExportedAliases,
++    NestedAliases,
++    NestedExportedAliases,
++    MergedAliases,
++    Used.value,
++    ForwardAliases,
++]).toEqual([{}, {}, { Q: {} }, {}, { Q: {} }, { Q: { value: 2 } }, 1, {}]);
++expect(eval("typeof Types")).toBe("undefined");
++expect(eval("typeof PrivateType")).toBe("undefined");
++expect(eval("typeof PrivateValue")).toBe("undefined");
++expect(eval("typeof Nested")).toBe("undefined");
++expect(eval("typeof ForwardPrivate")).toBe("undefined");
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__private_alias_instantiation/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__private_alias_instantiation/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__private_alias_instantiation/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__reference_roles/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__reference_roles/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c5544ae718d0c43be4d765e4c7edf68af288afb
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__reference_roles/input.ts
+@@ -0,0 +1,32 @@
++namespace Fixture {
++    namespace N {
++        export let value = 1;
++        export const key = "value";
++    }
++    namespace N {
++        export function read({ [key]: value }: { value: number }) { return value; }
++        export const recurse = function value(input: number): number {
++            return input > 0 ? value(input - 1) : 0;
++        };
++        export const Box = class value {
++            self = value;
++            method(value: number) { return value; }
++        };
++        export class Item {
++            constructor(public item: number = value) {}
++        }
++        export const arrow = ({ value }: { value: number }) => value;
++        export function assign(source: { value: number }) {
++            ({ value } = source);
++            [value] = [source.value + 1];
++            return value;
++        }
++        export function caught() {
++            try { throw 3; } catch (value) { return value; }
++        }
++    }
++    expect([N.read({ value: 9 }), N.recurse(3), new N.Box().self === N.Box,
++        new N.Box().method(4), new N.Item().item, N.arrow({ value: 5 }),
++        N.assign({ value: 6 }), N.value, N.caught()])
++        .toEqual([9, 0, true, 4, 1, 5, 7, 7, 3]);
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__reference_roles/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__reference_roles/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__reference_roles/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__shadowing/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__shadowing/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..550543cee6ae9b606f9a37a1e7a7f73be0a87ed5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__shadowing/input.ts
+@@ -0,0 +1,19 @@
++const privateValue = 100;
++const T = 5;
++namespace N {
++    const privateValue = 10;
++    export const x = 1;
++    export interface T { value: number; }
++    export function first() { return privateValue; }
++}
++namespace N {
++    export const outside = privateValue + T;
++    export function parameter(x: number) { return x; }
++    export function local() {
++        const x = 20;
++        return x;
++    }
++    export function shared() { return x; }
++}
++console.log(N.first(), N.outside, N.parameter(30), N.local(), N.shared());
++expect([N.first(), N.outside, N.parameter(30), N.local(), N.shared()]).toEqual([10, 105, 30, 20, 1]);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__shadowing/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__shadowing/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__shadowing/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__type_only_fast_path/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__type_only_fast_path/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..b76a55e321b5d6acfc2ddb42d48a2418bd94b28a
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__type_only_fast_path/input.ts
+@@ -0,0 +1,20 @@
++namespace Types {
++    export interface Box { value: number; }
++    export namespace Nested {
++        export type Value = number;
++    }
++}
++namespace Qualified.Inner {
++    export interface Shape { value: number; }
++}
++
++function read(value: Types.Box) {
++    namespace Local {
++        export type Snapshot = typeof value;
++    }
++    return value.value;
++}
++
++expect(read({ value: 7 })).toBe(7);
++expect(typeof Types).toBe("undefined");
++expect(typeof Qualified).toBe("undefined");
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__type_only_fast_path/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__type_only_fast_path/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__type_only_fast_path/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__writes/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__writes/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..df88149a8dd7bec3f14a3bc2284f56418292c42d
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__writes/input.ts
+@@ -0,0 +1,12 @@
++namespace N {
++    export let value = 0;
++}
++namespace N {
++    value++;
++    ({ value } = { value: 2 });
++    for (value of [3]) {}
++    export const result = { value };
++}
++console.log(N.value, N.result.value);
++expect(N.value).toBe(3);
++expect(N.result.value).toBe(3);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__writes/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__writes/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..59d519259e40e2aa2e1529c4590341be1ac4b6a5
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/namespace_bindings__writes/options.json
+@@ -0,0 +1,7 @@
++{
++  "config": {
++    "noEmptyExport": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/observe.mjs b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/observe.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..a838bd29437746645a9dce6045c0cc2fe9565537
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/observe.mjs
+@@ -0,0 +1,100 @@
++// Runs one emitted ES module and prints, as JSON, what it observably did: every value handed to
++// expect(...) with the matcher and its arguments, every console.log, whether a function handed to
++// toThrow threw (and the error's constructor), an uncaught error's constructor, and the module's
++// exports. Objects are compared by their own enumerable string keys in sorted order, so a
++// different emission order of equal members does not matter.
++// Usage: node observe.mjs <module.mjs>
++import { pathToFileURL } from "node:url";
++
++const log = [];
++
++function dump(value, seen = new Set(), depth = 0) {
++    switch (typeof value) {
++        case "undefined":
++            return { undefined: true };
++        case "boolean":
++        case "string":
++            return value;
++        case "number":
++            if (Number.isNaN(value)) return { number: "NaN" };
++            if (Object.is(value, -0)) return { number: "-0" };
++            if (!Number.isFinite(value)) return { number: String(value) };
++            return value;
++        case "bigint":
++            return { bigint: String(value) };
++        case "symbol":
++            return { symbol: String(value.description) };
++        case "function":
++            return { function: value.name };
++        default:
++            break;
++    }
++    if (value === null) return null;
++    if (seen.has(value) || depth > 8) return { cycle: true };
++    seen.add(value);
++    try {
++        if (Array.isArray(value)) {
++            return { array: value.map((item) => dump(item, seen, depth + 1)) };
++        }
++        const proto = Object.getPrototypeOf(value);
++        const kind =
++            proto === null ? "null" : proto.constructor ? proto.constructor.name : "anonymous";
++        const keys = Object.keys(value).sort();
++        return {
++            object: kind,
++            props: keys.map((key) => {
++                let item;
++                try {
++                    item = dump(value[key], seen, depth + 1);
++                } catch (error) {
++                    item = { getterThrew: errorName(error) };
++                }
++                return [key, item];
++            }),
++        };
++    } finally {
++        seen.delete(value);
++    }
++}
++
++function errorName(error) {
++    if (error === null || typeof error !== "object") return dump(error);
++    return error.constructor ? error.constructor.name : "anonymous";
++}
++
++function matchers(actual, prefix) {
++    return new Proxy(
++        {},
++        {
++            get(_, name) {
++                if (name === "not" && prefix === "") return matchers(actual, "not.");
++                return (...args) => {
++                    const matcher = prefix + String(name);
++                    if (String(name) === "toThrow") {
++                        let outcome;
++                        try {
++                            actual();
++                            outcome = { returned: true };
++                        } catch (error) {
++                            outcome = { threw: errorName(error) };
++                        }
++                        log.push(["expect", matcher, outcome, args.map((arg) => dump(arg))]);
++                    } else {
++                        log.push(["expect", matcher, dump(actual), args.map((arg) => dump(arg))]);
++                    }
++                };
++            },
++        },
++    );
++}
++
++globalThis.expect = (actual) => matchers(actual, "");
++console.log = (...args) => log.push(["log", args.map((arg) => dump(arg))]);
++
++try {
++    const namespace = await import(pathToFileURL(process.argv[2]).href);
++    log.push(["exports", dump({ ...namespace })]);
++} catch (error) {
++    log.push(["uncaught", errorName(error)]);
++}
++process.stdout.write(JSON.stringify(log) + "\n");
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..ea9b0b3ec891239c68063e1438f5d968b9aec888
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable/input.ts
+@@ -0,0 +1,10 @@
++namespace N { export enum E { A = 1, B } }
++N.E.A = 5;
++const read = N.E.A;
++const enum E { A = 7 }
++const folded = E.A;
++const annotated = (N.E.A as number);
++
++expect(read).toBe(5);
++expect(folded).toBe(7);
++expect(annotated).toBe(5);
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9c5f2607928ccb5d2342ced3463bbf0f6721f63d
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable/options.json
+@@ -0,0 +1,8 @@
++{
++  "config": {
++    "noEmptyExport": true,
++    "tsEnumIsMutable": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable_initializers/input.ts b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable_initializers/input.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..9be387503fd3069a57e0e7f9a746ab013741ec7a
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable_initializers/input.ts
+@@ -0,0 +1,33 @@
++enum Source { A = 1 }
++(Source as any).A = 5;
++const cached = Source.A;
++enum Dest { B = Source.A, C, D = cached }
++namespace Aliases { export import SourceAlias = Source; }
++enum ViaAlias { A = Aliases.SourceAlias.A }
++const enum Dependent { A = Source.A, B }
++const dependent = Dependent.A;
++enum FromDependent { A = Dependent.B, B }
++const enum Stable { A = 7 }
++enum FromConstEnum { A = Stable.A, B }
++const folded = Stable.A;
++enum TextSource { A = "before" }
++(TextSource as any).A = 1;
++enum TextDest { A = TextSource.A, B = (TextSource as any).A, C }
++
++expect(Source.A).toBe(5);
++expect(cached).toBe(5);
++expect(Dest.B).toBe(1);
++expect(Dest.C).toBe(2);
++expect(Dest.D).toBe(1);
++expect(ViaAlias.A).toBe(1);
++expect(dependent).toBe(1);
++expect(FromDependent.A).toBe(2);
++expect(FromDependent.B).toBe(3);
++expect(FromConstEnum.A).toBe(7);
++expect(FromConstEnum.B).toBe(8);
++expect(folded).toBe(7);
++expect(eval("typeof Stable")).toBe("undefined");
++expect(TextDest.A).toBe("before");
++expect(TextDest.B).toBe(1);
++expect(TextDest.C).toBeUndefined();
++expect(TextDest[1]).toBe("B");
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable_initializers/options.json b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable_initializers/options.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9c5f2607928ccb5d2342ced3463bbf0f6721f63d
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime-semantics/semantic_config__mutable_initializers/options.json
+@@ -0,0 +1,8 @@
++{
++  "config": {
++    "noEmptyExport": true,
++    "tsEnumIsMutable": true
++  },
++  "decorators": false,
++  "handleTypes": true
++}
+diff --git a/crates/swc_ecma_transforms_typescript/tests/runtime_semantics.rs b/crates/swc_ecma_transforms_typescript/tests/runtime_semantics.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..e4c162fd79ba119c6cba5837b852e552ccf390b1
+--- /dev/null
++++ b/crates/swc_ecma_transforms_typescript/tests/runtime_semantics.rs
+@@ -0,0 +1,185 @@
++//! Hidden behavioural grader for merged namespace and enum declarations.
++//!
++//! Every case is a TypeScript program. It is compiled with this crate's TypeScript transform as
++//! the repository's own runtime tests compile it (resolver, typescript, hygiene, fixer), the
++//! emitted JavaScript must parse, and it is then run with node through `observe.mjs`, which
++//! records every value the program hands to `expect(...)`, every `console.log`, an uncaught
++//! error's constructor, and the module's exports. The test prints that record as its last output
++//! line; the verifier compares it, outside this process, with the record the TypeScript
++//! compiler's own emit of the same program produces under the same observer, which this tree
++//! does not hold. The emitted text itself (parameter names, inlining, statement shape) is never
++//! compared.
++//!
++//! Every test body runs on its own thread under a time limit, and node under its own, so a
++//! transform or a program that hangs fails that test instead of the run.
++
++use std::{
++    io::Read,
++    panic::{catch_unwind, AssertUnwindSafe},
++    path::{Path, PathBuf},
++    process::{Command, Stdio},
++    sync::{
++        atomic::{AtomicUsize, Ordering},
++        mpsc,
++    },
++    time::{Duration, Instant},
++};
++
++use swc_common::{comments::SingleThreadedComments, Mark};
++use swc_ecma_ast::{EsVersion, Program};
++use swc_ecma_parser::{parse_file_as_module, EsSyntax, Syntax, TsSyntax};
++use swc_ecma_transforms_base::{fixer::fixer, hygiene::hygiene, resolver};
++use swc_ecma_transforms_proposal::decorators;
++use swc_ecma_transforms_typescript::{typescript, Config};
++
++const LIMIT: Duration = Duration::from_secs(120);
++const NODE_LIMIT: Duration = Duration::from_secs(60);
++
++#[derive(serde::Deserialize)]
++#[serde(rename_all = "camelCase")]
++struct CaseOptions {
++    config: Config,
++    decorators: bool,
++    handle_types: bool,
++}
++
++fn within<F: FnOnce() + Send + 'static>(body: F) {
++    let (tx, rx) = mpsc::channel();
++    std::thread::Builder::new()
++        .stack_size(64 << 20)
++        .spawn(move || {
++            let outcome = catch_unwind(AssertUnwindSafe(body));
++            let _ = tx.send(outcome.is_ok());
++        })
++        .expect("spawn test thread");
++    match rx.recv_timeout(LIMIT) {
++        Ok(true) => {}
++        Ok(false) => panic!("the test body failed"),
++        Err(_) => panic!("the test body did not finish within {LIMIT:?}"),
++    }
++}
++
++#[testing::fixture("tests/runtime-semantics/**/input.ts")]
++fn runtime_semantics(input: PathBuf) {
++    within(move || {
++        let dir = input.parent().unwrap().to_path_buf();
++        let options: CaseOptions =
++            serde_json::from_str(&std::fs::read_to_string(dir.join("options.json")).unwrap())
++                .expect("case options");
++        let code = compile(&input, &options);
++        println!(">>>>> emitted <<<<<\n{code}");
++        reparse(&code);
++        let observed = observe(&code);
++        let observed: serde_json::Value = serde_json::from_str(observed.trim_end())
++            .expect("the observer prints one JSON record");
++        assert!(observed.is_array(), "the observer prints one JSON record");
++        println!("RUNTIME-SEMANTICS-OBSERVED {observed}");
++    });
++}
++
++fn compile(input: &Path, options: &CaseOptions) -> String {
++    testing::run_test(false, |cm, _handler| {
++        let fm = cm.load_file(input).unwrap();
++        let comments = SingleThreadedComments::default();
++        let mut errors = Vec::new();
++        let module = parse_file_as_module(
++            &fm,
++            Syntax::Typescript(TsSyntax {
++                decorators: options.decorators,
++                ..Default::default()
++            }),
++            EsVersion::latest(),
++            Some(&comments),
++            &mut errors,
++        )
++        .expect("the case parses as TypeScript");
++        assert!(errors.is_empty(), "the case parses as TypeScript without errors");
++        let mut program = Program::Module(module);
++        let unresolved = Mark::new();
++        let top_level = Mark::new();
++        program.mutate(resolver(unresolved, top_level, options.handle_types));
++        program.mutate(typescript(options.config, unresolved, top_level));
++        if options.decorators {
++            program.mutate(decorators(decorators::Config {
++                legacy: true,
++                ..Default::default()
++            }));
++        }
++        program.mutate(hygiene());
++        program.mutate(fixer(Some(&comments)));
++        Ok(swc_ecma_codegen::to_code_default(
++            cm.clone(),
++            Some(&comments),
++            &program,
++        ))
++    })
++    .expect("the transform must not report an error")
++}
++
++fn reparse(code: &str) {
++    testing::run_test(false, |cm, _handler| {
++        let fm = cm.new_source_file(
++            swc_common::FileName::Custom("emitted.mjs".into()).into(),
++            code.to_string(),
++        );
++        let mut errors = Vec::new();
++        let parsed = parse_file_as_module(
++            &fm,
++            Syntax::Es(EsSyntax::default()),
++            EsVersion::latest(),
++            None,
++            &mut errors,
++        );
++        assert!(
++            parsed.is_ok() && errors.is_empty(),
++            "the emitted code must parse as a JavaScript module: {:?} {:?}",
++            parsed.err(),
++            errors
++        );
++        Ok(())
++    })
++    .expect("the emitted code must parse as a JavaScript module");
++}
++
++fn observe(code: &str) -> String {
++    static COUNTER: AtomicUsize = AtomicUsize::new(0);
++    let observer = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/runtime-semantics/observe.mjs");
++    let dir = std::env::temp_dir().join(format!(
++        "runtime-semantics-{}-{}",
++        std::process::id(),
++        COUNTER.fetch_add(1, Ordering::SeqCst)
++    ));
++    std::fs::create_dir_all(&dir).unwrap();
++    let file = dir.join("case.mjs");
++    std::fs::write(&file, code).unwrap();
++    let mut child = Command::new("node")
++        .arg(&observer)
++        .arg(&file)
++        .stdin(Stdio::null())
++        .stdout(Stdio::piped())
++        .stderr(Stdio::inherit())
++        .spawn()
++        .expect("node runs");
++    let mut stdout = child.stdout.take().unwrap();
++    let reader = std::thread::spawn(move || {
++        let mut out = String::new();
++        let _ = stdout.read_to_string(&mut out);
++        out
++    });
++    let started = Instant::now();
++    loop {
++        if let Some(status) = child.try_wait().unwrap() {
++            assert!(status.success(), "node exited with {status}");
++            break;
++        }
++        if started.elapsed() > NODE_LIMIT {
++            let _ = child.kill();
++            let _ = child.wait();
++            panic!("the emitted program did not finish within {NODE_LIMIT:?}");
++        }
++        std::thread::sleep(Duration::from_millis(20));
++    }
++    let out = reader.join().unwrap();
++    let _ = std::fs::remove_dir_all(&dir);
++    out
++}
+diff --git a/crates/swc_ecma_utils/Cargo.toml b/crates/swc_ecma_utils/Cargo.toml
+index 844d51f7435b72e9759a2e44e18123081a210e3a..f7c7cd1aa24c0b23aa92ebd230ce6b3631afba1f 100644
+--- a/crates/swc_ecma_utils/Cargo.toml
++++ b/crates/swc_ecma_utils/Cargo.toml
+@@ -24,6 +24,7 @@ concurrent = ["swc_common/concurrent", "par-core/parallel"]
+ 
+ [dependencies]
+ dragonbox_ecma = { workspace = true }
++hashbrown      = { workspace = true }
+ indexmap       = { workspace = true }
+ num_cpus       = { workspace = true }
+ once_cell      = { workspace = true }

@@ -1,0 +1,5 @@
+*
+!exec-tools/
+!exec-tools/package.json
+!exec-tools/package-lock.json
+!codex-model-catalog.json

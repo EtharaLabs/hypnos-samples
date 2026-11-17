@@ -1,0 +1,350 @@
+diff -ruN a/crates/oxc_minifier/src/compressor.rs b/crates/oxc_minifier/src/compressor.rs
+--- a/crates/oxc_minifier/src/compressor.rs	2026-07-18 02:22:44.000000000 +0000
++++ b/crates/oxc_minifier/src/compressor.rs	2026-11-13 14:54:56.748248429 +0000
+@@ -124,6 +124,14 @@
+         // extra iteration.
+         ctx.state_mut().take_mutated();
+         loop {
++            if ctx.state_mut().options.unused != crate::CompressOptionsUnused::Keep {
++                let (dead, observable) = crate::function_reachability::unreachable_functions(
++                    program,
++                    ctx.get_mut().scoping(),
++                );
++                ctx.state_mut().unreachable_functions = dead;
++                ctx.state_mut().observable_bindings = observable;
++            }
+             PeepholeOptimizations.run_once(program, ctx);
+             // A pass with no recorded mutation cannot have recorded drops
+             // (every drop helper also records a mutation), so the terminal
+diff -ruN a/crates/oxc_minifier/src/function_reachability.rs b/crates/oxc_minifier/src/function_reachability.rs
+--- a/crates/oxc_minifier/src/function_reachability.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/oxc_minifier/src/function_reachability.rs	2026-11-13 14:54:56.748248429 +0000
+@@ -0,0 +1,229 @@
++//! References inside an unreachable function do not make other functions live.
++//! Keep the semantic reference lists intact: the ordinary removal helpers prune
++//! them only when the corresponding AST nodes are actually removed.
++use oxc_ast::ast::*;
++use oxc_ast_visit::{Visit, walk};
++use oxc_semantic::Scoping;
++use oxc_syntax::{scope::ScopeFlags, symbol::SymbolId};
++use rustc_hash::{FxHashMap, FxHashSet};
++
++pub(crate) fn unreachable_functions(
++    program: &Program<'_>,
++    scoping: &Scoping,
++) -> (FxHashSet<SymbolId>, FxHashSet<SymbolId>) {
++    let mut collector = Collector {
++        scoping,
++        script: program.source_type.is_script(),
++        owner: None,
++        exported: false,
++        observable: FxHashSet::default(),
++        candidates: FxHashSet::default(),
++        roots: FxHashSet::default(),
++        edges: FxHashMap::default(),
++    };
++    if collector.script {
++        collector.observable.extend(scoping.symbol_ids().filter(|&symbol| {
++            scoping.symbol_scope_id(symbol) == scoping.root_scope_id()
++        }));
++    }
++    collector.visit_program(program);
++    collector.roots.extend(collector.observable.iter().copied());
++    let mut pending: Vec<_> = collector.roots.iter().copied().collect();
++    while let Some(symbol) = pending.pop() {
++        if let Some(edges) = collector.edges.remove(&symbol) {
++            for target in edges {
++                if collector.roots.insert(target) {
++                    pending.push(target);
++                }
++            }
++        }
++    }
++    collector.candidates.retain(|symbol| !collector.roots.contains(symbol));
++    (collector.candidates, collector.observable)
++}
++
++struct Collector<'s> {
++    scoping: &'s Scoping,
++    script: bool,
++    owner: Option<SymbolId>,
++    exported: bool,
++    observable: FxHashSet<SymbolId>,
++    candidates: FxHashSet<SymbolId>,
++    roots: FxHashSet<SymbolId>,
++    edges: FxHashMap<SymbolId, Vec<SymbolId>>,
++}
++
++impl Collector<'_> {
++    fn candidate(&mut self, symbol: SymbolId) {
++        self.candidates.insert(symbol);
++        if self.exported {
++            self.observable.insert(symbol);
++        }
++        let scope = self.scoping.symbol_scope_id(symbol);
++        if self.exported
++            || (self.script && scope == self.scoping.root_scope_id())
++            || self.scoping.scope_ancestors(scope).any(|scope| {
++                self.scoping.scope_flags(scope).contains_direct_eval()
++            })
++        {
++            self.roots.insert(symbol);
++        }
++    }
++}
++
++impl<'a> Visit<'a> for Collector<'_> {
++    fn visit_function(&mut self, function: &Function<'a>, flags: ScopeFlags) {
++        let previous = self.owner;
++        if function.is_function_declaration() {
++            if let Some(id) = &function.id {
++                let symbol = id.symbol_id();
++                self.candidate(symbol);
++                // Sloppy script block functions can also create an Annex B
++                // global binding, even though their lexical scope is a block.
++                let scope = self.scoping.symbol_scope_id(symbol);
++                if self.script
++                    && !self.scoping.scope_flags(scope).is_strict_mode()
++                    && !self.scoping.scope_ancestors(scope).any(|scope| {
++                        self.scoping.scope_flags(scope).is_function()
++                    })
++                {
++                    self.observable.insert(symbol);
++                }
++                self.owner = Some(symbol);
++            }
++        }
++        let exported = std::mem::replace(&mut self.exported, false);
++        walk::walk_function(self, function, flags);
++        self.exported = exported;
++        self.owner = previous;
++    }
++
++    fn visit_variable_declarator(&mut self, declaration: &VariableDeclarator<'a>) {
++        let previous = self.owner;
++        if self.exported {
++            declaration.id.all_binding_identifiers(&mut |id| {
++                self.observable.insert(id.symbol_id());
++                true
++            });
++        }
++        if !declaration.kind.is_using()
++            && let BindingPattern::BindingIdentifier(id) = &declaration.id
++            && declaration.init.as_ref().is_some_and(|init| {
++                matches!(
++                    init.get_inner_expression(),
++                    Expression::FunctionExpression(_) | Expression::ArrowFunctionExpression(_)
++                )
++            })
++        {
++            let symbol = id.symbol_id();
++            self.candidate(symbol);
++            self.owner = Some(symbol);
++        }
++        let exported = std::mem::replace(&mut self.exported, false);
++        walk::walk_variable_declarator(self, declaration);
++        self.exported = exported;
++        self.owner = previous;
++    }
++
++    fn visit_identifier_reference(&mut self, identifier: &IdentifierReference<'a>) {
++        if let Some(symbol) = self.scoping.get_reference(identifier.reference_id()).symbol_id() {
++            if let Some(owner) = self.owner {
++                self.edges.entry(owner).or_default().push(symbol);
++            } else {
++                self.roots.insert(symbol);
++            }
++        }
++    }
++
++    fn visit_export_named_declaration(&mut self, declaration: &ExportNamedDeclaration<'a>) {
++        let exported = std::mem::replace(&mut self.exported, true);
++        walk::walk_export_named_declaration(self, declaration);
++        self.exported = exported;
++    }
++
++    fn visit_export_default_declaration(&mut self, declaration: &ExportDefaultDeclaration<'a>) {
++        let exported = std::mem::replace(&mut self.exported, true);
++        walk::walk_export_default_declaration(self, declaration);
++        self.exported = exported;
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use oxc_allocator::Allocator;
++    use oxc_codegen::Codegen;
++    use oxc_parser::Parser;
++    use oxc_span::SourceType;
++
++    use crate::{CompressOptions, Compressor};
++
++    fn compress(source: &str, source_type: SourceType, dce: bool) -> String {
++        let allocator = Allocator::default();
++        let parsed = Parser::new(&allocator, source, source_type).parse();
++        assert!(parsed.diagnostics.is_empty());
++        let mut program = parsed.program;
++        let compressor = Compressor::new(&allocator);
++        if dce {
++            compressor.dead_code_elimination(&mut program, CompressOptions::smallest());
++        } else {
++            compressor.build(&mut program, CompressOptions::smallest());
++        }
++        Codegen::new().build(&program).code
++    }
++
++    #[test]
++    fn recursive_components() {
++        for dce in [false, true] {
++            for source in [
++                "function a() {} function b() { if (Math.random()) b() } function c() { d() } function d() { c() }",
++                "var a = function() { a() }; let b = () => b(); const c = function named() { named(); c() };",
++                "function a() { b() } const b = () => a();",
++                "function outer() { function inner() { inner() } inner() }",
++                "function a() { a() } function a() { a() }",
++            ] {
++                for source_type in [SourceType::mjs(), SourceType::cjs()] {
++                    assert_eq!(compress(source, source_type, dce), "", "{source}");
++                }
++            }
++            for source_type in [SourceType::mjs(), SourceType::cjs(), SourceType::script()] {
++                let output = compress(
++                    "(() => { function a() { a() } const b = () => b(); console.log('effect') })()",
++                    source_type,
++                    dce,
++                );
++                assert!(!output.contains("function a"), "{output}");
++                assert!(!output.contains("const b"), "{output}");
++                assert!(output.contains("effect"), "{output}");
++            }
++        }
++    }
++
++    #[test]
++    fn observable_roots() {
++        for dce in [false, true] {
++            for source in [
++                "export function a() { b() } function b() { a() }",
++                "function a() { b() } function b() { a() } a();",
++                "function a() { b() } function b() { a() } export { a };",
++                "function a() { a() } eval('a()');",
++                "const a = () => a(); module.exports = a;",
++            ] {
++                assert!(!compress(source, SourceType::mjs(), dce).is_empty(), "{source}");
++            }
++            let output = compress(
++                "var a = () => 1; function set() { a = () => 2 } set();",
++                SourceType::script(),
++                dce,
++            );
++            assert!(output.contains("2"), "{output}");
++            let output = compress(
++                "export let a = () => 1; a = () => 2;",
++                SourceType::mjs(),
++                dce,
++            );
++            assert!(output.contains("2"), "{output}");
++            let output = compress("function a() { a() }", SourceType::script(), dce);
++            assert!(output.contains("function a"), "{output}");
++        }
++    }
++}
+diff -ruN a/crates/oxc_minifier/src/lib.rs b/crates/oxc_minifier/src/lib.rs
+--- a/crates/oxc_minifier/src/lib.rs	2026-07-18 02:22:44.000000000 +0000
++++ b/crates/oxc_minifier/src/lib.rs	2026-11-13 14:54:56.748248429 +0000
+@@ -45,6 +45,7 @@
+ //! See the [crate documentation](https://github.com/oxc-project/oxc/tree/main/crates/oxc_minifier) for more details.
+ 
+ mod compressor;
++mod function_reachability;
+ pub(crate) mod generated;
+ mod keep_var;
+ mod minifier_traverse;
+diff -ruN a/crates/oxc_minifier/src/peephole/remove_unused_declaration.rs b/crates/oxc_minifier/src/peephole/remove_unused_declaration.rs
+--- a/crates/oxc_minifier/src/peephole/remove_unused_declaration.rs	2026-07-18 02:22:44.000000000 +0000
++++ b/crates/oxc_minifier/src/peephole/remove_unused_declaration.rs	2026-11-13 14:54:56.748726307 +0000
+@@ -44,7 +44,9 @@
+         match &decl.id {
+             BindingPattern::BindingIdentifier(ident) => {
+                 if let Some(symbol_id) = ident.symbol_id.get() {
+-                    return ctx.scoping().symbol_is_unused(symbol_id);
++                    return !ctx.state.observable_bindings.contains(&symbol_id)
++                        && (ctx.scoping().symbol_is_unused(symbol_id)
++                            || ctx.state.unreachable_functions.contains(&symbol_id));
+                 }
+                 false
+             }
+@@ -112,7 +114,10 @@
+         {
+             return;
+         }
+-        if !ctx.scoping().symbol_is_unused(symbol_id) {
++        if ctx.state.observable_bindings.contains(&symbol_id)
++            || (!ctx.scoping().symbol_is_unused(symbol_id)
++                && !ctx.state.unreachable_functions.contains(&symbol_id))
++        {
+             return;
+         }
+         let new_stmt = Statement::new_empty_statement(f.span, ctx);
+diff -ruN a/crates/oxc_minifier/src/peephole/remove_unused_expression.rs b/crates/oxc_minifier/src/peephole/remove_unused_expression.rs
+--- a/crates/oxc_minifier/src/peephole/remove_unused_expression.rs	2026-07-18 02:22:44.000000000 +0000
++++ b/crates/oxc_minifier/src/peephole/remove_unused_expression.rs	2026-11-13 14:54:56.748726307 +0000
+@@ -770,6 +770,9 @@
+         let Some(symbol_id) = ctx.scoping().get_reference(reference_id).symbol_id() else {
+             return false;
+         };
++        if ctx.state.observable_bindings.contains(&symbol_id) {
++            return false;
++        }
+         // Keep error for assigning to `const foo = 1; foo = 2`.
+         if ctx.scoping().symbol_flags(symbol_id).is_const_variable() {
+             return false;
+diff -ruN a/crates/oxc_minifier/src/state.rs b/crates/oxc_minifier/src/state.rs
+--- a/crates/oxc_minifier/src/state.rs	2026-07-18 02:22:44.000000000 +0000
++++ b/crates/oxc_minifier/src/state.rs	2026-11-13 14:54:56.748248429 +0000
+@@ -48,6 +48,12 @@
+ pub struct MinifierState<'a> {
+     pub source_type: SourceType,
+ 
++    /// Bindings observable without a local read (runtime exports and script globals).
++    pub observable_bindings: FxHashSet<SymbolId>,
++
++    /// Function bindings unreachable in the AST at the start of this pass.
++    pub unreachable_functions: FxHashSet<SymbolId>,
++
+     pub options: CompressOptions,
+ 
+     /// Two modes: tree-shaking only (`true`), or full minify (`false`).
+@@ -118,6 +124,8 @@
+     ) -> Self {
+         Self {
+             source_type,
++            observable_bindings: FxHashSet::default(),
++            unreachable_functions: FxHashSet::default(),
+             options,
+             dce,
+             pure_functions: FxHashMap::default(),
+diff -ruN a/crates/oxc_minifier/src/symbol_value.rs b/crates/oxc_minifier/src/symbol_value.rs
+--- a/crates/oxc_minifier/src/symbol_value.rs	2026-07-18 02:22:44.000000000 +0000
++++ b/crates/oxc_minifier/src/symbol_value.rs	2026-11-13 14:54:56.748248429 +0000
+@@ -42,7 +42,7 @@
+     /// resolve the value through `initialized_constant`.
+     pub implicit_undefined: bool,
+ 
+-    /// Symbol is exported.
++    /// Symbol is exported or belongs to the global scope of a script.
+     pub exported: bool,
+ 
+     pub read_references_count: u32,
+diff -ruN a/crates/oxc_minifier/src/traverse_context/ecma_context.rs b/crates/oxc_minifier/src/traverse_context/ecma_context.rs
+--- a/crates/oxc_minifier/src/traverse_context/ecma_context.rs	2026-07-18 02:22:44.000000000 +0000
++++ b/crates/oxc_minifier/src/traverse_context/ecma_context.rs	2026-11-13 14:54:56.749289636 +0000
+@@ -290,7 +290,7 @@
+         falsy_init: bool,
+         init_absent: bool,
+     ) {
+-        let mut exported = false;
++        let mut exported = self.state.observable_bindings.contains(&symbol_id);
+         if self.scoping.current_scope_id() == self.scoping().root_scope_id() {
+             for ancestor in self.ancestors() {
+                 if ancestor.is_export_named_declaration()

@@ -1,0 +1,2347 @@
+diff -ruN a/crates/biome_js_analyze/src/lib.rs b/crates/biome_js_analyze/src/lib.rs
+--- a/crates/biome_js_analyze/src/lib.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_analyze/src/lib.rs	2026-11-13 23:04:50.029832708 +0000
+@@ -283,3 +283,6 @@
+ #[cfg(test)]
+ #[path = "suppressions.tests.rs"]
+ mod tests;
++
++#[cfg(test)]
++mod projection_tests;
+diff -ruN a/crates/biome_js_analyze/src/lint/nursery/use_exhaustive_switch_cases.rs b/crates/biome_js_analyze/src/lint/nursery/use_exhaustive_switch_cases.rs
+--- a/crates/biome_js_analyze/src/lint/nursery/use_exhaustive_switch_cases.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_analyze/src/lint/nursery/use_exhaustive_switch_cases.rs	2026-11-13 23:04:50.277053276 +0000
+@@ -137,6 +137,12 @@
+                 && *variant != InferredSwitchCase::UnsupportedLiteral
+             {
+                 found_cases.push(variant.clone());
++            } else if variants.is_empty()
++                || variants
++                    .iter()
++                    .any(|variant| matches!(variant, InferredSwitchCase::Number(_)))
++            {
++                return None;
+             }
+         }
+ 
+@@ -162,6 +168,12 @@
+             .ok()?;
+ 
+         for variant in variants {
++            if matches!(
++                variant,
++                InferredSwitchCase::UnsupportedLiteral | InferredSwitchCase::Symbol
++            ) {
++                return None;
++            }
+             if variant == InferredSwitchCase::Boolean {
+                 if !has_boolean_case(true) {
+                     missing_cases.push(MissingCase(InferredSwitchCase::BooleanLiteral(true)));
+@@ -196,10 +208,7 @@
+                 markup! { "The switch statement is not exhaustive." },
+             )
+             .note("Some variants of the union type are not handled here.")
+-            .footer_list(
+-                "These cases are missing:",
+-                state,
+-            ),
++            .footer_list("These cases are missing:", state),
+         )
+     }
+ 
+@@ -314,26 +323,40 @@
+ 
+ fn missing_case_to_expression(case: &MissingCase) -> Option<AnyJsExpression> {
+     match case {
+-        MissingCase(InferredSwitchCase::BooleanLiteral(value)) => Some(
+-            AnyJsExpression::AnyJsLiteralExpression(
+-            make::js_boolean_literal_expression(make::token(match value {
+-                true => T![true],
+-                false => T![false],
+-            }))
+-            .into(),
+-            ),
+-        ),
+-        MissingCase(InferredSwitchCase::Number(number)) => Some(
+-            AnyJsExpression::AnyJsLiteralExpression(
+-                make::js_number_literal_expression(make::js_number_literal(number.text())).into(),
+-            ),
+-        ),
++        MissingCase(InferredSwitchCase::BooleanLiteral(value)) => {
++            Some(AnyJsExpression::AnyJsLiteralExpression(
++                make::js_boolean_literal_expression(make::token(match value {
++                    true => T![true],
++                    false => T![false],
++                }))
++                .into(),
++            ))
++        }
++        MissingCase(InferredSwitchCase::Number(number)) => {
++            let text = number.text();
++            if let Some(unsigned) = text.strip_prefix('-') {
++                Some(
++                    make::js_unary_expression(
++                        make::token(T![-]),
++                        AnyJsExpression::AnyJsLiteralExpression(
++                            make::js_number_literal_expression(make::js_number_literal(unsigned))
++                                .into(),
++                        ),
++                    )
++                    .into(),
++                )
++            } else {
++                Some(AnyJsExpression::AnyJsLiteralExpression(
++                    make::js_number_literal_expression(make::js_number_literal(text)).into(),
++                ))
++            }
++        }
+         MissingCase(InferredSwitchCase::BigInt(_)) => None,
+-        MissingCase(InferredSwitchCase::String(string)) => Some(
+-            AnyJsExpression::AnyJsLiteralExpression(
++        MissingCase(InferredSwitchCase::String(string)) => {
++            Some(AnyJsExpression::AnyJsLiteralExpression(
+                 make::js_string_literal_expression(make::js_string_literal(string.text())).into(),
+-            ),
+-        ),
++            ))
++        }
+         MissingCase(InferredSwitchCase::Null) => Some(AnyJsExpression::AnyJsLiteralExpression(
+             make::js_null_literal_expression(make::token(T![null])).into(),
+         )),
+diff -ruN a/crates/biome_js_analyze/src/projection_tests.rs b/crates/biome_js_analyze/src/projection_tests.rs
+--- a/crates/biome_js_analyze/src/projection_tests.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/biome_js_analyze/src/projection_tests.rs	2026-11-13 23:04:50.029832708 +0000
+@@ -0,0 +1,213 @@
++use crate::{AnalysisFilter, JsAnalyzerServices};
++use biome_analyze::{ActionFilter, AnalyzerOptions, Never, RuleFilter};
++use biome_diagnostics::Diagnostic;
++use biome_fs::{BiomePath, MemoryFileSystem};
++use biome_js_parser::{JsParserOptions, parse};
++use biome_js_semantic::{SemanticModelOptions, semantic_model};
++use biome_languages::JsFileSource;
++use biome_module_graph::{ModuleInfo, ModuleInfoKind, PathInfoCache, resolve_js_module};
++use biome_project_layout::ProjectLayout;
++use biome_service::db::WorkspaceDb;
++use std::{ops::ControlFlow, sync::Arc};
++
++fn lint(source: &str, group: &'static str, rule: &'static str) -> (Vec<String>, Vec<String>) {
++    let path = BiomePath::new("/src/index.ts");
++    let source_type = JsFileSource::ts();
++    let parsed = parse(source, source_type, JsParserOptions::default());
++    assert!(!parsed.has_errors(), "{:?}", parsed.diagnostics());
++    let root = parsed.tree();
++    let semantic = semantic_model(&root, SemanticModelOptions::default());
++    let fs = MemoryFileSystem::default();
++    fs.insert(path.as_path().to_owned(), source);
++    let layout = ProjectLayout::default();
++    let (info, _, _) = resolve_js_module(
++        root.clone(),
++        &path,
++        &fs,
++        &layout,
++        Arc::new(semantic.clone()),
++        &PathInfoCache::default(),
++        true,
++    );
++    let mut db = WorkspaceDb::default();
++    let module = ModuleInfo::new(&db, path.as_path().to_owned(), ModuleInfoKind::Js(info));
++    db.insert_module(path.as_path().to_owned(), module);
++    let services = JsAnalyzerServices::default()
++        .with_source_type(source_type)
++        .with_semantic_model(&semantic)
++        .with_project_layout(layout.into())
++        .with_module_db(db.rc_module_db());
++    let options = AnalyzerOptions::default().with_file_path(path.as_path());
++    let filters = [RuleFilter::Rule(group, rule)];
++    let mut diagnostics = Vec::new();
++    let mut fixes = Vec::new();
++    crate::analyze(
++        &root,
++        AnalysisFilter {
++            enabled_rules: Some(&filters),
++            ..AnalysisFilter::default()
++        },
++        &options,
++        &[],
++        services,
++        |signal| {
++            if let Some(diagnostic) = signal.diagnostic() {
++                let span = diagnostic.location().span.unwrap();
++                diagnostics
++                    .push(source[usize::from(span.start())..usize::from(span.end())].to_owned());
++            }
++            for action in signal.actions(ActionFilter::all()) {
++                if !action.is_suppression() {
++                    fixes.push(action.mutation.commit().to_string());
++                }
++            }
++            ControlFlow::<Never>::Continue(())
++        },
++    );
++    (diagnostics, fixes)
++}
++
++#[test]
++fn projected_unions_are_exhaustive_switch_inputs() {
++    let (diagnostics, fixes) = lint(
++        r#"
++        const values = ["A", "B", "C"] as const;
++        const object = { A: 1, B: 2, C: 3 } as const;
++        function first(value: (typeof values)[number]) { switch(value) { case "A": break; case "B": break; } }
++        function second(value: keyof typeof object) { switch(value) { case "A": break; case "B": break; } }
++    "#,
++        "nursery",
++        "useExhaustiveSwitchCases",
++    );
++    assert_eq!(diagnostics.len(), 2);
++    assert_eq!(fixes.len(), 2);
++    for fix in fixes {
++        assert!(fix.contains("case \"C\":"), "{fix}");
++    }
++}
++
++#[test]
++fn projected_types_reach_every_type_aware_rule() {
++    let cases = [
++        (
++            "suspicious",
++            "noUnnecessaryConditions",
++            r#"declare const value: [1, 2][number]; value ?? 0; if (value) {}"#,
++            2,
++        ),
++        (
++            "suspicious",
++            "noUnnecessaryConditions",
++            r#"declare const value: keyof { A: 1; B: 2 }; switch (value) { case "A": break; case "B": break; case "C": break; }"#,
++            1,
++        ),
++        (
++            "nursery",
++            "noFloatingPromises",
++            "declare const value: [Promise<number>][number]; value;",
++            1,
++        ),
++        (
++            "nursery",
++            "useAwaitThenable",
++            "declare const value: [number][number]; await value;",
++            1,
++        ),
++        (
++            "nursery",
++            "noUnsafePlusOperands",
++            "declare const value: number[][number]; value + 1n;",
++            1,
++        ),
++        (
++            "nursery",
++            "noUselessTypeConversion",
++            "declare const s: [string][number]; declare const n: [number][number]; declare const b: [boolean][number]; String(s); Number(n); Boolean(b);",
++            3,
++        ),
++        (
++            "suspicious",
++            "useArraySortCompare",
++            "declare const value: [number[]][number]; value.sort(); value.toSorted();",
++            2,
++        ),
++    ];
++    for (group, rule, source, expected) in cases {
++        let (diagnostics, _) = lint(source, group, rule);
++        assert_eq!(diagnostics.len(), expected, "{rule}: {diagnostics:?}");
++    }
++}
++
++#[test]
++fn numeric_switches_compare_runtime_values_and_fix_decimal_cases() {
++    let (diagnostics, fixes) = lint(
++        "declare const value: 0x10 | 16 | 0b10001 | -0 | 1e2 | -3; switch (value) { case 0o20: break; case 0: break; }",
++        "nursery",
++        "useExhaustiveSwitchCases",
++    );
++    assert_eq!(diagnostics.len(), 1);
++    let fix = &fixes[0];
++    assert!(fix.contains("case 17:"), "{fix}");
++    assert!(fix.contains("case 100:"), "{fix}");
++    assert!(fix.contains("case -3:"), "{fix}");
++    assert!(!fix.contains("case 16:"), "{fix}");
++    assert!(fix.find("case 17:").unwrap() < fix.find("case 100:").unwrap());
++    let parsed = parse(fix, JsFileSource::ts(), JsParserOptions::default());
++    assert!(!parsed.has_errors());
++    assert!(
++        lint(fix, "nursery", "useExhaustiveSwitchCases")
++            .0
++            .is_empty()
++    );
++    for source in [
++        "declare const value: 1 | 2; switch(value) { case NaN: break; }",
++        "declare const value: 1 | 2; switch(value) { case 1e999: break; }",
++        "declare const value: 1 | 1e999; switch(value) {}",
++        "declare const value: 1 | number; switch(value) {}",
++        "declare const value: [unknown, 1][number]; switch(value) {}",
++        "declare const value: [any, 1][number]; switch(value) {}",
++    ] {
++        assert!(
++            lint(source, "nursery", "useExhaustiveSwitchCases")
++                .0
++                .is_empty(),
++            "{source}"
++        );
++    }
++}
++
++#[test]
++fn double_bitwise_not_requires_signed_32_bit_literals_or_bigints() {
++    for ty in [
++        "-2147483648",
++        "2147483647",
++        "0",
++        "1 | 2",
++        "bigint",
++        "1n | 2n",
++    ] {
++        let source = format!("declare const value: {ty}; ~~value;");
++        assert_eq!(
++            lint(&source, "nursery", "noUselessTypeConversion").0.len(),
++            1,
++            "{ty}"
++        );
++    }
++    for ty in [
++        "-0",
++        "2147483648",
++        "-2147483649",
++        "1.5",
++        "number",
++        "1 | -0",
++        "1 | 2147483648",
++    ] {
++        let source = format!("declare const value: {ty}; ~~value;");
++        assert!(
++            lint(&source, "nursery", "noUselessTypeConversion")
++                .0
++                .is_empty(),
++            "{ty}"
++        );
++    }
++}
+diff -ruN a/crates/biome_js_syntax/src/numbers.rs b/crates/biome_js_syntax/src/numbers.rs
+--- a/crates/biome_js_syntax/src/numbers.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_syntax/src/numbers.rs	2026-11-13 23:04:51.177028791 +0000
+@@ -37,13 +37,46 @@
+     if radix == 10 {
+         f64::from_str(&raw).ok()
+     } else {
+-        let mut value = 0.0f64;
+-        let base = radix as f64;
++        if raw.is_empty() {
++            return None;
++        }
++        let bits_per_digit = match radix {
++            2 => 1,
++            8 => 3,
++            16 => 4,
++            _ => return None,
++        };
++        let mut significant_bits = 0usize;
++        let mut significand = 0u64;
++        let mut guard = false;
++        let mut sticky = false;
+         for c in raw.chars() {
+-            let digit = c.to_digit(radix as u32)? as f64;
+-            value = value * base + digit;
++            let digit = c.to_digit(u32::from(radix))?;
++            for bit in (0..bits_per_digit).rev() {
++                let set = digit & (1 << bit) != 0;
++                if significant_bits == 0 && !set {
++                    continue;
++                }
++                significant_bits = significant_bits.saturating_add(1);
++                if significant_bits <= 53 {
++                    significand = (significand << 1) | u64::from(set);
++                } else if significant_bits == 54 {
++                    guard = set;
++                } else {
++                    sticky |= set;
++                }
++            }
++        }
++        if significant_bits <= 53 {
++            return Some(significand as f64);
++        }
++        if significant_bits > 1024 {
++            return Some(f64::INFINITY);
+         }
+-        Some(value)
++        if guard && (sticky || significand & 1 != 0) {
++            significand += 1;
++        }
++        Some((significand as f64) * 2.0f64.powi((significant_bits - 53) as i32))
+     }
+ }
+ 
+@@ -282,6 +315,18 @@
+     }
+ 
+     #[test]
++    fn radix_literals_round_once_at_the_binary64_boundary() {
++        for (literal, expected) in [
++            ("0x10000000000000000", f64::from_bits(0x43f0_0000_0000_0000)),
++            ("0x20000000000001", 9_007_199_254_740_992.0),
++            ("0x20000000000003", 9_007_199_254_740_996.0),
++            ("0x10000000000000801", f64::from_bits(0x43f0_0000_0000_0001)),
++        ] {
++            assert_float(literal, expected);
++        }
++    }
++
++    #[test]
+     fn base_16_float() {
+         assert_float("0xFF", 255.0);
+         assert_float("0XFF", 255.0);
+diff -ruN a/crates/biome_js_type_info/src/builders.rs b/crates/biome_js_type_info/src/builders.rs
+--- a/crates/biome_js_type_info/src/builders.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/builders.rs	2026-11-13 23:04:51.226033857 +0000
+@@ -200,7 +200,10 @@
+     members: Vec<TypeMember<'db>>,
+     key_names: &[Text],
+ ) -> TypeData<'db> {
+-    object_from_members(db, filter_members_by_key_names(members, key_names, true))
++    object_from_members(
++        db,
++        filter_members_by_key_names(db, members, key_names, true),
++    )
+ }
+ 
+ pub(crate) fn omit_members<'db>(
+@@ -208,7 +211,10 @@
+     members: Vec<TypeMember<'db>>,
+     key_names: &[Text],
+ ) -> TypeData<'db> {
+-    object_from_members(db, filter_members_by_key_names(members, key_names, false))
++    object_from_members(
++        db,
++        filter_members_by_key_names(db, members, key_names, false),
++    )
+ }
+ 
+ pub(crate) fn with_all_optional_members<'db>(
+@@ -253,6 +259,7 @@
+ }
+ 
+ fn filter_members_by_key_names<'db>(
++    db: &'db dyn TypeDb,
+     members: Vec<TypeMember<'db>>,
+     key_names: &[Text],
+     is_pick: bool,
+@@ -260,10 +267,13 @@
+     members
+         .into_iter()
+         .filter(|member| {
+-            member.kind.name().map_or(!is_pick, |name| {
+-                let matches_key = key_names.iter().any(|key| key.text() == name.text());
+-                if is_pick { matches_key } else { !matches_key }
+-            })
++            member
++                .kind
++                .own_string_key_name(db)
++                .map_or(!is_pick, |name| {
++                    let matches_key = key_names.iter().any(|key| key.text() == name.text());
++                    if is_pick { matches_key } else { !matches_key }
++                })
+         })
+         .collect()
+ }
+@@ -502,12 +512,15 @@
+                 Path::from(Text::new_static("")),
+             )),
+             Self::Never => TypeData::NeverKeyword,
+-            Self::Object(members, has_unknown_members) => TypeData::Object(InternedObject::new(
+-                db,
+-                None,
+-                members.into_boxed_slice(),
+-                has_unknown_members,
+-            )),
++            Self::Object(members, has_unknown_members) => {
++                TypeData::Object(InternedObject::new_with_key_uncertainty(
++                    db,
++                    None,
++                    members.into_boxed_slice(),
++                    has_unknown_members,
++                    true,
++                ))
++            }
+             Self::Primitive(primitive) => primitive,
+             Self::Unknown => TypeData::Unknown,
+         }
+diff -ruN a/crates/biome_js_type_info/src/format_inferred_type_info.rs b/crates/biome_js_type_info/src/format_inferred_type_info.rs
+--- a/crates/biome_js_type_info/src/format_inferred_type_info.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/format_inferred_type_info.rs	2026-11-13 23:04:51.226033857 +0000
+@@ -143,6 +143,15 @@
+                     separator: "|",
+                 }]
+             ),
++            Self::IndexedAccess(access) => write!(
++                f,
++                [&format_args![
++                    access.object(db),
++                    token("["),
++                    access.index(db),
++                    token("]")
++                ]]
++            ),
+             Self::TypeOperator(operator) => write!(
+                 f,
+                 [&format_args![
+diff -ruN a/crates/biome_js_type_info/src/format_type_info.rs b/crates/biome_js_type_info/src/format_type_info.rs
+--- a/crates/biome_js_type_info/src/format_type_info.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/format_type_info.rs	2026-11-13 23:04:51.226033857 +0000
+@@ -106,6 +106,10 @@
+             Self::Generic(generic) => write!(f, [&generic.as_ref()]),
+             Self::Intersection(ty) => write!(f, [FmtVerbatim(&ty.as_ref())]),
+             Self::Union(union) => write!(f, [&union.as_ref()]),
++            Self::IndexedAccess(access) => write!(
++                f,
++                [&format_args![access.0, token("["), access.1, token("]")]]
++            ),
+             Self::TypeOperator(ty) => write!(f, [FmtVerbatim(&ty.as_ref())]),
+             Self::Literal(ty) => write!(f, [&ty.as_ref()]),
+             Self::InstanceOf(ty) => write!(
+diff -ruN a/crates/biome_js_type_info/src/generated/global_types.rs b/crates/biome_js_type_info/src/generated/global_types.rs
+--- a/crates/biome_js_type_info/src/generated/global_types.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/generated/global_types.rs	2026-11-13 23:04:51.255751719 +0000
+@@ -1838,13 +1838,16 @@
+                 constraint: crate::TypeReference::unknown(),
+                 default: crate::RawTypeId::Local(crate::TypeId::new(3)).into(),
+             }),
+-            crate::TypeData::from(crate::Tuple(Box::new([]))),
+-            crate::TypeData::from(crate::Tuple(Box::new([crate::TupleElementType {
+-                ty: crate::RawTypeId::Local(crate::TypeId::new(4)).into(),
+-                name: None,
+-                is_optional: false,
+-                is_rest: false,
+-            }]))),
++            crate::TypeData::from(crate::Tuple(Box::new([]), true)),
++            crate::TypeData::from(crate::Tuple(
++                Box::new([crate::TupleElementType {
++                    ty: crate::RawTypeId::Local(crate::TypeId::new(4)).into(),
++                    name: None,
++                    is_optional: false,
++                    is_rest: false,
++                }]),
++                true,
++            )),
+             crate::TypeData::Union(Box::new(crate::Union(Box::new([
+                 crate::RawTypeId::Local(crate::TypeId::new(5)).into(),
+                 crate::RawTypeId::Local(crate::TypeId::new(6)).into(),
+diff -ruN a/crates/biome_js_type_info/src/inferred_type.rs b/crates/biome_js_type_info/src/inferred_type.rs
+--- a/crates/biome_js_type_info/src/inferred_type.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/inferred_type.rs	2026-11-13 23:04:51.227027429 +0000
+@@ -14,7 +14,7 @@
+ use rustc_hash::FxHashSet;
+ use std::{borrow::Cow, collections::VecDeque, fmt, ops::ControlFlow};
+ 
+-const MAX_TYPE_VARIANT_STEPS: usize = 1024;
++const MAX_TYPE_VARIANT_STEPS: usize = 1025;
+ const MAX_TYPE_RELATION_DEPTH: usize = 50;
+ const MAX_CALLABLE_TYPE_STEPS: usize = 64;
+ const MAX_PROMISE_TYPE_STEPS: usize = 64;
+@@ -163,9 +163,12 @@
+             TypeData::BigInt => true,
+             TypeData::Literal(literal) => match literal.literal(self.db) {
+                 Literal::BigInt(_) => true,
+-                Literal::Number(number) => {
+-                    number.to_f64().is_some_and(|number| number.fract() == 0.0)
+-                }
++                Literal::Number(number) => number.to_f64().is_some_and(|number| {
++                    number.fract() == 0.0
++                        && number >= f64::from(i32::MIN)
++                        && number <= f64::from(i32::MAX)
++                        && !(number == 0.0 && number.is_sign_negative())
++                }),
+                 _ => false,
+             },
+             _ => false,
+@@ -286,6 +289,7 @@
+                 TypeData::TypeofType(typeof_type) => typeof_type.ty(self.db),
+                 TypeData::TypeofValue(typeof_value) => typeof_value.ty(self.db),
+                 TypeData::Unknown
++                | TypeData::IndexedAccess(_)
+                 | TypeData::Local(_)
+                 | TypeData::TypeofExpression(_)
+                 | TypeData::AnyKeyword
+@@ -545,6 +549,7 @@
+                 | TypeData::ThisKeyword
+                 | TypeData::VoidKeyword => {}
+                 TypeData::Unknown
++                | TypeData::IndexedAccess(_)
+                 | TypeData::Local(_)
+                 | TypeData::TypeofExpression(_)
+                 | TypeData::AnyKeyword
+@@ -802,6 +807,7 @@
+                     pending.extend(union.types(self.db).iter().copied());
+                 }
+                 TypeData::Unknown
++                | TypeData::IndexedAccess(_)
+                 | TypeData::Local(_)
+                 | TypeData::TypeofExpression(_)
+                 | TypeData::AnyKeyword
+@@ -1096,7 +1102,13 @@
+                     Literal::Boolean(boolean) => {
+                         InferredSwitchCase::BooleanLiteral(boolean.as_bool())
+                     }
+-                    Literal::Number(number) => InferredSwitchCase::Number(number.text().clone()),
++                    Literal::Number(number) => {
++                        let value = number
++                            .to_f64()
++                            .filter(|value| value.is_finite())
++                            .ok_or(TypeTraversalError::UnresolvedType)?;
++                        InferredSwitchCase::Number(js_decimal(value).into())
++                    }
+                     Literal::String(string) => {
+                         InferredSwitchCase::String(Text::new_owned(string.as_str().into()))
+                     }
+@@ -1623,6 +1635,37 @@
+     }
+ }
+ 
++fn js_decimal(value: f64) -> String {
++    if value == 0.0 {
++        return String::from("0");
++    }
++    let decimal = value.to_string();
++    if (1e-6..1e21).contains(&value.abs()) {
++        return decimal;
++    }
++    let (sign, unsigned) = if let Some(unsigned) = decimal.strip_prefix('-') {
++        ("-", unsigned)
++    } else {
++        ("", decimal.as_str())
++    };
++    let point = unsigned.find('.').unwrap_or(unsigned.len());
++    let digits = unsigned.replace('.', "");
++    let first = digits.find(|c| c != '0').unwrap_or(0);
++    let digits = digits[first..].trim_end_matches('0');
++    let exponent = point as i32 - first as i32 - 1;
++    let mut result = format!("{sign}{}", &digits[..1]);
++    if digits.len() > 1 {
++        result.push('.');
++        result.push_str(&digits[1..]);
++    }
++    result.push('e');
++    if exponent >= 0 {
++        result.push('+');
++    }
++    result.push_str(&exponent.to_string());
++    result
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+@@ -1688,6 +1731,44 @@
+     }
+ 
+     #[test]
++    fn numeric_switch_variants_use_javascript_values() {
++        let db = TestDb::default();
++        for (literal, expected) in [
++            ("0x10", "16"),
++            ("0b10000", "16"),
++            ("0o20", "16"),
++            ("-0", "0"),
++            ("1_000", "1000"),
++            ("1e-7", "1e-7"),
++            ("1e21", "1e+21"),
++            ("1e-6", "0.000001"),
++            ("0x10000000000000000", "18446744073709552000"),
++            ("0x20000000000001", "9007199254740992"),
++        ] {
++            let ty = TypeData::Literal(InternedLiteral::new(
++                &db,
++                Literal::Number(crate::literal::NumberLiteral::new(literal.into())),
++            ));
++            assert_eq!(
++                InferredType::new(&db, ty).try_switch_case_variants(),
++                Ok(vec![InferredSwitchCase::Number(expected.into())]),
++                "{literal}"
++            );
++        }
++        for literal in ["NaN", "1e999"] {
++            let ty = TypeData::Literal(InternedLiteral::new(
++                &db,
++                Literal::Number(crate::literal::NumberLiteral::new(literal.into())),
++            ));
++            assert!(
++                InferredType::new(&db, ty)
++                    .try_switch_case_variants()
++                    .is_err()
++            );
++        }
++    }
++
++    #[test]
+     fn canonical_array_is_truthy_and_non_nullish() {
+         let db = TestDb::default();
+         let array = InferredType::new(
+diff -ruN a/crates/biome_js_type_info/src/interned_types.rs b/crates/biome_js_type_info/src/interned_types.rs
+--- a/crates/biome_js_type_info/src/interned_types.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/interned_types.rs	2026-11-13 23:04:51.227027429 +0000
+@@ -124,6 +124,7 @@
+     Intersection(InternedIntersection<'db>),
+     Union(InternedUnion<'db>),
+     TypeOperator(InternedTypeOperatorType<'db>),
++    IndexedAccess(InternedIndexedAccess<'db>),
+     Literal(InternedLiteral<'db>),
+     InstanceOf(InternedTypeInstance<'db>),
+     MergedReference(InternedMergedReference<'db>),
+@@ -328,6 +329,7 @@
+                 Self::Generic(_) => "generic",
+                 Self::Local(_) => "unresolved",
+                 Self::MergedReference(_) => "merged type",
++                Self::IndexedAccess(_) => "indexed access",
+                 Self::TypeOperator(_) => "type operator",
+                 Self::TypeofExpression(_) | Self::TypeofType(_) | Self::TypeofValue(_) => "typeof",
+                 Self::Conditional => "conditional",
+@@ -586,6 +588,7 @@
+             Self::Generic(_)
+             | Self::GlobalType(_)
+             | Self::Local(_)
++            | Self::IndexedAccess(_)
+             | Self::TypeOperator(_)
+             | Self::TypeofType(_)
+             | Self::TypeofValue(_)
+@@ -631,6 +634,7 @@
+             | Self::GlobalType(_)
+             | Self::Local(_)
+             | Self::MergedReference(_)
++            | Self::IndexedAccess(_)
+             | Self::TypeOperator(_)
+             | Self::TypeofExpression(_)
+             | Self::TypeofType(_)
+@@ -888,6 +892,7 @@
+             | Self::Local(_)
+             | Self::Intersection(_)
+             | Self::Union(_)
++            | Self::IndexedAccess(_)
+             | Self::TypeOperator(_)
+             | Self::Literal(_)
+             | Self::InstanceOf(_)
+@@ -1047,7 +1052,7 @@
+                 convert_type_members(db, &object.members, resolve_reference),
+                 object.has_unknown_members,
+             )),
+-            raw::TypeData::Tuple(tuple) => Self::Tuple(InternedTuple::new(
++            raw::TypeData::Tuple(tuple) => Self::Tuple(InternedTuple::new_with_tuple_type(
+                 db,
+                 tuple
+                     .elements()
+@@ -1059,6 +1064,7 @@
+                         is_rest: element.is_rest,
+                     })
+                     .collect::<Box<[_]>>(),
++                tuple.is_tuple_type(),
+             )),
+             raw::TypeData::Generic(generic) => Self::Generic(InternedGenericTypeParameter::new(
+                 db,
+@@ -1080,6 +1086,13 @@
+                 db,
+                 convert_references(db, union.types(), resolve_reference).into_vec(),
+             ),
++            raw::TypeData::IndexedAccess(access) => {
++                Self::IndexedAccess(InternedIndexedAccess::new(
++                    db,
++                    resolve_reference(&access.0),
++                    resolve_reference(&access.1),
++                ))
++            }
+             raw::TypeData::TypeOperator(type_operator) => {
+                 Self::TypeOperator(InternedTypeOperatorType::new(
+                     db,
+@@ -1214,6 +1227,10 @@
+                 result.slots.extend_from_slice(intersection.types(db));
+             }
+             TypeData::Union(union) => result.slots.extend_from_slice(union.types(db)),
++            TypeData::IndexedAccess(access) => {
++                result.slots.push(access.object(db));
++                result.slots.push(access.index(db));
++            }
+             TypeData::TypeOperator(operator) => result.slots.push(operator.ty(db)),
+             TypeData::Literal(literal) => {
+                 if let Literal::Object(members) = literal.literal(db) {
+@@ -1477,13 +1494,14 @@
+                 self.rebuild_type_members(namespace.members(db))?,
+                 namespace.path(db).clone(),
+             )),
+-            TypeData::Object(object) => TypeData::Object(InternedObject::new(
++            TypeData::Object(object) => TypeData::Object(InternedObject::new_with_key_uncertainty(
+                 db,
+                 self.take_optional_type(object.prototype(db))?,
+                 self.rebuild_type_members(object.members(db))?,
+                 object.has_unknown_members(db),
++                object.has_unknown_keys(db),
+             )),
+-            TypeData::Tuple(tuple) => TypeData::Tuple(InternedTuple::new(
++            TypeData::Tuple(tuple) => TypeData::Tuple(InternedTuple::new_with_tuple_type(
+                 db,
+                 tuple
+                     .elements(db)
+@@ -1494,6 +1512,7 @@
+                         Some(element)
+                     })
+                     .collect::<Option<Box<[_]>>>()?,
++                tuple.is_tuple_type(db),
+             )),
+             TypeData::Generic(generic) => TypeData::Generic(InternedGenericTypeParameter::new(
+                 db,
+@@ -1508,6 +1527,11 @@
+             TypeData::Union(union) => {
+                 TypeData::union_from_types(db, self.take_types(union.types(db).len())?.into_vec())
+             }
++            TypeData::IndexedAccess(_) => TypeData::IndexedAccess(InternedIndexedAccess::new(
++                db,
++                self.take_type()?,
++                self.take_type()?,
++            )),
+             TypeData::TypeOperator(operator) => TypeData::TypeOperator(
+                 InternedTypeOperatorType::new(db, self.take_type()?, operator.operator(db)),
+             ),
+@@ -2080,6 +2104,23 @@
+         }
+     }
+ 
++    /// Returns an own string property name, including exactly known computed strings.
++    pub fn own_string_key_name(&self, db: &'db dyn TypeDb) -> Option<Text> {
++        if self.is_constructor() || self.computed_name().is_some() {
++            return None;
++        }
++        self.name().or_else(|| match self {
++            Self::ComputedValue(TypeData::Literal(literal))
++            | Self::ConstAssertedComputedValue(TypeData::Literal(literal)) => {
++                match literal.literal(db) {
++                    Literal::String(name) => Some(name.as_ref().clone()),
++                    _ => None,
++                }
++            }
++            _ => None,
++        })
++    }
++
+     pub fn computed_name(&self) -> Option<&str> {
+         match self {
+             Self::ComputedValueNamed(name, _) | Self::ConstAssertedComputedValueNamed(name, _) => {
+@@ -2326,7 +2367,7 @@
+     pub name: Text,
+ }
+ 
+-#[salsa::interned]
++#[salsa::interned(constructor = new_with_key_uncertainty)]
+ #[derive(Debug)]
+ pub struct InternedObject<'db> {
+     pub prototype: Option<TypeData<'db>>,
+@@ -2337,6 +2378,19 @@
+     ///
+     /// See [`crate::type_data::Object::has_unknown_members`].
+     pub has_unknown_members: bool,
++    /// Whether the object's complete key set has an unsupported origin.
++    pub has_unknown_keys: bool,
++}
++
++impl<'db> InternedObject<'db> {
++    pub fn new(
++        db: &'db dyn TypeDb,
++        prototype: Option<TypeData<'db>>,
++        members: Box<[TypeMember<'db>]>,
++        has_unknown_members: bool,
++    ) -> Self {
++        Self::new_with_key_uncertainty(db, prototype, members, has_unknown_members, false)
++    }
+ }
+ 
+ #[salsa::interned]
+@@ -2353,11 +2407,18 @@
+     pub types: Box<[TypeData<'db>]>,
+ }
+ 
+-#[salsa::interned]
++#[salsa::interned(constructor = new_with_tuple_type)]
+ #[derive(Debug)]
+ pub struct InternedTuple<'db> {
+     #[returns(ref)]
+     pub elements: Box<[TupleElementType<'db>]>,
++    pub is_tuple_type: bool,
++}
++
++impl<'db> InternedTuple<'db> {
++    pub fn new(db: &'db dyn TypeDb, elements: Box<[TupleElementType<'db>]>) -> Self {
++        Self::new_with_tuple_type(db, elements, true)
++    }
+ }
+ 
+ #[salsa::interned]
+@@ -2775,6 +2836,12 @@
+         .collect()
+ }
+ 
++#[salsa::interned(debug)]
++pub struct InternedIndexedAccess<'db> {
++    pub object: TypeData<'db>,
++    pub index: TypeData<'db>,
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+diff -ruN a/crates/biome_js_type_info/src/local_inference.rs b/crates/biome_js_type_info/src/local_inference.rs
+--- a/crates/biome_js_type_info/src/local_inference.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/local_inference.rs	2026-11-13 23:04:51.227027429 +0000
+@@ -465,6 +465,7 @@
+                         }),
+                     })
+                     .collect(),
++                false,
+             ))),
+             AnyJsExpression::JsArrowFunctionExpression(expr) => {
+                 Self::from_js_arrow_function_expression(collector, scope_id, expr)
+@@ -665,7 +666,7 @@
+                 Literal::RegExp(split_regex_literal(expr.value_token())?)
+             }
+             AnyJsLiteralExpression::JsStringLiteralExpression(expr) => Literal::String(
+-                StringLiteral::from(Text::from(expr.inner_string_text().ok()?)),
++                StringLiteral::from(unescape_js_string(expr.inner_string_text().ok()?)),
+             ),
+         };
+ 
+@@ -755,10 +756,13 @@
+                 // TODO: Handle import types (`import("./module").T`).
+                 Self::unknown()
+             }
+-            AnyTsType::TsIndexedAccessType(_) => {
+-                // TODO: Handle type indexing (`T[U]`).
+-                Self::unknown()
+-            }
++            AnyTsType::TsIndexedAccessType(ty) => match (ty.object_type(), ty.index_type()) {
++                (Ok(object), Ok(index)) => Self::IndexedAccess(Box::new((
++                    TypeReference::from_any_ts_type(collector, scope_id, &object),
++                    TypeReference::from_any_ts_type(collector, scope_id, &index),
++                ))),
++                _ => Self::unknown(),
++            },
+             AnyTsType::TsInferType(_) => {
+                 // TODO: Handle `infer T` syntax.
+                 Self::unknown()
+@@ -778,27 +782,40 @@
+             AnyTsType::TsNonPrimitiveType(_) => Self::ObjectKeyword,
+             AnyTsType::TsNullLiteralType(_) => Self::Null,
+             AnyTsType::TsNumberLiteralType(ty) => match ty.literal_token() {
+-                Ok(token) => {
+-                    Literal::Number(NumberLiteral::new(token.token_text_trimmed().into())).into()
+-                }
++                Ok(token) => Literal::Number(NumberLiteral::new(if ty.minus_token().is_some() {
++                    format!("-{}", token.text_trimmed()).into()
++                } else {
++                    token.token_text_trimmed().into()
++                }))
++                .into(),
+                 Err(_) => Self::unknown(),
+             },
+             AnyTsType::TsNumberType(_) => Self::reference(GLOBAL_NUMBER_ID),
+-            AnyTsType::TsObjectType(ty) => Self::object_with_members(
+-                ty.members()
++            AnyTsType::TsObjectType(ty) => {
++                let mut has_unknown_members = false;
++                let members = ty
++                    .members()
+                     .into_iter()
+                     .filter_map(|member| {
+-                        TypeMember::from_any_ts_type_member(collector, scope_id, &member)
++                        let member =
++                            TypeMember::from_any_ts_type_member(collector, scope_id, &member);
++                        has_unknown_members |= member.is_none();
++                        member
+                     })
+-                    .collect(),
+-            ),
++                    .collect();
++                Self::Object(Box::new(Object {
++                    prototype: None,
++                    members,
++                    has_unknown_members,
++                }))
++            }
+             AnyTsType::TsParenthesizedType(ty) => ty
+                 .ty()
+                 .map(|ty| Self::from_any_ts_type(collector, scope_id, &ty))
+                 .unwrap_or_default(),
+             AnyTsType::TsReferenceType(ty) => Self::from_ts_reference_type(collector, scope_id, ty),
+             AnyTsType::TsStringLiteralType(ty) => match ty.inner_string_text() {
+-                Ok(token) => Literal::String(token.text().into()).into(),
++                Ok(token) => Literal::String(unescape_js_string(token).into()).into(),
+                 Err(_) => Self::unknown(),
+             },
+             AnyTsType::TsStringType(_) => Self::reference(GLOBAL_STRING_ID),
+@@ -820,7 +837,7 @@
+                     })
+                     .collect();
+                 match elements {
+-                    Ok(elements) => Self::Tuple(Box::new(Tuple(elements))),
++                    Ok(elements) => Self::Tuple(Box::new(Tuple(elements, true))),
+                     Err(_) => Self::unknown(),
+                 }
+             }
+@@ -2262,7 +2279,7 @@
+                         )),
+                     };
+                     Self {
+-                        kind: TypeMemberKind::Getter(name.into()),
++                        kind: TypeMemberKind::Getter(unescape_js_string(name)),
+                         ty: collector.register_and_resolve(function.into()).into(),
+                     }
+                 })
+@@ -2281,7 +2298,7 @@
+                     AnyJsObjectMemberName::JsLiteralMemberName(name) => name
+                         .name()
+                         .ok()
+-                        .map(|name| TypeMemberKind::Named(name.into())),
++                        .map(|name| TypeMemberKind::Named(unescape_js_string(name))),
+                     _ => None,
+                 })
+                 .map(|kind| {
+@@ -2329,7 +2346,7 @@
+                     AnyJsObjectMemberName::JsLiteralMemberName(name) => name
+                         .name()
+                         .ok()
+-                        .map(|name| TypeMemberKind::Named(name.into())),
++                        .map(|name| TypeMemberKind::Named(unescape_js_string(name))),
+                     _ => None,
+                 })
+                 .map(|kind| {
+@@ -2566,7 +2583,7 @@
+         ty: TypeReference,
+         is_optional: bool,
+     ) -> Self {
+-        let name: Text = name.into();
++        let name = unescape_js_string(name);
+         Self {
+             kind: if is_optional {
+                 TypeMemberKind::NamedOptional(name)
+@@ -3391,7 +3408,7 @@
+                     is_rest: element.is_rest,
+                 })
+                 .collect();
+-            TypeData::Tuple(Box::new(Tuple(elements)))
++            TypeData::Tuple(Box::new(Tuple(elements, true)))
+         }
+         TypeData::Object(object) => TypeData::Object(Box::new(Object {
+             prototype: object.prototype.clone(),
+diff -ruN a/crates/biome_js_type_info/src/type_data/literal.rs b/crates/biome_js_type_info/src/type_data/literal.rs
+--- a/crates/biome_js_type_info/src/type_data/literal.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/type_data/literal.rs	2026-11-13 23:04:51.258326427 +0000
+@@ -1,4 +1,4 @@
+-use std::{borrow::Cow, ops::Neg};
++use std::ops::Neg;
+ 
+ use biome_rowan::Text;
+ 
+@@ -46,28 +46,10 @@
+ 
+     pub fn to_f64(&self) -> Option<f64> {
+         let parse = |text: &str| {
+-            // Remove numeric separators first.
+-            // Most of numbers have no separators.
+-            // Thus we check if the number contains any separator before calling `replace` that allocates a String.
+-            let s = if text.contains('_') {
+-                Cow::Owned(text.replace('_', ""))
++            if text == "NaN" {
++                Some(f64::NAN)
+             } else {
+-                Cow::Borrowed(text)
+-            };
+-
+-            match s.get(..2) {
+-                Some("0b" | "0B") => Some(u64::from_str_radix(&s[2..], 2).ok()? as f64),
+-                Some("0o" | "0O") => Some(u64::from_str_radix(&s[2..], 8).ok()? as f64),
+-                Some("0x" | "0X") => Some(u64::from_str_radix(&s[2..], 16).ok()? as f64),
+-                Some("Na") => (s == "NaN").then_some(f64::NAN),
+-                Some(prefix)
+-                    if prefix.starts_with('0')
+-                        && !prefix.ends_with(['e', 'E'])
+-                        && !s[1..].contains(['8', '9']) =>
+-                {
+-                    Some(u64::from_str_radix(&s[1..], 8).ok()? as f64)
+-                }
+-                _ => s.parse().ok(),
++                biome_js_syntax::numbers::parse_js_number(text)
+             }
+         };
+ 
+diff -ruN a/crates/biome_js_type_info/src/type_data.rs b/crates/biome_js_type_info/src/type_data.rs
+--- a/crates/biome_js_type_info/src/type_data.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/type_data.rs	2026-11-13 23:04:51.237027157 +0000
+@@ -167,6 +167,7 @@
+ 
+     /// Type derived from another through a built-in operator.
+     TypeOperator(Box<TypeOperatorType>),
++    IndexedAccess(Box<(TypeReference, TypeReference)>),
+ 
+     /// Literal value used as a type.
+     Literal(Box<Literal>),
+@@ -472,6 +473,7 @@
+             // For references, we don't know. If a reference was pointing to a
+             // class, stripping the instance would change its meaning.
+             | Self::Reference(_)
++            | Self::IndexedAccess(_)
+             | Self::TypeOperator(_)
+             | Self::TypeofExpression(_)
+             | Self::TypeofType(_)
+@@ -975,10 +977,20 @@
+ /// Tuple type.
+ ///
+ /// Tuples in TypeScript are created using `Array`s of a fixed size.
+-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+-pub struct Tuple(pub(super) Box<[TupleElementType]>);
++#[derive(Clone, Eq, Hash, PartialEq)]
++pub struct Tuple(pub(super) Box<[TupleElementType]>, pub(super) bool);
++
++impl Debug for Tuple {
++    fn fmt(&self, formatter: &mut Formatter<'_>) -> FormatResult {
++        formatter.debug_tuple("Tuple").field(&self.0).finish()
++    }
++}
+ 
+ impl Tuple {
++    pub fn is_tuple_type(&self) -> bool {
++        self.1
++    }
++
+     pub fn elements(&self) -> &[TupleElementType] {
+         &self.0
+     }
+@@ -1002,6 +1014,7 @@
+                     ..*element
+                 })
+                 .collect(),
++            self.1,
+         )
+     }
+ }
+diff -ruN a/crates/biome_js_type_info/src/type_transform.rs b/crates/biome_js_type_info/src/type_transform.rs
+--- a/crates/biome_js_type_info/src/type_transform.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_js_type_info/src/type_transform.rs	2026-11-13 23:04:51.237027157 +0000
+@@ -342,6 +342,7 @@
+ 
+ struct TypeNormalizer<Resolve> {
+     resolve: Resolve,
++    projection_budget: bool,
+ }
+ 
+ impl<'db, Resolve> TypeTransform<'db> for TypeNormalizer<Resolve>
+@@ -350,6 +351,43 @@
+ {
+     fn enter(&mut self, db: &'db dyn TypeDb, ty: TypeData<'db>) -> TypeTransformAction<'db> {
+         let ty = (self.resolve)(ty);
++        if let TypeData::TypeOperator(operator) = ty
++            && operator.operator(db) == crate::TypeOperator::Keyof
++        {
++            let mut operand = operator.ty(db);
++            let mut seen = FxHashSet::default();
++            for _ in 0..MAX_TYPE_NORMALIZATION_STEPS {
++                if !seen.insert(operand) {
++                    return TypeTransformAction::Replace(TypeData::Unknown);
++                }
++                operand = (self.resolve)(operand);
++                operand = match operand {
++                    TypeData::InstanceOf(instance) if instance.type_parameters(db).is_empty() => {
++                        instance.ty(db)
++                    }
++                    TypeData::TypeofType(value) => value.ty(db),
++                    TypeData::TypeofValue(value) => value.ty(db),
++                    _ => return TypeTransformAction::Replace(project_keys(db, operand)),
++                };
++            }
++            return TypeTransformAction::Replace(TypeData::Unknown);
++        }
++        if !self.projection_budget
++            && matches!(ty, TypeData::IndexedAccess(_) | TypeData::TypeOperator(_))
++        {
++            let resolve: &mut dyn FnMut(TypeData<'db>) -> TypeData<'db> = &mut self.resolve;
++            let result = TypeDataTransformer::new(16384)
++                .transform(
++                    ty,
++                    db,
++                    &mut TypeNormalizer {
++                        resolve,
++                        projection_budget: true,
++                    },
++                )
++                .map_or(TypeData::Unknown, |ty| ty);
++            return TypeTransformAction::Replace(result);
++        }
+         if let TypeData::TypeofValue(value) = ty
+             && value.ty(db) == TypeData::Unknown
+         {
+@@ -375,6 +413,16 @@
+                     _ => TypeData::MergedReference(reference),
+                 }
+             }
++            TypeData::IndexedAccess(access) => {
++                project_number_index(db, access.object(db), access.index(db))
++            }
++            TypeData::TypeOperator(operator) => match operator.operator(db) {
++                crate::TypeOperator::Keyof => project_keys(db, operator.ty(db)),
++                crate::TypeOperator::Readonly if matches!(operator.ty(db), TypeData::Tuple(_)) => {
++                    operator.ty(db)
++                }
++                _ => TypeData::Unknown,
++            },
+             TypeData::TypeofType(value) => value.ty(db),
+             TypeData::TypeofValue(value) => value.ty(db),
+             ty => ty,
+@@ -396,7 +444,10 @@
+         TypeDataTransformer::new(MAX_TYPE_NORMALIZATION_STEPS).transform(
+             self,
+             db,
+-            &mut TypeNormalizer { resolve },
++            &mut TypeNormalizer {
++                resolve,
++                projection_budget: false,
++            },
+         )
+     }
+ 
+@@ -482,6 +533,135 @@
+     }
+ }
+ 
++fn project_number_index<'db>(
++    db: &'db dyn TypeDb,
++    object: TypeData<'db>,
++    index: TypeData<'db>,
++) -> TypeData<'db> {
++    if index != TypeData::Number {
++        return TypeData::Unknown;
++    }
++    let types = match object {
++        TypeData::Tuple(tuple) => {
++            let elements = tuple.elements(db);
++            if !tuple.is_tuple_type(db)
++                || elements.len() > 1024
++                || elements.iter().any(|element| element.is_rest)
++            {
++                return TypeData::Unknown;
++            }
++            let mut types = Vec::new();
++            for element in elements {
++                types.push(element.ty);
++                if element.is_optional {
++                    types.push(TypeData::Undefined);
++                }
++            }
++            types
++        }
++        TypeData::InstanceOf(instance) if instance.ty(db).is_array_class(db) => {
++            match instance.type_parameters(db).as_ref() {
++                [element] => vec![*element],
++                _ => return TypeData::Unknown,
++            }
++        }
++        _ => return TypeData::Unknown,
++    };
++    if types
++        .iter()
++        .any(|ty| projection_contains_unresolved(db, *ty))
++    {
++        return TypeData::Unknown;
++    }
++    bounded_projection_union(db, types)
++}
++
++fn projection_contains_unresolved<'db>(db: &'db dyn TypeDb, ty: TypeData<'db>) -> bool {
++    let mut pending = vec![ty];
++    let mut seen = FxHashSet::default();
++    for _ in 0..16384 {
++        let Some(ty) = pending.pop() else {
++            return false;
++        };
++        if !seen.insert(ty) {
++            continue;
++        }
++        if matches!(
++            ty,
++            TypeData::Local(_) | TypeData::IndexedAccess(_) | TypeData::TypeOperator(_)
++        ) {
++            return true;
++        }
++        pending.extend(ty.type_slots(db).iter());
++    }
++    true
++}
++
++fn bounded_projection_union<'db>(db: &'db dyn TypeDb, types: Vec<TypeData<'db>>) -> TypeData<'db> {
++    let mut pending = types.into_iter().rev().collect::<Vec<_>>();
++    let mut variants = Vec::new();
++    let mut steps = 0;
++    while let Some(ty) = pending.pop() {
++        steps += 1;
++        if steps > 16384 {
++            return TypeData::Unknown;
++        }
++        match ty {
++            TypeData::Union(union) => pending.extend(union.types(db).iter().rev().copied()),
++            TypeData::Local(_)
++            | TypeData::IndexedAccess(_)
++            | TypeData::TypeOperator(_)
++            | TypeData::Unknown
++            | TypeData::UnknownKeyword
++            | TypeData::AnyKeyword => return TypeData::Unknown,
++            _ => {
++                if !variants.contains(&ty) {
++                    variants.push(ty);
++                }
++                if variants.len() > 1024 {
++                    return TypeData::Unknown;
++                }
++            }
++        }
++    }
++    TypeData::union_from_types(db, variants)
++}
++
++fn project_keys<'db>(db: &'db dyn TypeDb, object: TypeData<'db>) -> TypeData<'db> {
++    use crate::interned_types::{InternedLiteral, Literal};
++    let TypeData::Object(object) = object else {
++        return TypeData::Unknown;
++    };
++    if object.prototype(db).is_some()
++        || object.has_unknown_members(db)
++        || object.has_unknown_keys(db)
++    {
++        return TypeData::Unknown;
++    }
++    let mut keys = Vec::new();
++    for member in object.members(db) {
++        let Some(name) = member.kind.own_string_key_name(db) else {
++            return TypeData::Unknown;
++        };
++        if member.kind.computed_name().is_some()
++            || biome_js_syntax::numbers::parse_js_number(name.text()).is_some_and(f64::is_finite)
++        {
++            return TypeData::Unknown;
++        }
++        let key = TypeData::Literal(InternedLiteral::new(
++            db,
++            Literal::String(name.clone().into()),
++        ));
++        if !keys.contains(&key) {
++            keys.push(key);
++        }
++        if keys.len() > 1024 {
++            return TypeData::Unknown;
++        }
++    }
++    TypeData::union_from_types(db, keys)
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::TypeTransformResult;
+diff -ruN a/crates/biome_module_graph/src/db/queries/type_inference/calls/implementation.rs b/crates/biome_module_graph/src/db/queries/type_inference/calls/implementation.rs
+--- a/crates/biome_module_graph/src/db/queries/type_inference/calls/implementation.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/db/queries/type_inference/calls/implementation.rs	2026-11-13 23:04:51.620872491 +0000
+@@ -1202,6 +1202,7 @@
+                 | InferredTypeData::GlobalType(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::ObjectKeyword
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::TypeofExpression(_),
+                 _,
+@@ -1213,6 +1214,7 @@
+                 | InferredTypeData::GlobalType(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::ObjectKeyword
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::TypeofExpression(_),
+             )
+diff -ruN a/crates/biome_module_graph/src/db/queries/type_inference/normalization.rs b/crates/biome_module_graph/src/db/queries/type_inference/normalization.rs
+--- a/crates/biome_module_graph/src/db/queries/type_inference/normalization.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/db/queries/type_inference/normalization.rs	2026-11-13 23:04:51.614134414 +0000
+@@ -49,7 +49,9 @@
+ fn type_needs_normalization(ty: InferredTypeData<'_>) -> bool {
+     matches!(
+         ty,
+-        InferredTypeData::InstanceOf(_)
++        InferredTypeData::IndexedAccess(_)
++            | InferredTypeData::TypeOperator(_)
++            | InferredTypeData::InstanceOf(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Local(_)
+             | InferredTypeData::MergedReference(_)
+diff -ruN a/crates/biome_module_graph/src/db/type_inference/expressions.rs b/crates/biome_module_graph/src/db/type_inference/expressions.rs
+--- a/crates/biome_module_graph/src/db/type_inference/expressions.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/db/type_inference/expressions.rs	2026-11-13 23:04:51.622478446 +0000
+@@ -604,6 +604,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::InstanceOf(_)
+@@ -796,6 +797,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::MergedReference(_)
+@@ -870,6 +872,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::MergedReference(_)
+@@ -917,6 +920,7 @@
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
+                 | InferredTypeData::Union(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::InstanceOf(_)
+@@ -1187,6 +1191,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::InstanceOf(_)
+@@ -1232,6 +1237,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::InstanceOf(_)
+@@ -1330,6 +1336,7 @@
+                         | InferredTypeData::Local(_)
+                         | InferredTypeData::Intersection(_)
+                         | InferredTypeData::Union(_)
++                        | InferredTypeData::IndexedAccess(_)
+                         | InferredTypeData::TypeOperator(_)
+                         | InferredTypeData::Literal(_)
+                         | InferredTypeData::InstanceOf(_)
+@@ -1397,6 +1404,7 @@
+             | InferredTypeData::Generic(_)
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::MergedReference(_)
+@@ -1519,6 +1527,7 @@
+             | RawTypeData::Generic(_)
+             | RawTypeData::Intersection(_)
+             | RawTypeData::Union(_)
++            | RawTypeData::IndexedAccess(_)
+             | RawTypeData::TypeOperator(_)
+             | RawTypeData::InstanceOf(_)
+             | RawTypeData::Reference(_)
+@@ -1790,6 +1799,7 @@
+                 | InferredTypeData::Generic(_)
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::InstanceOf(_)
+@@ -1892,6 +1902,7 @@
+                 | InferredTypeData::Generic(_)
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::InstanceOf(_)
+@@ -1963,6 +1974,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::InstanceOf(_)
+@@ -2023,6 +2035,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::MergedReference(_)
+@@ -2132,6 +2145,7 @@
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
+                 | InferredTypeData::Union(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::MergedReference(_)
+                 | InferredTypeData::TypeofExpression(_)
+@@ -2244,6 +2258,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::MergedReference(_)
+             | InferredTypeData::TypeofExpression(_)
+@@ -2285,6 +2300,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::InstanceOf(_)
+@@ -2341,6 +2357,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::InstanceOf(_)
+             | InferredTypeData::MergedReference(_)
+@@ -2429,6 +2446,7 @@
+                     | InferredTypeData::Tuple(_)
+                     | InferredTypeData::Generic(_)
+                     | InferredTypeData::Local(_)
++                    | InferredTypeData::IndexedAccess(_)
+                     | InferredTypeData::TypeOperator(_)
+                     | InferredTypeData::Literal(_)
+                     | InferredTypeData::AnyKeyword
+@@ -2508,6 +2526,7 @@
+                     | InferredTypeData::Generic(_)
+                     | InferredTypeData::Local(_)
+                     | InferredTypeData::Intersection(_)
++                    | InferredTypeData::IndexedAccess(_)
+                     | InferredTypeData::TypeOperator(_)
+                     | InferredTypeData::Literal(_)
+                     | InferredTypeData::MergedReference(_)
+@@ -2555,6 +2574,7 @@
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
+                 | InferredTypeData::Union(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::InstanceOf(_)
+@@ -2602,6 +2622,7 @@
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
+                 | InferredTypeData::Union(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::InstanceOf(_)
+diff -ruN a/crates/biome_module_graph/src/db/type_inference/lookup.rs b/crates/biome_module_graph/src/db/type_inference/lookup.rs
+--- a/crates/biome_module_graph/src/db/type_inference/lookup.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/db/type_inference/lookup.rs	2026-11-13 23:04:51.622478446 +0000
+@@ -452,6 +452,7 @@
+             | InferredTypeData::Namespace(_)
+             | InferredTypeData::Tuple(_)
+             | InferredTypeData::Local(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::InstanceOf(_)
+@@ -532,6 +533,7 @@
+         | InferredTypeData::Local(_)
+         | InferredTypeData::Intersection(_)
+         | InferredTypeData::Union(_)
++        | InferredTypeData::IndexedAccess(_)
+         | InferredTypeData::TypeOperator(_)
+         | InferredTypeData::Literal(_)
+         | InferredTypeData::MergedReference(_)
+@@ -604,6 +606,7 @@
+         | InferredTypeData::Local(_)
+         | InferredTypeData::Intersection(_)
+         | InferredTypeData::Union(_)
++        | InferredTypeData::IndexedAccess(_)
+         | InferredTypeData::TypeOperator(_)
+         | InferredTypeData::Literal(_)
+         | InferredTypeData::MergedReference(_)
+@@ -708,6 +711,7 @@
+         | InferredTypeData::Local(_)
+         | InferredTypeData::Intersection(_)
+         | InferredTypeData::Union(_)
++        | InferredTypeData::IndexedAccess(_)
+         | InferredTypeData::TypeOperator(_)
+         | InferredTypeData::InstanceOf(_)
+         | InferredTypeData::MergedReference(_)
+diff -ruN a/crates/biome_module_graph/src/db/type_inference/promise_classification.rs b/crates/biome_module_graph/src/db/type_inference/promise_classification.rs
+--- a/crates/biome_module_graph/src/db/type_inference/promise_classification.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/db/type_inference/promise_classification.rs	2026-11-13 23:04:51.622478446 +0000
+@@ -947,6 +947,44 @@
+                             Indeterminate
+                         };
+                     }
++                    RawTypeData::IndexedAccess(_) | RawTypeData::TypeOperator(_) => {
++                        let mut ctx = ResolutionCtx::new(
++                            db,
++                            state.module,
++                            &js_info,
++                            ImportResolution::on_demand(),
++                        );
++                        let ty = ctx.resolve_raw_type_id(type_id);
++                        let mut ty = crate::normalize_type(
++                            db,
++                            crate::NormalizeTypeInput::new(db, state.module, ty),
++                        );
++                        for member in &state.members {
++                            let Some(member_ty) =
++                                find_value_member_type_on_demand(db, ty, member.text())
++                            else {
++                                return Indeterminate;
++                            };
++                            ty = crate::normalize_type(
++                                db,
++                                crate::NormalizeTypeInput::new(db, state.module, member_ty),
++                            );
++                        }
++                        let result = match state.projection {
++                            Projection::Promise => is_promise_type(db, ty),
++                            Projection::ArrayPromise => is_array_of_promise_type(db, ty),
++                            Projection::FunctionReturn => function_returns_promise(db, ty),
++                            Projection::PromiseTarget
++                            | Projection::ArrayFunctionReturn
++                            | Projection::AwaitedArrayPromise
++                            | Projection::AwaitedArrayFunctionReturn => None,
++                        };
++                        return match result {
++                            Some(true) => ReturnsPromise,
++                            Some(false) => DoesNotReturnPromise,
++                            None => Indeterminate,
++                        };
++                    }
+                     RawTypeData::Unknown
+                     | RawTypeData::ImportNamespace(_)
+                     | RawTypeData::Module(_)
+@@ -954,7 +992,6 @@
+                     | RawTypeData::Generic(_)
+                     | RawTypeData::Intersection(_)
+                     | RawTypeData::Union(_)
+-                    | RawTypeData::TypeOperator(_)
+                     | RawTypeData::MergedReference(_)
+                     | RawTypeData::AnyKeyword
+                     | RawTypeData::UnknownKeyword => return Indeterminate,
+diff -ruN a/crates/biome_module_graph/src/db/type_inference/qualifiers.rs b/crates/biome_module_graph/src/db/type_inference/qualifiers.rs
+--- a/crates/biome_module_graph/src/db/type_inference/qualifiers.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/db/type_inference/qualifiers.rs	2026-11-13 23:04:51.622478446 +0000
+@@ -561,6 +561,7 @@
+             | InferredTypeData::Local(_)
+             | InferredTypeData::Intersection(_)
+             | InferredTypeData::Union(_)
++            | InferredTypeData::IndexedAccess(_)
+             | InferredTypeData::TypeOperator(_)
+             | InferredTypeData::Literal(_)
+             | InferredTypeData::MergedReference(_)
+@@ -589,11 +590,13 @@
+             return InferredTypeData::Unknown;
+         };
+ 
+-        if qualifier.is_pick() {
++        let exact = self.has_exact_own_keys(target_ty) && self.has_exact_string_keys(key_ty);
++        let result = if qualifier.is_pick() {
+             InferredTypeData::pick_members(self.db, members, &key_names)
+         } else {
+             InferredTypeData::omit_members(self.db, members, &key_names)
+-        }
++        };
++        self.with_key_uncertainty(result, exact)
+     }
+ 
+     fn resolve_partial_or_required(
+@@ -605,19 +608,87 @@
+             return InferredTypeData::Unknown;
+         };
+ 
+-        if qualifier.is_partial() {
++        let exact = self.has_exact_own_keys(target_ty);
++        let result = if qualifier.is_partial() {
+             InferredTypeData::with_all_optional_members(self.db, members)
+         } else {
+             InferredTypeData::with_all_required_members(self.db, members)
+-        }
++        };
++        self.with_key_uncertainty(result, exact)
+     }
+ 
+     fn resolve_readonly(&mut self, qualifier: &TypeReferenceQualifier) -> InferredTypeData<'db> {
+         let target_ty = self.resolve(&qualifier.type_parameters[0]);
+-        self.own_members(target_ty)
++        let exact = self.has_exact_own_keys(target_ty);
++        let result = self
++            .own_members(target_ty)
+             .map_or(InferredTypeData::Unknown, |members| {
+                 InferredTypeData::object_from_members(self.db, members)
++            });
++        self.with_key_uncertainty(result, exact)
++    }
++
++    fn with_key_uncertainty(
++        &self,
++        ty: InferredTypeData<'db>,
++        exact: bool,
++    ) -> InferredTypeData<'db> {
++        if !exact && let InferredTypeData::Object(object) = ty {
++            return InferredTypeData::Object(
++                biome_js_type_info::interned_types::InternedObject::new_with_key_uncertainty(
++                    self.db,
++                    object.prototype(self.db),
++                    object.members(self.db).clone(),
++                    object.has_unknown_members(self.db),
++                    true,
++                ),
++            );
++        }
++        ty
++    }
++
++    #[expect(
++        clippy::wildcard_enum_match_arm,
++        reason = "Only objects with exact own keys are supported."
++    )]
++    fn has_exact_own_keys(&mut self, mut ty: InferredTypeData<'db>) -> bool {
++        for _ in 0..MAX_LOCAL_TYPE_RESOLUTION_STEPS {
++            ty = self.resolve_inferred_type(ty);
++            match ty {
++                InferredTypeData::Object(object) => {
++                    return object.prototype(self.db).is_none()
++                        && !object.has_unknown_members(self.db)
++                        && !object.has_unknown_keys(self.db)
++                        && object.members(self.db).iter().all(|member| {
++                            member
++                                .kind
++                                .own_string_key_name(self.db)
++                                .is_some_and(|name| {
++                                    member.kind.computed_name().is_none()
++                                        && !biome_js_syntax::numbers::parse_js_number(name.text())
++                                            .is_some_and(f64::is_finite)
++                                })
++                        });
++                }
++                InferredTypeData::InstanceOf(instance)
++                    if instance.type_parameters(self.db).is_empty() =>
++                {
++                    ty = instance.ty(self.db)
++                }
++                InferredTypeData::TypeofType(value) => ty = value.ty(self.db),
++                InferredTypeData::TypeofValue(value) => ty = value.ty(self.db),
++                _ => return false,
++            }
++        }
++        false
++    }
++
++    fn has_exact_string_keys(&mut self, ty: InferredTypeData<'db>) -> bool {
++        self.string_literal_keys(ty).is_some_and(|keys| {
++            keys.iter().all(|name| {
++                !biome_js_syntax::numbers::parse_js_number(name.text()).is_some_and(f64::is_finite)
+             })
++        })
+     }
+ 
+     fn own_members(&mut self, ty: InferredTypeData<'db>) -> Option<Vec<InferredTypeMember<'db>>> {
+@@ -630,6 +701,8 @@
+                     return Some(interface.members(self.db).to_vec());
+                 }
+                 InferredTypeData::InstanceOf(instance) => ty = instance.ty(self.db),
++                InferredTypeData::TypeofType(value) => ty = value.ty(self.db),
++                InferredTypeData::TypeofValue(value) => ty = value.ty(self.db),
+                 InferredTypeData::Literal(literal) => match literal.literal(self.db) {
+                     InferredLiteral::Object(members) => return Some(members.to_vec()),
+                     InferredLiteral::BigInt(_)
+@@ -662,11 +735,10 @@
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
+                 | InferredTypeData::Union(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::MergedReference(_)
+                 | InferredTypeData::TypeofExpression(_)
+-                | InferredTypeData::TypeofType(_)
+-                | InferredTypeData::TypeofValue(_)
+                 | InferredTypeData::AnyKeyword
+                 | InferredTypeData::NeverKeyword
+                 | InferredTypeData::ObjectKeyword
+@@ -679,108 +751,40 @@
+         None
+     }
+ 
++    #[expect(
++        clippy::wildcard_enum_match_arm,
++        reason = "Only exact string literal key sets are supported."
++    )]
+     fn string_literal_keys(&mut self, ty: InferredTypeData<'db>) -> Option<Vec<Text>> {
+-        match self.resolve_inferred_type(ty) {
+-            InferredTypeData::Literal(literal) => match literal.literal(self.db) {
+-                InferredLiteral::String(value) => Some(vec![value.as_ref().clone()]),
+-                InferredLiteral::BigInt(_)
+-                | InferredLiteral::Boolean(_)
+-                | InferredLiteral::Number(_)
+-                | InferredLiteral::Object(_)
+-                | InferredLiteral::RegExp(_)
+-                | InferredLiteral::Template(_) => None,
+-            },
+-            InferredTypeData::Union(union) => Some(
+-                union
+-                    .types(self.db)
+-                    .to_vec()
+-                    .into_iter()
+-                    .filter_map(|ty| self.string_literal_key(ty))
+-                    .collect(),
+-            ),
+-            InferredTypeData::Unknown
+-            | InferredTypeData::Global
+-            | InferredTypeData::GlobalType(_)
+-            | InferredTypeData::BigInt
+-            | InferredTypeData::Boolean
+-            | InferredTypeData::Null
+-            | InferredTypeData::Number
+-            | InferredTypeData::String
+-            | InferredTypeData::Symbol
+-            | InferredTypeData::Undefined
+-            | InferredTypeData::Conditional
+-            | InferredTypeData::Class(_)
+-            | InferredTypeData::Constructor(_)
+-            | InferredTypeData::Function(_)
+-            | InferredTypeData::Interface(_)
+-            | InferredTypeData::Module(_)
+-            | InferredTypeData::Namespace(_)
+-            | InferredTypeData::Object(_)
+-            | InferredTypeData::Tuple(_)
+-            | InferredTypeData::Generic(_)
+-            | InferredTypeData::Local(_)
+-            | InferredTypeData::Intersection(_)
+-            | InferredTypeData::TypeOperator(_)
+-            | InferredTypeData::InstanceOf(_)
+-            | InferredTypeData::MergedReference(_)
+-            | InferredTypeData::TypeofExpression(_)
+-            | InferredTypeData::TypeofType(_)
+-            | InferredTypeData::TypeofValue(_)
+-            | InferredTypeData::AnyKeyword
+-            | InferredTypeData::NeverKeyword
+-            | InferredTypeData::ObjectKeyword
+-            | InferredTypeData::ThisKeyword
+-            | InferredTypeData::UnknownKeyword
+-            | InferredTypeData::VoidKeyword => None,
+-        }
+-    }
+-
+-    fn string_literal_key(&mut self, ty: InferredTypeData<'db>) -> Option<Text> {
+-        match self.resolve_inferred_type(ty) {
+-            InferredTypeData::Literal(literal) => match literal.literal(self.db) {
+-                InferredLiteral::String(value) => Some(value.as_ref().clone()),
+-                InferredLiteral::BigInt(_)
+-                | InferredLiteral::Boolean(_)
+-                | InferredLiteral::Number(_)
+-                | InferredLiteral::Object(_)
+-                | InferredLiteral::RegExp(_)
+-                | InferredLiteral::Template(_) => None,
+-            },
+-            InferredTypeData::Unknown
+-            | InferredTypeData::Global
+-            | InferredTypeData::GlobalType(_)
+-            | InferredTypeData::BigInt
+-            | InferredTypeData::Boolean
+-            | InferredTypeData::Null
+-            | InferredTypeData::Number
+-            | InferredTypeData::String
+-            | InferredTypeData::Symbol
+-            | InferredTypeData::Undefined
+-            | InferredTypeData::Conditional
+-            | InferredTypeData::Class(_)
+-            | InferredTypeData::Constructor(_)
+-            | InferredTypeData::Function(_)
+-            | InferredTypeData::Interface(_)
+-            | InferredTypeData::Module(_)
+-            | InferredTypeData::Namespace(_)
+-            | InferredTypeData::Object(_)
+-            | InferredTypeData::Tuple(_)
+-            | InferredTypeData::Generic(_)
+-            | InferredTypeData::Local(_)
+-            | InferredTypeData::Intersection(_)
+-            | InferredTypeData::Union(_)
+-            | InferredTypeData::TypeOperator(_)
+-            | InferredTypeData::InstanceOf(_)
+-            | InferredTypeData::MergedReference(_)
+-            | InferredTypeData::TypeofExpression(_)
+-            | InferredTypeData::TypeofType(_)
+-            | InferredTypeData::TypeofValue(_)
+-            | InferredTypeData::AnyKeyword
+-            | InferredTypeData::NeverKeyword
+-            | InferredTypeData::ObjectKeyword
+-            | InferredTypeData::ThisKeyword
+-            | InferredTypeData::UnknownKeyword
+-            | InferredTypeData::VoidKeyword => None,
++        let mut pending = vec![ty];
++        let mut keys = Vec::new();
++        for _ in 0..16384 {
++            let Some(ty) = pending.pop() else {
++                return Some(keys);
++            };
++            match self.resolve_inferred_type(ty) {
++                InferredTypeData::Literal(literal) => match literal.literal(self.db) {
++                    InferredLiteral::String(value) => keys.push(value.as_ref().clone()),
++                    _ => return None,
++                },
++                InferredTypeData::Union(union) => {
++                    pending.extend(union.types(self.db).iter().rev().copied())
++                }
++                InferredTypeData::InstanceOf(instance)
++                    if instance.type_parameters(self.db).is_empty() =>
++                {
++                    pending.push(instance.ty(self.db))
++                }
++                ty @ (InferredTypeData::TypeOperator(_) | InferredTypeData::IndexedAccess(_)) => {
++                    pending.push(crate::normalize_type(
++                        self.db,
++                        crate::NormalizeTypeInput::new(self.db, self.module, ty),
++                    ));
++                }
++                InferredTypeData::NeverKeyword => {}
++                _ => return None,
++            }
+         }
++        None
+     }
+ }
+diff -ruN a/crates/biome_module_graph/src/db/type_inference/resolver.rs b/crates/biome_module_graph/src/db/type_inference/resolver.rs
+--- a/crates/biome_module_graph/src/db/type_inference/resolver.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/db/type_inference/resolver.rs	2026-11-13 23:04:51.622478446 +0000
+@@ -912,6 +912,7 @@
+                 | InferredTypeData::Local(_)
+                 | InferredTypeData::Intersection(_)
+                 | InferredTypeData::Union(_)
++                | InferredTypeData::IndexedAccess(_)
+                 | InferredTypeData::TypeOperator(_)
+                 | InferredTypeData::Literal(_)
+                 | InferredTypeData::MergedReference(_)
+diff -ruN a/crates/biome_module_graph/src/lib.rs b/crates/biome_module_graph/src/lib.rs
+--- a/crates/biome_module_graph/src/lib.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/crates/biome_module_graph/src/lib.rs	2026-11-13 23:04:51.597271896 +0000
+@@ -55,3 +55,6 @@
+     resolve_js_module_with_inference_mode,
+ };
+ pub use path_info_cache::PathInfoCache;
++
++#[cfg(test)]
++mod projection_tests;
+diff -ruN a/crates/biome_module_graph/src/projection_tests.rs b/crates/biome_module_graph/src/projection_tests.rs
+--- a/crates/biome_module_graph/src/projection_tests.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/biome_module_graph/src/projection_tests.rs	2026-11-13 23:04:51.597271896 +0000
+@@ -0,0 +1,386 @@
++use crate::*;
++use biome_db::ParsedSource;
++use biome_db::testing::{Events, function_query_will_execute_count_by_name};
++use biome_fs::{BiomePath, MemoryFileSystem};
++use biome_js_type_info::{InferredSwitchCase, InferredType, interned_types::TypeData};
++use biome_languages::{DocumentFileSource, LanguageDb};
++use biome_project_layout::ProjectLayout;
++use biome_rowan::TextRange;
++use biome_test_utils::get_added_js_paths;
++use camino::{Utf8Path, Utf8PathBuf};
++use salsa::Setter;
++use std::collections::BTreeMap;
++
++#[salsa::db]
++struct TestDb {
++    storage: salsa::Storage<Self>,
++    modules: BTreeMap<Utf8PathBuf, ModuleInfo>,
++    events: Events,
++}
++
++impl TestDb {
++    fn new() -> Self {
++        let events = Events::default();
++        let db = Self {
++            storage: salsa::Storage::new(Some(Box::new({
++                let events = events.clone();
++                move |event| events.0.lock().unwrap().push(event)
++            }))),
++            modules: BTreeMap::new(),
++            events,
++        };
++        ModuleGraphGeneration::new(&db, 0);
++        db
++    }
++
++    fn add(&mut self, fs: &MemoryFileSystem, path: &str, source: &str) -> ModuleInfo {
++        fs.insert(path.into(), source);
++        let paths = [BiomePath::new(path)];
++        let mut parsed = get_added_js_paths(fs, &paths);
++        let (path, root, semantic) = parsed.pop().unwrap();
++        let (info, _, _) = resolve_js_module(
++            root,
++            path,
++            fs,
++            &ProjectLayout::default(),
++            semantic,
++            &PathInfoCache::default(),
++            true,
++        );
++        let kind = ModuleInfoKind::Js(info);
++        if let Some(module) = self.modules.get(path.as_path()).copied() {
++            module.set_kind(self).to(kind);
++            module
++        } else {
++            let module = ModuleInfo::new(self, path.as_path().to_owned(), kind);
++            self.modules.insert(path.as_path().to_owned(), module);
++            module
++        }
++    }
++
++    fn range(&self, module: ModuleInfo, name: &str) -> TextRange {
++        let ModuleInfoKind::Js(info) = module.kind(self) else {
++            panic!()
++        };
++        info.semantic_model
++            .all_bindings()
++            .find(|binding| {
++                binding
++                    .tree()
++                    .name_token()
++                    .is_ok_and(|token| token.text_trimmed() == name)
++            })
++            .unwrap()
++            .syntax()
++            .text_trimmed_range()
++    }
++
++    fn ty(&self, module: ModuleInfo, name: &str) -> TypeData<'_> {
++        let ty = infer_binding_type(
++            self,
++            BindingTypeInput::new(self, module, self.range(module, name)),
++        )
++        .unwrap();
++        normalize_type(self, NormalizeTypeInput::new(self, module, ty))
++    }
++
++    fn cases(&self, module: ModuleInfo, name: &str) -> Vec<InferredSwitchCase> {
++        let ty = self.ty(module, name);
++        InferredType::new(self, ty)
++            .try_switch_case_variants()
++            .unwrap()
++    }
++}
++
++#[salsa::db]
++impl salsa::Database for TestDb {}
++#[salsa::db]
++impl biome_db::Db for TestDb {
++    fn parsed_source_for_path(&self, _: &Utf8Path) -> Option<ParsedSource> {
++        None
++    }
++}
++#[salsa::db]
++impl LanguageDb for TestDb {
++    fn source_from_index(&self, _: usize) -> Option<DocumentFileSource> {
++        None
++    }
++}
++#[salsa::db]
++impl TypeDb for TestDb {}
++#[salsa::db]
++impl ModuleDb for TestDb {
++    fn module_for_path(&self, path: &Utf8Path) -> Option<ModuleInfo> {
++        self.modules.get(path).copied()
++    }
++    fn for_each_module(&self, f: &mut dyn FnMut(ModuleInfo)) {
++        for module in self.modules.values() {
++            f(*module);
++        }
++    }
++}
++
++fn strings(names: &[&str]) -> Vec<InferredSwitchCase> {
++    names
++        .iter()
++        .map(|name| InferredSwitchCase::String((*name).to_owned().into()))
++        .collect()
++}
++
++#[test]
++fn projections_resolve_aliases_and_const_literals() {
++    let fs = MemoryFileSystem::default();
++    let mut db = TestDb::new();
++    let module = db.add(
++        &fs,
++        "/src/index.ts",
++        r#"
++        const letters = ["A", "B", "C"] as const;
++        type Index = number;
++        type Values = typeof letters;
++        declare const tuple: Values[Index];
++        declare const readonlyTuple: (readonly ["A", "B", "C"])[number];
++        declare const array: string[][number];
++        type ObjectType = { A: number; B?: number; C: number };
++        const object = { A: 1, B: 2, C: 3 } as const;
++        declare const keys: keyof ObjectType;
++        declare const valueKeys: keyof typeof object;
++        declare const partial: keyof Partial<ObjectType>;
++        declare const required: keyof Required<ObjectType>;
++        declare const readonlyObject: keyof Readonly<ObjectType>;
++        declare const pick: keyof Pick<ObjectType, "A" | "C">;
++        declare const omit: keyof Omit<ObjectType, "B">;
++        type SelectedKeys = "A" | "C";
++        declare const aliasedPick: keyof Pick<ObjectType, SelectedKeys>;
++        declare const emptyPick: keyof Pick<ObjectType, never>;
++        declare const escaped: keyof { "\u0041": number; B: number; C: number };
++        declare const optional: ["A"?][number];
++        const computedObject = { ["\u0041"]: 1, B: 2, C: 3 };
++        const escapedValues = ["\u0041", "B", "C"] as const;
++        declare const escapedTuple: (typeof escapedValues)[number];
++        declare const computedKeys: keyof typeof computedObject;
++        declare const computedPick: keyof Pick<typeof computedObject, "A" | "C">;
++        type SpecialKeys = { NaN: 1; Infinity: 2 };
++        declare const special: keyof SpecialKeys;
++        declare const specialOmit: keyof Omit<SpecialKeys, "NaN">;
++    "#,
++    );
++    for name in [
++        "tuple",
++        "readonlyTuple",
++        "keys",
++        "valueKeys",
++        "partial",
++        "required",
++        "readonlyObject",
++        "escaped",
++        "computedKeys",
++        "escapedTuple",
++    ] {
++        assert_eq!(db.cases(module, name), strings(&["A", "B", "C"]), "{name}");
++    }
++    for name in ["pick", "omit", "aliasedPick", "computedPick"] {
++        assert_eq!(db.cases(module, name), strings(&["A", "C"]), "{name}");
++    }
++    assert_eq!(db.ty(module, "array"), TypeData::String);
++    assert_eq!(db.ty(module, "emptyPick"), TypeData::NeverKeyword);
++    assert_eq!(db.cases(module, "special"), strings(&["NaN", "Infinity"]));
++    assert_eq!(db.cases(module, "specialOmit"), strings(&["Infinity"]));
++    let keys = db.ty(module, "keys");
++    assert!(InferredType::new(&db, keys).is_all_string_like());
++    assert_eq!(
++        db.cases(module, "optional"),
++        vec![
++            InferredSwitchCase::String("A".into()),
++            InferredSwitchCase::Undefined
++        ]
++    );
++}
++
++#[test]
++fn projections_preserve_uncertainty() {
++    let fs = MemoryFileSystem::default();
++    let mut db = TestDb::new();
++    let module = db.add(
++        &fs,
++        "/src/index.ts",
++        r#"
++        const mutableArray = ["A", "B"];
++        declare const mutable: (typeof mutableArray)[number];
++        type Self = [Self];
++        declare const recursive: Self[number];
++        declare const invalidIndex: ["A"][string];
++        declare const unknownElement: [unknown, 1][number];
++        declare const anyElement: [any, 1][number];
++        const unresolvedValues = [missingValue, 1] as const;
++        declare const unresolvedElement: (typeof unresolvedValues)[number];
++        declare const rest: ["A", ...string[]][number];
++        declare const primitiveKeys: keyof string;
++        declare const constructorKeys: keyof { new(): object; A: 1 };
++        declare const constructorPick: keyof Pick<{ new(): object; A: 1 }, "A">;
++        declare const intersection: keyof ({ A: 1 } & { B: 2 });
++        declare const inherited: keyof Readonly<Interface>;
++        interface Interface { A: 1; }
++        declare const numericKeys: keyof { 1: string; A: string };
++        declare const hexadecimalKeys: keyof { 0x1: string; A: string };
++        declare const binaryKeys: keyof { 0b1: string; A: string };
++        declare const indexKeys: keyof { A: string; [key: string]: string };
++        declare const computed: keyof { [Symbol.iterator](): void; A: string };
++        declare const spread: keyof typeof object;
++        const object = { ...external, A: 1 };
++        declare const pick: keyof Pick<{ A: string; [key: string]: string }, "A">;
++        declare const badKey: keyof Omit<{ A: string; B: string }, "A" | number>;
++    "#,
++    );
++    for name in [
++        "recursive",
++        "mutable",
++        "invalidIndex",
++        "unknownElement",
++        "anyElement",
++        "unresolvedElement",
++        "rest",
++        "primitiveKeys",
++        "constructorKeys",
++        "constructorPick",
++        "intersection",
++        "inherited",
++        "numericKeys",
++        "hexadecimalKeys",
++        "binaryKeys",
++        "indexKeys",
++        "computed",
++        "spread",
++        "pick",
++        "badKey",
++    ] {
++        assert_eq!(db.ty(module, name), TypeData::Unknown, "{name}");
++    }
++}
++
++#[test]
++fn imported_projections_are_incremental() {
++    let fs = MemoryFileSystem::default();
++    fs.insert(
++        "/src/defs.ts".into(),
++        "export const letters = ['A', 'B', 'C'] as const;",
++    );
++    let mut db = TestDb::new();
++    db.add(
++        &fs,
++        "/src/defs.ts",
++        "export const letters = ['A', 'B', 'C'] as const;",
++    );
++    let module = db.add(
++        &fs,
++        "/src/index.ts",
++        "import { letters } from './defs'; declare const value: (typeof letters)[number];",
++    );
++    db.add(&fs, "/src/other.ts", "export const other = 1;");
++    db.events.0.lock().unwrap().clear();
++    assert_eq!(db.cases(module, "value"), strings(&["A", "B", "C"]));
++    let events = std::mem::take(&mut *db.events.0.lock().unwrap());
++    assert_eq!(
++        function_query_will_execute_count_by_name(&db, "infer_module_types", &events),
++        0
++    );
++    db.add(&fs, "/src/other.ts", "export const other = 2;");
++    db.events.0.lock().unwrap().clear();
++    assert_eq!(db.cases(module, "value"), strings(&["A", "B", "C"]));
++    let events = std::mem::take(&mut *db.events.0.lock().unwrap());
++    assert_eq!(
++        function_query_will_execute_count_by_name(&db, "normalize_type", &events),
++        0
++    );
++    db.add(
++        &fs,
++        "/src/defs.ts",
++        "export const letters = ['A', 'D'] as const;",
++    );
++    assert_eq!(db.cases(module, "value"), strings(&["A", "D"]));
++}
++
++#[test]
++fn projection_size_limits_are_exact() {
++    for count in [1024, 1025] {
++        let fs = MemoryFileSystem::default();
++        let mut db = TestDb::new();
++        let elements = (0..count)
++            .map(|i| format!("\"K{i}\""))
++            .collect::<Vec<_>>()
++            .join(",");
++        let members = (0..count)
++            .map(|i| format!("K{i}: number"))
++            .collect::<Vec<_>>()
++            .join(";");
++        let source = format!(
++            "declare const tuple: [{elements}][number]; declare const keys: keyof {{{members}}};"
++        );
++        let module = db.add(&fs, "/src/index.ts", &source);
++        for name in ["tuple", "keys"] {
++            let ty = db.ty(module, name);
++            if count == 1025 {
++                assert_eq!(ty, TypeData::Unknown, "{name}");
++            } else {
++                let TypeData::Union(union) = ty else {
++                    panic!("{name}: {ty:?}")
++                };
++                assert_eq!(union.types(&db).len(), count);
++            }
++        }
++    }
++}
++
++#[test]
++fn imported_alias_operands_and_object_keys_update_without_module_inference() {
++    let fs = MemoryFileSystem::default();
++    let mut db = TestDb::new();
++    let definitions = r#"
++        export type Values = readonly ["A", "B", "C"];
++        export type Index = number;
++        export type ObjectType = { A: 1; B: 2; C: 3 };
++        export const object = { A: unknownValue, B: unknownValue, C: unknownValue };
++    "#;
++    db.add(&fs, "/src/defs.ts", definitions);
++    let module = db.add(
++        &fs,
++        "/src/index.ts",
++        r#"
++        import type { Values, Index, ObjectType } from './defs';
++        import { object } from './defs';
++        declare const tuple: Values[Index];
++        declare const keys: keyof typeof object;
++        declare const utility: keyof Partial<ObjectType>;
++        declare const element: { value: unknown }[][number];
++    "#,
++    );
++    db.events.0.lock().unwrap().clear();
++    for name in ["tuple", "keys", "utility"] {
++        assert_eq!(db.cases(module, name), strings(&["A", "B", "C"]), "{name}");
++    }
++    assert!(InferredType::new(&db, db.ty(module, "element")).is_non_nullish());
++    let events = std::mem::take(&mut *db.events.0.lock().unwrap());
++    assert_eq!(
++        function_query_will_execute_count_by_name(&db, "infer_module_types", &events),
++        0
++    );
++    db.add(
++        &fs,
++        "/src/defs.ts",
++        r#"
++        export type Values = readonly ["A", "D"];
++        export type Index = number;
++        export type ObjectType = { A: 1; D: 4 };
++        export const object = { A: unknownValue, D: unknownValue };
++    "#,
++    );
++    db.events.0.lock().unwrap().clear();
++    for name in ["tuple", "keys", "utility"] {
++        assert_eq!(db.cases(module, name), strings(&["A", "D"]), "{name}");
++    }
++    let events = std::mem::take(&mut *db.events.0.lock().unwrap());
++    assert_eq!(
++        function_query_will_execute_count_by_name(&db, "infer_module_types", &events),
++        0
++    );
++}
+diff -ruN a/xtask/codegen/src/generate_global_types/emit.rs b/xtask/codegen/src/generate_global_types/emit.rs
+--- a/xtask/codegen/src/generate_global_types/emit.rs	2026-09-14 19:34:15.000000000 +0000
++++ b/xtask/codegen/src/generate_global_types/emit.rs	2026-11-13 23:04:52.687432989 +0000
+@@ -202,7 +202,7 @@
+             "crate::TypeData::Union(Box::new(crate::Union({})))",
+             render_type_references(types),
+         ),
+-        LoweredTypeData::Tuple(elements) => format!("crate::TypeData::from(crate::Tuple(Box::new([{}])))", elements.iter().map(|ty| format!("crate::TupleElementType {{ ty: {}, name: None, is_optional: false, is_rest: false }}", render_type_reference(ty))).collect::<Vec<_>>().join(",")),
++        LoweredTypeData::Tuple(elements) => format!("crate::TypeData::from(crate::Tuple(Box::new([{}]), true))", elements.iter().map(|ty| format!("crate::TupleElementType {{ ty: {}, name: None, is_optional: false, is_rest: false }}", render_type_reference(ty))).collect::<Vec<_>>().join(",")),
+         LoweredTypeData::Symbol => "crate::TypeData::Symbol".to_string(),
+         LoweredTypeData::Undefined => "crate::TypeData::Undefined".to_string(),
+         LoweredTypeData::InstanceOf {

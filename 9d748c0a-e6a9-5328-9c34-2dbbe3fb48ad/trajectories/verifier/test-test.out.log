@@ -1,0 +1,52 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< io.fabric8:crd-generator-test >--------------------
+[INFO] Building Fabric8 :: CRD generator :: Tests 999-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-java) @ crd-generator-test ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] 
+[INFO] --- build-helper:3.6.2:parse-version (parse-version) @ crd-generator-test ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ crd-generator-test ---
+[INFO] Copying 0 resource from target/classes to target/classes
+[INFO] skip non existing resourceDirectory /tmp/grade/work/src/crd-generator/test/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ crd-generator-test ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- jandex:3.6.0:jandex (make-index) @ crd-generator-test ---
+[INFO] Saving Jandex index: /tmp/grade/work/src/crd-generator/test/target/classes/META-INF/jandex.idx
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ crd-generator-test ---
+[INFO] Copying 17 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ crd-generator-test ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 56 source files with javac [debug deprecation release 17] to target/test-classes
+[WARNING] /tmp/grade/work/src/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/inherited/ChildSpec.java:[22,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /tmp/grade/work/src/crd-generator/test/src/test/java/io/fabric8/crd/generator/approvaltests/map/ContainingMaps.java:[27,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ crd-generator-test ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.296 s -- in io.fabric8.crd.generator.approvaltests.CRDGeneratorApprovalTest
+[INFO] Running io.fabric8.crd.generator.keycloak.KeycloakRealmTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.402 s -- in io.fabric8.crd.generator.keycloak.KeycloakRealmTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.523 s
+[INFO] Finished at: 2026-11-13T21:17:09Z
+[INFO] ------------------------------------------------------------------------

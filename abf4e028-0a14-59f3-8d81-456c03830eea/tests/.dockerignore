@@ -1,0 +1,11 @@
+*
+!grading/
+!grading/**
+!exec-tools/
+!exec-tools/package.json
+!exec-tools/package-lock.json
+!rewardkit.lock
+!test.sh
+!test_output.py
+!judge.toml
+!reward.toml

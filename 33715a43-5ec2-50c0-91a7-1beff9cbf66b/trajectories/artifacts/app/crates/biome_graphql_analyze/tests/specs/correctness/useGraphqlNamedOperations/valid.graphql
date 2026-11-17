@@ -1,0 +1,4 @@
+# should not generate diagnostics
+query SomeQuery { human }
+mutation SomeMutation { ...Type }
+subscription SomeSubscription {}

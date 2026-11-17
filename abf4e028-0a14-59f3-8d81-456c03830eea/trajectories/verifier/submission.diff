@@ -1,0 +1,1518 @@
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/lib.rs b/crates/swc_ecma_transforms_typescript/src/lib.rs
+--- a/crates/swc_ecma_transforms_typescript/src/lib.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/lib.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -58,6 +58,7 @@
+ pub use self::typescript::*;
+ mod config;
+ mod macros;
++mod namespace;
+ mod retain;
+ mod semantic;
+ mod shared;
+@@ -65,3 +66,7 @@
+ mod ts_enum;
+ pub mod typescript;
+ mod utils;
++mod value_bindings;
++
++#[cfg(test)]
++mod namespace_tests;
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/namespace/declarations.rs b/crates/swc_ecma_transforms_typescript/src/namespace/declarations.rs
+--- a/crates/swc_ecma_transforms_typescript/src/namespace/declarations.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/namespace/declarations.rs	2026-11-13 16:08:48.880868526 +0000
+@@ -0,0 +1,220 @@
++//! Collect identities and value members across all bodies of a namespace.
++use rustc_hash::{FxHashMap, FxHashSet};
++use swc_atoms::Atom;
++use swc_ecma_ast::*;
++use swc_ecma_utils::find_pat_ids;
++use swc_ecma_visit::{noop_visit_type, Visit, VisitWith};
++
++use crate::retain::IsConcrete;
++
++#[derive(Default)]
++pub(super) struct Declarations {
++    pub(super) members: FxHashMap<Id, FxHashSet<Atom>>,
++    pub(super) exports: FxHashMap<(Id, Atom), Id>,
++    pub(super) aliases: FxHashMap<Id, Id>,
++    pub(super) properties: FxHashSet<Id>,
++    namespace: Option<Id>,
++    ambient: bool,
++    pub(super) types: FxHashSet<Id>,
++    pub(super) values: FxHashSet<Id>,
++    pub(super) imports: FxHashMap<Id, TsEntityName>,
++}
++
++impl Declarations {
++    fn export(&mut self, id: Id) {
++        let Some(namespace) = &self.namespace else {
++            return;
++        };
++        self.members
++            .entry(namespace.clone())
++            .or_default()
++            .insert(id.0.clone());
++        self.export_type(id);
++    }
++
++    fn export_type(&mut self, id: Id) {
++        let Some(namespace) = &self.namespace else {
++            return;
++        };
++        let canonical = self
++            .exports
++            .entry((namespace.clone(), id.0.clone()))
++            .or_insert_with(|| id.clone());
++        if &id != canonical {
++            self.aliases.insert(id, canonical.clone());
++        }
++    }
++
++    fn export_decl(&mut self, decl: &Decl) {
++        match decl {
++            Decl::Var(n) => {
++                for id in find_pat_ids::<_, Id>(&n.decls) {
++                    self.properties.insert(id.clone());
++                    self.export(id);
++                }
++            }
++            Decl::Fn(n) => self.export(n.ident.to_id()),
++            Decl::Class(n) => self.export(n.ident.to_id()),
++            Decl::TsEnum(n) => {
++                self.properties.insert(n.id.to_id());
++                self.export(n.id.to_id());
++            }
++            Decl::TsModule(n) => {
++                if let TsModuleName::Ident(id) = &n.id {
++                    if namespace_has_value(n, self.ambient) {
++                        self.properties.insert(id.to_id());
++                        self.export(id.to_id());
++                    } else {
++                        self.export_type(id.to_id());
++                    }
++                }
++            }
++            Decl::TsInterface(n) => self.export_type(n.id.to_id()),
++            Decl::TsTypeAlias(n) => self.export_type(n.id.to_id()),
++            _ => {}
++        }
++    }
++
++    fn body(&mut self, id: Id, body: &TsNamespaceBody) {
++        let id = self.aliases.get(&id).cloned().unwrap_or(id);
++        let old = self.namespace.replace(id);
++        body.visit_with(self);
++        self.namespace = old;
++    }
++}
++
++impl Visit for Declarations {
++    noop_visit_type!();
++
++    fn visit_export_decl(&mut self, n: &ExportDecl) {
++        self.export_decl(&n.decl);
++        n.visit_children_with(self);
++    }
++
++    fn visit_ts_import_equals_decl(&mut self, n: &TsImportEqualsDecl) {
++        if n.is_type_only {
++            self.types.insert(n.id.to_id());
++        } else if let TsModuleRef::TsEntityName(name) = &n.module_ref {
++            self.imports.insert(n.id.to_id(), name.clone());
++        }
++        if n.is_export || self.ambient {
++            if n.is_type_only {
++                self.export_type(n.id.to_id());
++            } else {
++                self.properties.insert(n.id.to_id());
++                self.export(n.id.to_id());
++            }
++        }
++    }
++
++    fn visit_decl(&mut self, n: &Decl) {
++        if self.ambient {
++            self.export_decl(n);
++        }
++        match n {
++            Decl::TsInterface(n) => {
++                self.types.insert(n.id.to_id());
++            }
++            Decl::TsTypeAlias(n) => {
++                self.types.insert(n.id.to_id());
++            }
++            Decl::Fn(n) => {
++                self.values.insert(n.ident.to_id());
++            }
++            Decl::Class(n) => {
++                self.values.insert(n.ident.to_id());
++            }
++            Decl::Var(n) => {
++                self.values.extend(find_pat_ids::<_, Id>(&n.decls));
++            }
++            _ => {}
++        }
++        n.visit_children_with(self);
++    }
++
++    fn visit_ts_module_decl(&mut self, n: &TsModuleDecl) {
++        if let (TsModuleName::Ident(id), Some(body)) = (&n.id, &n.body) {
++            if namespace_has_value(n, self.ambient) {
++                self.values.insert(id.to_id());
++            } else {
++                self.types.insert(id.to_id());
++            }
++            let old = self.ambient;
++            self.ambient |= n.declare;
++            self.body(id.to_id(), body);
++            self.ambient = old;
++        }
++    }
++
++    fn visit_ts_namespace_decl(&mut self, n: &TsNamespaceDecl) {
++        if if n.declare || self.ambient {
++            ambient_body_has_value(&n.body)
++        } else {
++            n.body.is_concrete()
++        } {
++            self.values.insert(n.id.to_id());
++            self.export(n.id.to_id());
++        } else {
++            self.types.insert(n.id.to_id());
++            self.export_type(n.id.to_id());
++        }
++        let old = self.ambient;
++        self.ambient |= n.declare;
++        self.body(n.id.to_id(), &n.body);
++        self.ambient = old;
++    }
++
++    fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
++        self.values.insert(n.id.to_id());
++        let id = self
++            .aliases
++            .get(&n.id.to_id())
++            .cloned()
++            .unwrap_or_else(|| n.id.to_id());
++        let members = self.members.entry(id).or_default();
++        for member in &n.members {
++            match &member.id {
++                TsEnumMemberId::Ident(id) => {
++                    members.insert(id.sym.clone());
++                }
++                TsEnumMemberId::Str(s) => {
++                    if let Some(name) = s.value.as_atom() {
++                        members.insert(name.clone());
++                    }
++                }
++                #[cfg(swc_ast_unknown)]
++                _ => {}
++            }
++        }
++        n.members.visit_with(self);
++    }
++}
++
++/// Ambient functions and variables are values even though they emit no code.
++/// A namespace containing only interfaces or type aliases has no value space.
++fn namespace_has_value(n: &TsModuleDecl, ambient: bool) -> bool {
++    if n.declare || ambient {
++        n.body.as_ref().is_some_and(ambient_body_has_value)
++    } else {
++        n.is_concrete()
++    }
++}
++
++fn ambient_body_has_value(body: &TsNamespaceBody) -> bool {
++    match body {
++        TsNamespaceBody::TsNamespaceDecl(n) => ambient_body_has_value(&n.body),
++        TsNamespaceBody::TsModuleBlock(block) => block.body.iter().any(|item| match item {
++            ModuleItem::Stmt(Stmt::Decl(decl))
++            | ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl { decl, .. })) => match decl
++            {
++                Decl::TsInterface(_) | Decl::TsTypeAlias(_) => false,
++                Decl::TsModule(n) => namespace_has_value(n, true),
++                _ => true,
++            },
++            ModuleItem::ModuleDecl(ModuleDecl::TsImportEquals(n)) => !n.is_type_only,
++            _ => false,
++        }),
++        #[cfg(swc_ast_unknown)]
++        _ => false,
++    }
++}
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/namespace/locals.rs b/crates/swc_ecma_transforms_typescript/src/namespace/locals.rs
+--- a/crates/swc_ecma_transforms_typescript/src/namespace/locals.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/namespace/locals.rs	2026-11-13 16:08:48.880868526 +0000
+@@ -0,0 +1,103 @@
++use rustc_hash::FxHashSet;
++use swc_ecma_ast::*;
++use swc_ecma_visit::{noop_visit_type, Visit, VisitWith};
++
++/// Resolved ids distinguish a body's bindings (including nested parameters and
++/// block bindings) from outer bindings with the same spelling. Nested namespace
++/// and enum bodies get their own frames, so do not collect their bindings here;
++/// this also keeps collection linear for deeply nested namespaces.
++#[derive(Default)]
++pub(super) struct Locals {
++    pub(super) ids: FxHashSet<Id>,
++    assignment_target: bool,
++}
++impl Visit for Locals {
++    noop_visit_type!();
++
++    fn visit_binding_ident(&mut self, n: &BindingIdent) {
++        if !self.assignment_target {
++            self.ids.insert(n.to_id());
++        }
++    }
++
++    fn visit_assign_expr(&mut self, n: &AssignExpr) {
++        // Assignment patterns reuse BindingIdent nodes, but do not declare
++        // bindings. Their references must participate in merged lookup.
++        let old = std::mem::replace(&mut self.assignment_target, true);
++        n.left.visit_with(self);
++        self.assignment_target = old;
++        n.right.visit_with(self);
++    }
++
++    fn visit_for_head(&mut self, n: &ForHead) {
++        let old = std::mem::replace(&mut self.assignment_target, matches!(n, ForHead::Pat(_)));
++        n.visit_children_with(self);
++        self.assignment_target = old;
++    }
++
++    fn visit_function(&mut self, n: &Function) {
++        let old = std::mem::replace(&mut self.assignment_target, false);
++        n.visit_children_with(self);
++        self.assignment_target = old;
++    }
++
++    fn visit_arrow_expr(&mut self, n: &ArrowExpr) {
++        let old = std::mem::replace(&mut self.assignment_target, false);
++        n.visit_children_with(self);
++        self.assignment_target = old;
++    }
++
++    fn visit_class(&mut self, n: &Class) {
++        let old = std::mem::replace(&mut self.assignment_target, false);
++        n.visit_children_with(self);
++        self.assignment_target = old;
++    }
++
++    fn visit_setter_prop(&mut self, n: &SetterProp) {
++        let old = std::mem::replace(&mut self.assignment_target, false);
++        n.visit_children_with(self);
++        self.assignment_target = old;
++    }
++
++    fn visit_fn_decl(&mut self, n: &FnDecl) {
++        self.ids.insert(n.ident.to_id());
++        n.function.visit_with(self);
++    }
++
++    fn visit_class_decl(&mut self, n: &ClassDecl) {
++        self.ids.insert(n.ident.to_id());
++        n.class.visit_with(self);
++    }
++
++    fn visit_fn_expr(&mut self, n: &FnExpr) {
++        if let Some(id) = &n.ident {
++            self.ids.insert(id.to_id());
++        }
++        n.function.visit_with(self);
++    }
++
++    fn visit_class_expr(&mut self, n: &ClassExpr) {
++        if let Some(id) = &n.ident {
++            self.ids.insert(id.to_id());
++        }
++        n.class.visit_with(self);
++    }
++
++    fn visit_ts_module_decl(&mut self, n: &TsModuleDecl) {
++        if let TsModuleName::Ident(id) = &n.id {
++            self.ids.insert(id.to_id());
++        }
++    }
++
++    fn visit_ts_namespace_decl(&mut self, n: &TsNamespaceDecl) {
++        self.ids.insert(n.id.to_id());
++    }
++
++    fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
++        self.ids.insert(n.id.to_id());
++    }
++
++    fn visit_ts_import_equals_decl(&mut self, n: &TsImportEqualsDecl) {
++        self.ids.insert(n.id.to_id());
++    }
++}
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/namespace.rs b/crates/swc_ecma_transforms_typescript/src/namespace.rs
+--- a/crates/swc_ecma_transforms_typescript/src/namespace.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/namespace.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -0,0 +1,287 @@
++//! Reconcile the lexical scopes produced by the resolver with TypeScript's
++//! declaration merging. Private bindings stay local to a body; exported values
++//! are visible from every body, including bodies preceding their declaration.
++use rustc_hash::{FxHashMap, FxHashSet};
++use swc_ecma_ast::*;
++use swc_ecma_utils::{ExprFactory, QueryRef, RefRewriter};
++use swc_ecma_visit::{VisitMut, VisitMutWith, VisitWith};
++
++mod declarations;
++mod locals;
++
++use self::{declarations::Declarations, locals::Locals};
++
++pub(crate) fn reconcile(program: &mut Program) -> crate::value_bindings::ValueBindings {
++    let mut declarations;
++    loop {
++        declarations = Declarations::default();
++        program.visit_with(&mut declarations);
++        if !declarations.aliases.is_empty() {
++            program.visit_mut_with(&mut Canonicalize(&declarations.aliases));
++            // Recollect after canonicalizing nested exported declarations.
++            declarations = Declarations::default();
++            program.visit_with(&mut declarations);
++        }
++        if declarations.imports.is_empty() {
++            break;
++        }
++        let bindings = crate::value_bindings::ValueBindings {
++            exports: declarations.exports.clone(),
++            imports: std::mem::take(&mut declarations.imports),
++        };
++        let type_aliases: FxHashSet<_> = bindings
++            .imports
++            .keys()
++            .filter(|id| {
++                bindings.alias_target(id).is_some_and(|target| {
++                    declarations.types.contains(&target) && !declarations.values.contains(&target)
++                })
++            })
++            .cloned()
++            .collect();
++        if type_aliases.is_empty() {
++            break;
++        }
++        let mut prune = TypeOnlyAliases {
++            ids: &type_aliases,
++            changed: false,
++        };
++        program.visit_mut_with(&mut prune);
++        if !prune.changed {
++            break;
++        }
++        // Removing an alias can make its containing namespace type-only, which
++        // in turn makes aliases to that namespace type-only. Each iteration
++        // marks at least one new alias; cycles therefore cannot stall this
++        // pass.
++    }
++    if declarations.members.is_empty() {
++        return Default::default();
++    }
++    let mut references = References {
++        declarations: &declarations,
++        frames: Vec::new(),
++        imports: Default::default(),
++    };
++    program.visit_mut_with(&mut references);
++    let imports = references.imports;
++    crate::value_bindings::ValueBindings {
++        exports: declarations.exports,
++        imports,
++    }
++}
++
++struct TypeOnlyAliases<'a> {
++    ids: &'a FxHashSet<Id>,
++    changed: bool,
++}
++impl VisitMut for TypeOnlyAliases<'_> {
++    fn visit_mut_ts_type(&mut self, _: &mut TsType) {}
++
++    fn visit_mut_ts_import_equals_decl(&mut self, n: &mut TsImportEqualsDecl) {
++        if !n.is_type_only && self.ids.contains(&n.id.to_id()) {
++            n.is_type_only = true;
++            self.changed = true;
++        }
++    }
++}
++
++struct Canonicalize<'a>(&'a FxHashMap<Id, Id>);
++impl VisitMut for Canonicalize<'_> {
++    fn visit_mut_ident(&mut self, n: &mut Ident) {
++        if let Some(id) = self.0.get(&n.to_id()) {
++            n.ctxt = id.1;
++        }
++    }
++}
++
++struct Frame {
++    id: Id,
++    locals: FxHashSet<Id>,
++}
++struct References<'a> {
++    declarations: &'a Declarations,
++    frames: Vec<Frame>,
++    imports: FxHashMap<Id, TsEntityName>,
++}
++impl QueryRef for References<'_> {
++    fn query_ref(&self, ident: &Ident) -> Option<Box<Expr>> {
++        for frame in self.frames.iter().rev() {
++            if frame.locals.contains(&ident.to_id()) {
++                return None;
++            }
++            if self
++                .declarations
++                .members
++                .get(&frame.id)
++                .is_some_and(|members| members.contains(&ident.sym))
++            {
++                return Some(frame.id.clone().make_member(ident.clone().into()).into());
++            }
++        }
++        None
++    }
++
++    fn query_lhs(&self, ident: &Ident) -> Option<Box<Expr>> {
++        self.query_ref(ident)
++    }
++
++    fn query_jsx(&self, ident: &Ident) -> Option<JSXElementName> {
++        let Expr::Member(member) = *self.query_ref(ident)? else {
++            return None;
++        };
++        let Expr::Ident(obj) = *member.obj else {
++            return None;
++        };
++        Some(
++            JSXMemberExpr {
++                span: ident.span,
++                obj: JSXObject::Ident(obj),
++                prop: ident.clone().into(),
++            }
++            .into(),
++        )
++    }
++}
++impl QueryRef for &References<'_> {
++    fn query_ref(&self, ident: &Ident) -> Option<Box<Expr>> {
++        (**self).query_ref(ident)
++    }
++
++    fn query_lhs(&self, ident: &Ident) -> Option<Box<Expr>> {
++        (**self).query_lhs(ident)
++    }
++
++    fn query_jsx(&self, ident: &Ident) -> Option<JSXElementName> {
++        (**self).query_jsx(ident)
++    }
++}
++impl References<'_> {
++    fn body(&mut self, id: Id, body: &mut TsNamespaceBody) {
++        let mut locals = Locals::default();
++        body.visit_with(&mut locals);
++        self.frames.push(Frame {
++            id,
++            locals: locals.ids,
++        });
++        body.visit_mut_with(self);
++        self.frames.pop();
++    }
++}
++impl VisitMut for References<'_> {
++    fn visit_mut_ts_type(&mut self, _: &mut TsType) {}
++
++    fn visit_mut_ts_import_equals_decl(&mut self, n: &mut TsImportEqualsDecl) {
++        if n.is_type_only {
++            return;
++        }
++        n.module_ref.visit_mut_with(self);
++        if let TsModuleRef::TsEntityName(name) = &n.module_ref {
++            self.imports.insert(n.id.to_id(), name.clone());
++        }
++    }
++
++    fn visit_mut_ts_entity_name(&mut self, n: &mut TsEntityName) {
++        match n {
++            TsEntityName::Ident(ident) => {
++                let replacement = self.query_ref(ident).or_else(|| {
++                    // Exported variables, namespaces, enums and aliases have
++                    // property storage even in their own body. Entity names
++                    // bypass the ordinary expression reference rewriter.
++                    if !self.declarations.properties.contains(&ident.to_id()) {
++                        return None;
++                    }
++                    for frame in self.frames.iter().rev() {
++                        if frame.locals.contains(&ident.to_id()) {
++                            return (self
++                                .declarations
++                                .exports
++                                .get(&(frame.id.clone(), ident.sym.clone()))
++                                == Some(&ident.to_id()))
++                            .then(|| frame.id.clone().make_member(ident.clone().into()).into());
++                        }
++                    }
++                    None
++                });
++                if let Some(expr) = replacement {
++                    match *expr {
++                        Expr::Member(MemberExpr {
++                            obj,
++                            prop: MemberProp::Ident(right),
++                            ..
++                        }) => {
++                            if let Expr::Ident(left) = *obj {
++                                *n = TsEntityName::TsQualifiedName(Box::new(TsQualifiedName {
++                                    span: ident.span,
++                                    left: TsEntityName::Ident(left),
++                                    right,
++                                }));
++                            }
++                        }
++                        Expr::Ident(id) => *ident = id,
++                        _ => unreachable!(),
++                    }
++                }
++            }
++            TsEntityName::TsQualifiedName(name) => name.left.visit_mut_with(self),
++            #[cfg(swc_ast_unknown)]
++            _ => {}
++        }
++    }
++
++    fn visit_mut_ts_module_decl(&mut self, n: &mut TsModuleDecl) {
++        if let (TsModuleName::Ident(id), Some(body)) = (&n.id, &mut n.body) {
++            self.body(id.to_id(), body);
++        }
++    }
++
++    fn visit_mut_ts_namespace_decl(&mut self, n: &mut TsNamespaceDecl) {
++        self.body(n.id.to_id(), &mut n.body);
++    }
++
++    fn visit_mut_ts_enum_decl(&mut self, n: &mut TsEnumDecl) {
++        let mut locals = Locals::default();
++        n.members.visit_with(&mut locals);
++        self.frames.push(Frame {
++            id: n.id.to_id(),
++            locals: locals.ids,
++        });
++        n.members.visit_mut_with(self);
++        self.frames.pop();
++    }
++
++    fn visit_mut_expr(&mut self, n: &mut Expr) {
++        n.visit_mut_children_with(self);
++        RefRewriter { query: &*self }.exit_expr(n);
++    }
++
++    fn visit_mut_prop(&mut self, n: &mut Prop) {
++        n.visit_mut_children_with(self);
++        RefRewriter { query: &*self }.exit_prop(n);
++    }
++
++    fn visit_mut_pat(&mut self, n: &mut Pat) {
++        n.visit_mut_children_with(self);
++        RefRewriter { query: &*self }.exit_pat(n);
++    }
++
++    fn visit_mut_object_pat_prop(&mut self, n: &mut ObjectPatProp) {
++        n.visit_mut_children_with(self);
++        RefRewriter { query: &*self }.exit_object_pat_prop(n);
++    }
++
++    fn visit_mut_simple_assign_target(&mut self, n: &mut SimpleAssignTarget) {
++        n.visit_mut_children_with(self);
++        RefRewriter { query: &*self }.exit_simple_assign_target(n);
++    }
++
++    fn visit_mut_jsx_element_name(&mut self, n: &mut JSXElementName) {
++        n.visit_mut_children_with(self);
++        RefRewriter { query: &*self }.exit_jsx_element_name(n);
++    }
++
++    fn visit_mut_jsx_object(&mut self, n: &mut JSXObject) {
++        n.visit_mut_children_with(self);
++        RefRewriter { query: &*self }.exit_jsx_object(n);
++    }
++}
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/namespace_tests.rs b/crates/swc_ecma_transforms_typescript/src/namespace_tests.rs
+--- a/crates/swc_ecma_transforms_typescript/src/namespace_tests.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/namespace_tests.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -0,0 +1,257 @@
++//! Execution regressions kept next to the reconciliation pass.
++use std::process::Command;
++
++use swc_common::{sync::Lrc, FileName, Globals, Mark, SourceMap, GLOBALS};
++use swc_ecma_ast::{EsVersion, Pass};
++use swc_ecma_parser::{parse_file_as_program, Syntax, TsSyntax};
++use swc_ecma_transforms_base::{fixer::fixer, hygiene::hygiene, resolver};
++
++use crate::{typescript, Config};
++
++fn exec(source: &str) {
++    for mutable in [false, true] {
++        for verbatim in [false, true] {
++            GLOBALS.set(&Globals::default(), || {
++                let cm: Lrc<SourceMap> = Default::default();
++                let file = cm.new_source_file(
++                    FileName::Custom("merged.ts".into()).into(),
++                    source.to_owned(),
++                );
++                let mut errors = Vec::new();
++                let mut program = parse_file_as_program(
++                    &file,
++                    Syntax::Typescript(TsSyntax::default()),
++                    EsVersion::latest(),
++                    None,
++                    &mut errors,
++                )
++                .unwrap();
++                assert!(errors.is_empty(), "{errors:?}");
++                let unresolved = Mark::new();
++                let top_level = Mark::new();
++                (
++                    resolver(unresolved, top_level, true),
++                    typescript(
++                        Config {
++                            ts_enum_is_mutable: mutable,
++                            verbatim_module_syntax: verbatim,
++                            no_empty_export: true,
++                            ..Default::default()
++                        },
++                        unresolved,
++                        top_level,
++                    ),
++                    hygiene(),
++                    fixer(None),
++                )
++                    .process(&mut program);
++                let code = swc_ecma_codegen::to_code_default(cm, None, &program);
++                let result = Command::new("node")
++                    .arg("--input-type=module")
++                    .arg("--eval")
++                    .arg(&code)
++                    .output()
++                    .unwrap();
++                assert!(
++                    result.status.success(),
++                    "mutable={mutable}, verbatim={verbatim}\n{code}\n{}",
++                    String::from_utf8_lossy(&result.stderr)
++                );
++            });
++        }
++    }
++}
++
++#[test]
++fn merged_namespace_bindings() {
++    exec(
++        r#"
++        export namespace Test { export const a = 1; }
++        const a = 'out';
++        export namespace Test { export const b = a + 1; }
++        if (Test.b !== 2) throw new Error('merged export');
++        namespace Test {
++            const a = 10;
++            export const c = a + 1;
++            export function local(a: number) { return a; }
++        }
++        namespace Test {
++            export const d = (() => { const a = 20; return a; })();
++            export const f = () => later;
++        }
++        namespace Test { export const later = 30; }
++        if (Test.c !== 11 || Test.d !== 20 || Test.local(40) !== 40 || Test.f() !== 30) throw new Error('locals');
++        namespace Test { export namespace Inner { export const x = 3; } }
++        namespace Test { export namespace Inner { export const y = x + 1; } }
++        if (Test.Inner.y !== 4) throw new Error('nested merging');
++    "#,
++    );
++}
++
++#[test]
++fn merged_enum_evaluation() {
++    exec(
++        r#"
++        let calls = 0;
++        function value() { calls++; return 4; }
++        enum E { A = value() }
++        const A = 100;
++        enum E { B = A + 1, C = E.A + 2, D = (() => { const A = 9; return A; })() }
++        if (calls !== 1 || E.A !== 4 || E.B !== 5 || E.C !== 6 || E.D !== 9 || E[4] !== 'A' || E[5] !== 'B') throw new Error('enum evaluation');
++        namespace E { export const extra = B + 10; }
++        if (E.extra !== 15) throw new Error('enum namespace');
++        namespace N { export enum F { X = 2 } }
++        namespace N { export enum F { Y = X + 1 } }
++        if (N.F.Y !== 3 || N.F[3] !== 'Y') throw new Error('nested enum');
++    "#,
++    );
++}
++
++#[test]
++fn namespace_import_equals() {
++    exec(
++        r#"
++        namespace Source { export const value = 7; }
++        namespace N { export import Alias = Source; }
++        const Alias = { value: 100 };
++        namespace N { import Local = Alias; export const value = Local.value; }
++        namespace N { export import Other = Source; import Local = Other; export const same = Local.value; }
++        if (N.same !== 7) throw new Error('same body alias');
++        if (N.value !== 7) throw new Error('merged alias');
++    "#,
++    );
++}
++
++#[test]
++fn qualified_enum_constants_and_aliases() {
++    exec(
++        r#"
++        namespace N { export enum E { A = 'a', B = 3 } export const text = 'a'; }
++        namespace N {
++            export enum F { A = E.A, B = E.B }
++            export enum G { A = N.E.A, B = N.E.B }
++            import Alias = N.E;
++            export enum H { A = Alias.A, B = Alias.B }
++            export enum I { A = text, B = 3 }
++        }
++        for (const e of [N.F, N.G, N.H, N.I]) {
++            if (e.A !== 'a' || e.B !== 3 || e[3] !== 'B' || Object.hasOwn(e, 'a')) throw new Error('qualified string constant');
++        }
++    "#,
++    );
++}
++
++#[test]
++fn enum_object_exists_during_initialization() {
++    exec(
++        r#"
++        function inspect() { return E; }
++        enum E { A = inspect() === E ? 1 : 2 }
++        if (E.A !== 1) throw new Error('top-level initialization');
++        function local() {
++            function inspect() { return F; }
++            enum F { A = inspect() === F ? 1 : 2 }
++            return F.A;
++        }
++        if (local() !== 1) throw new Error('local initialization');
++    "#,
++    );
++}
++
++#[test]
++fn merged_enum_reinitializes_missing_object() {
++    exec(
++        r#"
++        namespace N { export enum E { A = 1 } }
++        const first = N.E;
++        N.E = undefined as any;
++        namespace N { export enum E { B = 2 } }
++        if (N.E === first || N.E.B !== 2 || Object.hasOwn(N.E, 'A')) throw new Error('missing exported object');
++        enum E { A = 1 }
++        const old = E;
++        E = undefined as any;
++        enum E { B = 2 }
++        if (E === old || E.B !== 2 || Object.hasOwn(E, 'A')) throw new Error('missing object');
++    "#,
++    );
++}
++
++#[test]
++fn namespace_scopes_and_assignment_patterns() {
++    exec(
++        r#"
++        namespace N { export let a = 1; }
++        let a = 100;
++        namespace N {
++            ({a} = {a: 3});
++            [a] = [4];
++            ({a = 8} = {});
++            for (a of [9]) {}
++            export const result = a;
++        }
++        if (N.a !== 9 || N.result !== 9 || a !== 100) throw new Error('assignment target');
++        namespace Parent {
++            namespace Child.Inner { const value = 100; }
++            export const read = () => value;
++        }
++        namespace Parent { export const value = 8; }
++        if (Parent.read() !== 8) throw new Error('private dotted binding');
++        namespace Shape { export class Item { value = 3; } }
++        namespace Shape { export const result = new Item().value; }
++        if (Shape.result !== 3) throw new Error('merged class');
++    "#,
++    );
++}
++
++#[test]
++fn nested_enum_uses_outer_members() {
++    exec(
++        r#"
++        enum E {
++            A = 'a',
++            B = (() => {
++                enum F { X = A }
++                if (F.X !== 'a' || Object.hasOwn(F, 'a')) throw new Error('outer string enum');
++                namespace N { export const read = () => A; }
++                if (N.read() !== 'a') throw new Error('outer member in namespace');
++                return 1;
++            })()
++        }
++        if (E.B !== 1) throw new Error('nested enum initialization');
++    "#,
++    );
++}
++
++#[test]
++fn type_only_aliases_do_not_create_objects_or_shadow_values() {
++    exec(
++        r#"
++        namespace Types { export interface Item {} }
++        namespace N { export import Item = Types.Item; }
++        namespace M { export import Alias = N; }
++        if (typeof Types !== 'undefined' || typeof N !== 'undefined' || typeof M !== 'undefined') throw new Error('type-only objects');
++        const Item = 3;
++        namespace Values { export import Item = Types.Item; }
++        namespace Values { export const result = Item; }
++        if (Values.result !== 3 || Object.hasOwn(Values, 'Item')) throw new Error('type-only member shadow');
++    "#,
++    );
++}
++
++#[test]
++fn ambient_namespace_members_merge_without_emitting_bodies() {
++    exec(
++        r#"
++        function External() {}
++        External.value = 2;
++        External.read = () => 7;
++        const value = 100;
++        declare namespace External { const value: number; function read(): number; }
++        namespace External { export const result = value + read(); }
++        if (External.result !== 9) throw new Error('ambient values');
++        declare namespace OnlyTypes { interface T {} }
++        namespace N { export import Alias = OnlyTypes; }
++        if (typeof N !== 'undefined') throw new Error('ambient type-only namespace');
++    "#,
++    );
++}
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/semantic.rs b/crates/swc_ecma_transforms_typescript/src/semantic.rs
+--- a/crates/swc_ecma_transforms_typescript/src/semantic.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/semantic.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -1,3 +1,5 @@
++use std::collections::VecDeque;
++
+ use rustc_hash::{FxHashMap, FxHashSet};
+ use swc_common::{Mark, Span, SyntaxContext};
+ use swc_ecma_ast::*;
+@@ -12,11 +14,14 @@
+ 
+ #[derive(Debug, Default)]
+ pub(crate) struct SemanticInfo {
++    pub value_bindings: crate::value_bindings::ValueBindings,
+     pub usage: FxHashSet<Id>,
+     pub id_type: FxHashSet<Id>,
+     pub id_value: FxHashSet<Id>,
+     pub exported_binding: FxHashMap<Id, Option<Id>>,
+     pub enum_record: TsEnumRecord,
++    /// Declaration-time values, before later bodies extend the merged record.
++    pub enum_values: FxHashMap<Id, VecDeque<TsEnumRecordValue>>,
+     pub ambient_enum_record: TsEnumRecord,
+     pub const_enum: FxHashSet<Id>,
+     pub namespace_import_equals_usage: FxHashSet<Span>,
+@@ -51,11 +56,13 @@
+     seed_usage: FxHashSet<Id>,
+     flow_syntax: bool,
+     ts_enum_is_mutable: bool,
++    value_bindings: crate::value_bindings::ValueBindings,
+ ) -> SemanticInfo {
+     let mut analyzer = SemanticAnalyzer {
+         unresolved_ctxt: SyntaxContext::empty().apply_mark(unresolved_mark),
+         info: SemanticInfo {
+             usage: seed_usage,
++            value_bindings,
+             ..Default::default()
+         },
+         import_chain: Default::default(),
+@@ -268,11 +275,13 @@
+         const_vars: &FxHashMap<Id, TsEnumRecordValue>,
+         unresolved_ctxt: SyntaxContext,
+         flow_syntax: bool,
++        value_bindings: &crate::value_bindings::ValueBindings,
+     ) -> TsEnumRecordValue {
+         member
+             .init
+             .map(|expr| {
+                 EnumValueComputer {
++                    value_bindings,
+                     enum_id,
+                     unresolved_ctxt,
+                     record,
+@@ -315,6 +324,7 @@
+         for member in &node.members {
+             let value = match (&member.init, node.is_const) {
+                 (Some(init), _) => EnumValueComputer {
++                    value_bindings: &self.info.value_bindings,
+                     enum_id: &node.id.to_id(),
+                     unresolved_ctxt: self.unresolved_ctxt,
+                     record: &self.info.enum_record,
+@@ -622,6 +632,7 @@
+             }
+ 
+             let value = EnumValueComputer {
++                value_bindings: &self.info.value_bindings,
+                 enum_id: &id.to_id(),
+                 unresolved_ctxt: self.unresolved_ctxt,
+                 record: &self.info.enum_record,
+@@ -639,13 +650,14 @@
+     }
+ 
+     fn visit_ts_enum_decl(&mut self, node: &TsEnumDecl) {
+-        node.visit_children_with(self);
+-
+         if self.skip_transform_info {
++            node.visit_children_with(self);
+             self.record_ambient_enum(node);
+             return;
+         }
+ 
++        node.id.visit_with(self);
++
+         let TsEnumDecl {
+             is_const,
+             id,
+@@ -657,6 +669,8 @@
+             self.info.const_enum.insert(id.to_id());
+         }
+ 
++        self.info.enum_values.entry(id.to_id()).or_default();
++
+         let mut default_init = if self.flow_syntax {
+             TsEnumRecordValue::Void
+         } else {
+@@ -674,6 +688,7 @@
+                 &self.info.const_vars,
+                 self.unresolved_ctxt,
+                 self.flow_syntax,
++                &self.info.value_bindings,
+             );
+ 
+             default_init = value.inc();
+@@ -684,7 +699,23 @@
+                 member_name,
+             };
+ 
+-            self.info.enum_record.insert(key, value);
++            let constant = if value.is_const() {
++                value.clone()
++            } else {
++                TsEnumRecordValue::Void
++            };
++            // Runtime initializers are kept once, in declaration order. The
++            // shared record only needs constants and member-name membership;
++            // replaying an opaque initializer would repeat its side effects.
++            self.info
++                .enum_values
++                .entry(id.to_id())
++                .or_default()
++                .push_back(value);
++            self.info.enum_record.insert(key, constant);
++            // Nested declarations in an initializer can refer to earlier
++            // members of this enum, so analyze them after publishing its value.
++            member.visit_with(self);
+         }
+     }
+ 
+@@ -766,6 +797,7 @@
+             &Default::default(),
+             SyntaxContext::empty(),
+             true,
++            &Default::default(),
+         );
+ 
+         let TsEnumRecordValue::String(value) = value else {
+@@ -786,6 +818,7 @@
+             &Default::default(),
+             SyntaxContext::empty(),
+             false,
++            &Default::default(),
+         );
+ 
+         let TsEnumRecordValue::Number(value) = value else {
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/transform.rs b/crates/swc_ecma_transforms_typescript/src/transform.rs
+--- a/crates/swc_ecma_transforms_typescript/src/transform.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/transform.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -19,12 +19,10 @@
+ 
+ use crate::{
+     config::TsImportExportAssignConfig,
+-    retain::{should_retain_module_item, should_retain_stmt},
++    retain::{should_retain_module_item, should_retain_stmt, IsConcrete},
+     semantic::SemanticInfo,
+     shared::enum_member_name,
+-    ts_enum::{
+-        static_enum_member_name, EnumValueComputer, EvalCtx, TsEnumRecordKey, TsEnumRecordValue,
+-    },
++    ts_enum::{static_enum_member_name, TsEnumRecordKey, TsEnumRecordValue},
+     utils::{assign_value_to_this_private_prop, assign_value_to_this_prop, Factory},
+ };
+ 
+@@ -75,6 +73,8 @@
+     namespace_id: Option<Id>,
+ 
+     var_list: Vec<Id>,
++    enum_inits: FxHashMap<(Id, Span), Stmt>,
++    enum_values: FxHashMap<Id, Vec<TsEnumRecordValue>>,
+     export_var_list: Vec<Id>,
+ 
+     in_class_prop: Vec<Id>,
+@@ -169,6 +169,7 @@
+ 
+     fn visit_mut_module_items(&mut self, node: &mut Vec<ModuleItem>) {
+         let var_list = self.var_list.take();
++        let enum_inits = mem::take(&mut self.enum_inits);
+         node.retain(|item| should_retain_module_item(item, self.in_namespace));
+         node.retain_mut(|item| {
+             let is_empty = item.as_stmt().map(Stmt::is_empty).unwrap_or(false);
+@@ -176,6 +177,8 @@
+             // Remove those folded into Empty
+             is_empty || !item.as_stmt().map(Stmt::is_empty).unwrap_or(false)
+         });
++        self.expand_enum_inits(node);
++        self.enum_inits = enum_inits;
+         let var_list = mem::replace(&mut self.var_list, var_list);
+ 
+         if !var_list.is_empty() {
+@@ -305,12 +308,15 @@
+ 
+     fn visit_mut_stmts(&mut self, node: &mut Vec<Stmt>) {
+         let var_list = self.var_list.take();
++        let enum_inits = mem::take(&mut self.enum_inits);
+         node.retain_mut(|stmt| {
+             let is_empty = stmt.is_empty();
+             stmt.visit_mut_with(self);
+             // Remove those folded into Empty
+             is_empty || !stmt.is_empty()
+         });
++        self.expand_enum_inits(node);
++        self.enum_inits = enum_inits;
+         let var_list = mem::replace(&mut self.var_list, var_list);
+         if !var_list.is_empty() {
+             let decls = var_list.into_iter().map(id_to_var_declarator).collect();
+@@ -621,10 +627,36 @@
+         }
+ 
+         let in_namespace = mem::replace(&mut self.in_namespace, true);
++        // Each namespace body has its own generated lexical declarations.
++        // Merged exported ids still share semantic information, but an enum
++        // emitted in a later body must obtain its object from the namespace.
++        let decl_id_record = mem::take(&mut self.decl_id_record);
+         node.visit_mut_children_with(self);
++        self.decl_id_record = decl_id_record;
+         self.in_namespace = in_namespace;
+     }
+ 
++    fn visit_mut_ts_enum_decl(&mut self, node: &mut TsEnumDecl) {
++        let mut values: Vec<_> = self
++            .semantic
++            .enum_values
++            .get_mut(&node.id.to_id())
++            .expect("enum was analyzed")
++            .drain(..node.members.len())
++            .collect();
++        for (member, value) in node.members.iter_mut().zip(&mut values) {
++            if member.init.is_some() {
++                if let TsEnumRecordValue::Opaque(expr) = value {
++                    // Preserve partial constant folding from declaration-time
++                    // evaluation, then strip type syntax through the usual visitor.
++                    member.init = Some(expr.take());
++                }
++            }
++        }
++        node.visit_mut_children_with(self);
++        self.enum_values.insert(node.id.to_id(), values);
++    }
++
+     fn visit_mut_object_pat(&mut self, node: &mut ObjectPat) {
+         node.visit_mut_children_with(self);
+         node.optional = false;
+@@ -689,6 +721,24 @@
+ }
+ 
+ impl Transform {
++    fn expand_enum_inits<T: EnumInitItem>(&mut self, items: &mut Vec<T>) {
++        if self.enum_inits.is_empty() {
++            return;
++        }
++        let mut output = Vec::with_capacity(items.len() + self.enum_inits.len());
++        for item in items.take() {
++            let init = item
++                .enum_decl_key()
++                .and_then(|key| self.enum_inits.remove(&key));
++            output.push(item);
++            if let Some(init) = init {
++                output.push(init.into());
++            }
++        }
++        *items = output;
++        debug_assert!(self.enum_inits.is_empty());
++    }
++
+     fn normalize_flow_static_constructor_key(
+         &self,
+         key: &mut PropName,
+@@ -872,6 +922,11 @@
+     fn fold_decl(&mut self, node: Decl, is_export: bool) -> FoldedDecl {
+         match node {
+             Decl::TsModule(ts_module) => {
++                // Usage analysis can erase the last internal import alias.
++                // An emptied namespace must not materialize a runtime object.
++                if !ts_module.is_concrete() {
++                    return FoldedDecl::Empty;
++                }
+                 let id = ts_module.id.to_id();
+ 
+                 if self.decl_id_record.insert(id.clone()) {
+@@ -1025,17 +1080,6 @@
+         }
+     }
+ 
+-    // N
+-    fn get(&self) -> ExprOrSpread {
+-        self.namespace_id
+-            .cloned()
+-            .map_or_else(
+-                || -> Expr { self.id.clone().into() },
+-                |namespace_id| namespace_id.make_member(self.id.clone().into()).into(),
+-            )
+-            .into()
+-    }
+-
+     // N || {}
+     fn or_empty(&self) -> ExprOrSpread {
+         let expr = self.namespace_id.cloned().map_or_else(
+@@ -1117,46 +1161,30 @@
+             .map(|k| k.member_name.clone())
+             .collect();
+ 
+-        let enum_computer = EnumValueComputer {
+-            enum_id: &id.to_id(),
+-            unresolved_ctxt: self.unresolved_ctxt,
+-            record: &self.semantic.enum_record,
+-            const_vars: &self.semantic.const_vars,
+-            const_enum_only: None,
+-            ambient_record: &self.semantic.ambient_enum_record,
+-            ambient_const_enum_only: None,
+-        };
+-
++        let values = self
++            .enum_values
++            .remove(&id.to_id())
++            .expect("enum was visited");
+         let member_list: Vec<_> = members
+             .into_iter()
+-            .map(|m| {
++            .zip(values)
++            .map(|(m, mut value)| {
+                 let span = m.span;
+                 let name = enum_member_name(&m.id);
+ 
+-                let key = TsEnumRecordKey {
+-                    enum_id: id.to_id(),
+-                    member_name: name.clone(),
+-                };
+-
+-                let mut value = self.semantic.enum_record.get(&key).unwrap().clone();
+-
+                 if matches!(value, TsEnumRecordValue::Opaque(..)) {
+-                    if let Some(init) = m.init {
+-                        // Recompute from the original initializer so enum member
+-                        // references can be rewritten to runtime property
+-                        // accesses. Implicit Flow enum members do not have an
+-                        // initializer, so keep the semantic value as-is.
+-                        let mut recomputed = enum_computer.compute(init, EvalCtx::RECOMPUTE);
+-                        if let TsEnumRecordValue::Opaque(expr) = &mut recomputed {
+-                            expr.visit_mut_with(&mut RefRewriter {
+-                                query: EnumMemberRefQuery {
+-                                    enum_id: &id.to_id(),
+-                                    member_names: &member_names,
+-                                    unresolved_ctxt: self.unresolved_ctxt,
+-                                },
+-                            });
+-                        }
+-                        value = recomputed;
++                    if let Some(mut init) = m.init {
++                        // The pre-pass evaluated this initializer at its declaration.
++                        // Re-evaluating against the completed record can see later
++                        // members and change runtime evaluation order or constness.
++                        init.visit_mut_with(&mut RefRewriter {
++                            query: EnumMemberRefQuery {
++                                enum_id: &id.to_id(),
++                                member_names: &member_names,
++                                unresolved_ctxt: self.unresolved_ctxt,
++                            },
++                        });
++                        value = TsEnumRecordValue::Opaque(init);
+                     }
+                 }
+ 
+@@ -1179,7 +1207,11 @@
+             .map(|item| item.build_assign(&id.to_id()));
+ 
+         let namespace_export = self.namespace_id.is_some() && is_export;
+-        let iife = !is_first || namespace_export;
++        // An opaque initializer can call a closure which observes the outer
++        // enum binding. Publish the object before evaluating any members, as
++        // tsc does, rather than only assigning the IIFE's return value.
++        let publish_before_init = is_first && !namespace_export && opaque;
++        let iife = !is_first || namespace_export || publish_before_init;
+ 
+         let body = if !iife {
+             let return_stmt: Stmt = ReturnStmt {
+@@ -1213,10 +1245,10 @@
+                 namespace_id: self.namespace_id.as_ref().filter(|_| is_export),
+             };
+             if !is_first {
+-                break 'init_arg init_arg.get();
++                break 'init_arg init_arg.or_assign_empty();
+             }
+ 
+-            if namespace_export {
++            if namespace_export || publish_before_init {
+                 break 'init_arg init_arg.or_assign_empty();
+             }
+ 
+@@ -1232,7 +1264,23 @@
+             vec![init_arg],
+         );
+ 
+-        if iife {
++        if publish_before_init {
++            self.enum_inits.insert((id.to_id(), span), expr.into_stmt());
++            FoldedDecl::Decl(
++                VarDecl {
++                    span,
++                    kind: var_kind,
++                    decls: vec![VarDeclarator {
++                        span,
++                        name: id.into(),
++                        init: None,
++                        definite: false,
++                    }],
++                    ..Default::default()
++                }
++                .into(),
++            )
++        } else if iife {
+             FoldedDecl::Expr(
+                 ExprStmt {
+                     span,
+@@ -2116,3 +2164,37 @@
+         None
+     }
+ }
++
++/// Locate an enum's replacement declaration even for ASTs with dummy spans.
++trait EnumInitItem: From<Stmt> {
++    fn enum_decl_key(&self) -> Option<(Id, Span)>;
++}
++impl EnumInitItem for Stmt {
++    fn enum_decl_key(&self) -> Option<(Id, Span)> {
++        let Stmt::Decl(Decl::Var(decl)) = self else {
++            return None;
++        };
++        decl.decls
++            .first()?
++            .name
++            .as_ident()
++            .map(|ident| (ident.to_id(), decl.span))
++    }
++}
++impl EnumInitItem for ModuleItem {
++    fn enum_decl_key(&self) -> Option<(Id, Span)> {
++        match self {
++            ModuleItem::Stmt(stmt) => stmt.enum_decl_key(),
++            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
++                decl: Decl::Var(decl),
++                ..
++            })) => decl
++                .decls
++                .first()?
++                .name
++                .as_ident()
++                .map(|ident| (ident.to_id(), decl.span)),
++            _ => None,
++        }
++    }
++}
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/ts_enum.rs b/crates/swc_ecma_transforms_typescript/src/ts_enum.rs
+--- a/crates/swc_ecma_transforms_typescript/src/ts_enum.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/ts_enum.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -94,6 +94,7 @@
+ }
+ 
+ pub(crate) struct EnumValueComputer<'a> {
++    pub value_bindings: &'a crate::value_bindings::ValueBindings,
+     pub enum_id: &'a Id,
+     pub unresolved_ctxt: SyntaxContext,
+     pub record: &'a TsEnumRecord,
+@@ -166,14 +167,6 @@
+         allow_const_var: true,
+         ts_is_opaque: false,
+     };
+-    /// Context for re-computing a member whose value the pre-pass already
+-    /// classified as non-constant. Resolving `const` bindings here would
+-    /// override that verdict: the binding map is complete by this point, and
+-    /// type assertions have already been stripped from the initializer.
+-    pub(crate) const RECOMPUTE: Self = Self {
+-        allow_const_var: false,
+-        ts_is_opaque: false,
+-    };
+ }
+ 
+ /// https://github.com/microsoft/TypeScript/pull/50528
+@@ -413,11 +406,19 @@
+             return opaque_expr;
+         };
+ 
+-        let Expr::Ident(ident) = *expr.obj else {
++        let Some(enum_id) = self.value_bindings.expression(&expr.obj) else {
+             return opaque_expr;
+         };
+ 
+-        let enum_id = ident.to_id();
++        if ctx.allow_const_var {
++            if let Some(value) = member_name
++                .as_atom()
++                .and_then(|name| self.value_bindings.property(enum_id.clone(), name))
++                .and_then(|id| self.const_vars.get(&id))
++            {
++                return value.clone();
++            }
++        }
+ 
+         if self
+             .const_enum_only
+@@ -444,7 +445,7 @@
+                     .flatten()
+             })
+             .cloned()
+-            .filter(TsEnumRecordValue::has_value)
++            .filter(TsEnumRecordValue::is_const)
+             .unwrap_or(opaque_expr)
+     }
+ 
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/typescript.rs b/crates/swc_ecma_transforms_typescript/src/typescript.rs
+--- a/crates/swc_ecma_transforms_typescript/src/typescript.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/typescript.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -41,6 +41,11 @@
+ 
+ impl Pass for TypeScript {
+     fn process(&mut self, n: &mut Program) {
++        let value_bindings = if !self.config.flow_syntax {
++            crate::namespace::reconcile(n)
++        } else {
++            Default::default()
++        };
+         let last_module_span = n
+             .as_module()
+             // Flow does not need to restore module context
+@@ -53,6 +58,7 @@
+             mem::take(&mut self.id_usage),
+             self.config.flow_syntax,
+             self.config.ts_enum_is_mutable,
++            value_bindings,
+         );
+ 
+         n.mutate(transform(
+diff -ruN a/crates/swc_ecma_transforms_typescript/src/value_bindings.rs b/crates/swc_ecma_transforms_typescript/src/value_bindings.rs
+--- a/crates/swc_ecma_transforms_typescript/src/value_bindings.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/swc_ecma_transforms_typescript/src/value_bindings.rs	2026-11-13 16:08:48.880403513 +0000
+@@ -0,0 +1,65 @@
++//! Value identities behind namespace properties and internal import aliases.
++use rustc_hash::FxHashMap;
++use swc_atoms::Atom;
++use swc_ecma_ast::*;
++
++use crate::ts_enum::static_enum_member_name;
++
++#[derive(Debug, Default)]
++pub(crate) struct ValueBindings {
++    pub exports: FxHashMap<(Id, Atom), Id>,
++    pub imports: FxHashMap<Id, TsEntityName>,
++}
++
++impl ValueBindings {
++    pub fn alias_target(&self, id: &Id) -> Option<Id> {
++        self.ident(id.clone(), &mut self.imports.len())
++    }
++
++    pub fn property(&self, owner: Id, name: &Atom) -> Option<Id> {
++        self.property_with_fuel(owner, name, &mut self.imports.len())
++    }
++
++    pub fn expression(&self, expr: &Expr) -> Option<Id> {
++        self.expr(expr, &mut self.imports.len())
++    }
++
++    fn expr(&self, expr: &Expr, fuel: &mut usize) -> Option<Id> {
++        match expr {
++            Expr::Ident(id) => self.ident(id.to_id(), fuel),
++            Expr::Member(member) => {
++                let owner = self.expr(&member.obj, fuel)?;
++                let name = static_enum_member_name(&member.prop)?;
++                self.property_with_fuel(owner, name.as_atom()?, fuel)
++            }
++            Expr::Paren(paren) => self.expr(&paren.expr, fuel),
++            _ => None,
++        }
++    }
++
++    fn property_with_fuel(&self, owner: Id, name: &Atom, fuel: &mut usize) -> Option<Id> {
++        let id = self.exports.get(&(owner, name.clone()))?;
++        self.ident(id.clone(), fuel)
++    }
++
++    fn entity(&self, name: &TsEntityName, fuel: &mut usize) -> Option<Id> {
++        match name {
++            TsEntityName::Ident(id) => self.ident(id.to_id(), fuel),
++            TsEntityName::TsQualifiedName(name) => {
++                let owner = self.entity(&name.left, fuel)?;
++                self.property_with_fuel(owner, &name.right.sym, fuel)
++            }
++            #[cfg(swc_ast_unknown)]
++            _ => None,
++        }
++    }
++
++    fn ident(&self, id: Id, fuel: &mut usize) -> Option<Id> {
++        let Some(alias) = self.imports.get(&id) else {
++            return Some(id);
++        };
++        // Invalid cyclic aliases must not make compilation recurse forever.
++        *fuel = fuel.checked_sub(1)?;
++        self.entity(alias, fuel)
++    }
++}
+diff -ruN a/crates/swc_ecma_transforms_base/src/resolver/mod.rs b/crates/swc_ecma_transforms_base/src/resolver/mod.rs
+--- a/crates/swc_ecma_transforms_base/src/resolver/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_base/src/resolver/mod.rs	2026-11-13 16:08:48.887652040 +0000
+@@ -1424,7 +1424,13 @@
+ 
+         self.modify(&mut n.id, DeclKind::Lexical);
+ 
+-        n.body.visit_mut_with(self);
++        // Every segment of `namespace A.B` introduces a namespace body.
++        // Keeping B's declarations in A's scope leaks B's private bindings
++        // into siblings and prevents merged-member lookup from shadowing them.
++        self.with_child(ScopeKind::Block, |child| {
++            child.in_ts_module = true;
++            n.body.visit_mut_with(child);
++        });
+     }
+ 
+     fn visit_mut_ts_param_prop_param(&mut self, n: &mut TsParamPropParam) {

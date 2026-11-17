@@ -1,0 +1,801 @@
+diff -ruN a/crates/swc_ecma_minifier/src/compress/optimize/dead_code.rs b/crates/swc_ecma_minifier/src/compress/optimize/dead_code.rs
+--- a/crates/swc_ecma_minifier/src/compress/optimize/dead_code.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/optimize/dead_code.rs	2026-11-14 08:32:03.397509000 +0000
+@@ -60,6 +60,7 @@
+                         var.flags.contains(
+                             VarUsageInfoFlags::DECLARED.union(VarUsageInfoFlags::IS_FN_LOCAL),
+                         ) && !var.flags.intersects(VarUsageInfoFlags::EXPORTED)
++                            && !var.may_throw_on_write()
+                     })
+                     .unwrap_or(false)
+                 {
+@@ -90,6 +91,7 @@
+                             var.flags.contains(
+                                 VarUsageInfoFlags::DECLARED.union(VarUsageInfoFlags::IS_FN_LOCAL),
+                             ) && !var.flags.contains(VarUsageInfoFlags::EXPORTED)
++                                && !var.may_throw_on_write()
+                         })
+                         .unwrap_or(false)
+                     {
+diff -ruN a/crates/swc_ecma_minifier/src/compress/optimize/mod.rs b/crates/swc_ecma_minifier/src/compress/optimize/mod.rs
+--- a/crates/swc_ecma_minifier/src/compress/optimize/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/optimize/mod.rs	2026-11-14 08:32:03.402378229 +0000
+@@ -2017,6 +2017,28 @@
+ 
+                 Expr::Assign(AssignExpr {
+                     op: op!("="),
++                    left: AssignTarget::Simple(SimpleAssignTarget::Ident(left)),
++                    right,
++                    ..
++                }) if right
++                    .as_ident()
++                    .is_some_and(|right| left.to_id() == right.to_id())
++                    && self
++                        .data
++                        .vars
++                        .get(&left.to_id())
++                        .is_some_and(|usage| !usage.may_throw_on_write()) =>
++                {
++                    // Even `C = C` throws for a class's inner name. This
++                    // optimization needs binding information, unlike pure
++                    // expression simplification.
++                    report_change!("Dropping assignment to the same mutable variable");
++                    self.changed = true;
++                    *e = *right.take();
++                }
++
++                Expr::Assign(AssignExpr {
++                    op: op!("="),
+                     left,
+                     right,
+                     ..
+diff -ruN a/crates/swc_ecma_minifier/src/compress/optimize/sequences.rs b/crates/swc_ecma_minifier/src/compress/optimize/sequences.rs
+--- a/crates/swc_ecma_minifier/src/compress/optimize/sequences.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/optimize/sequences.rs	2026-11-14 08:32:03.402378229 +0000
+@@ -425,6 +425,15 @@
+                 if seq.exprs.is_empty() || seq.exprs.len() <= 1 {
+                     return;
+                 }
++                if left.as_ident().is_some()
++                    && seq.exprs.last().is_some_and(|last| {
++                        crate::compress::util::anonymous_name_is_observable(last, self.options)
++                    })
++                {
++                    // `a = (0, function(){})` has no inferred name, whereas
++                    // `(0, a = function(){})` names the function `a`.
++                    return;
++                }
+                 report_change!("sequences: Lifting Assign");
+                 self.changed = true;
+                 if let Some(last) = seq.exprs.last_mut() {
+@@ -2289,8 +2298,9 @@
+                                 return Ok(false);
+                             }
+ 
+-                            // Reassignment to const?
+-                            if let Some(VarDeclKind::Const) = usage.var_kind {
++                            // An earlier write can throw before the next
++                            // expression is evaluated.
++                            if usage.may_throw_on_write() {
+                                 return Ok(false);
+                             }
+ 
+diff -ruN a/crates/swc_ecma_minifier/src/compress/optimize/unused.rs b/crates/swc_ecma_minifier/src/compress/optimize/unused.rs
+--- a/crates/swc_ecma_minifier/src/compress/optimize/unused.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/optimize/unused.rs	2026-11-14 08:32:03.412377959 +0000
+@@ -739,6 +739,9 @@
+ 
+         if let Expr::Ident(arg) = &*update.arg {
+             if let Some(var) = self.data.vars.get(&arg.to_id()) {
++                if var.may_throw_on_write() {
++                    return;
++                }
+                 // Update is counted as usage
+                 if var
+                     .flags
+@@ -788,6 +791,9 @@
+             }
+ 
+             if let Some(var) = self.data.vars.get(&left.to_id()) {
++                if var.may_throw_on_write() {
++                    return;
++                }
+                 // TODO: We don't need fn_local check
+                 if var
+                     .flags
+@@ -842,6 +848,9 @@
+             }
+ 
+             if let Some(var) = self.data.vars.get(&i.to_id()) {
++                if var.may_throw_on_write() {
++                    return;
++                }
+                 // technically this is inline
+                 if !var.flags.intersects(
+                     VarUsageInfoFlags::INLINE_PREVENTED.union(VarUsageInfoFlags::EXPORTED),
+diff -ruN a/crates/swc_ecma_minifier/src/compress/pure/dead_code.rs b/crates/swc_ecma_minifier/src/compress/pure/dead_code.rs
+--- a/crates/swc_ecma_minifier/src/compress/pure/dead_code.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/pure/dead_code.rs	2026-11-14 08:32:03.420789120 +0000
+@@ -17,24 +17,6 @@
+         match e {
+             Expr::Assign(AssignExpr {
+                 op: op!("="),
+-                left: AssignTarget::Simple(l),
+-                right: r,
+-                ..
+-            }) if match &*l {
+-                SimpleAssignTarget::Ident(l) => match &**r {
+-                    Expr::Ident(r) => l.sym == r.sym && l.ctxt == r.ctxt,
+-                    _ => false,
+-                },
+-                _ => false,
+-            } =>
+-            {
+-                report_change!("Dropping assignment to the same variable");
+-                self.changed = true;
+-                *e = r.take().ident().unwrap().into();
+-            }
+-
+-            Expr::Assign(AssignExpr {
+-                op: op!("="),
+                 left: AssignTarget::Pat(left),
+                 right,
+                 ..
+diff -ruN a/crates/swc_ecma_minifier/src/compress/pure/misc.rs b/crates/swc_ecma_minifier/src/compress/pure/misc.rs
+--- a/crates/swc_ecma_minifier/src/compress/pure/misc.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/pure/misc.rs	2026-11-14 08:32:03.422377687 +0000
+@@ -2113,21 +2113,6 @@
+                 }
+             }
+ 
+-            Expr::Assign(assign @ AssignExpr { op: op!("="), .. }) => {
+-                // Convert `a = a` to `a`.
+-                if let Some(l) = assign.left.as_ident() {
+-                    if let Expr::Ident(r) = &*assign.right {
+-                        if l.ctxt == r.ctxt
+-                            && l.ctxt != self.expr_ctx.unresolved_ctxt
+-                            && l.sym == r.sym
+-                        {
+-                            self.changed = true;
+-                            *e = *assign.right.take();
+-                        }
+-                    }
+-                }
+-            }
+-
+             Expr::Array(arr) => {
+                 for elem in arr.elems.iter_mut().flatten() {
+                     if elem.spread.is_none() {
+diff -ruN a/crates/swc_ecma_minifier/src/compress/pure/mod.rs b/crates/swc_ecma_minifier/src/compress/pure/mod.rs
+--- a/crates/swc_ecma_minifier/src/compress/pure/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/pure/mod.rs	2026-11-14 08:32:03.422377687 +0000
+@@ -1289,8 +1289,13 @@
+ 
+         self.merge_seq_call(e);
+ 
++        let last = e.exprs.last().unwrap();
++        // A comma expression suppresses NamedEvaluation as well as producing an
++        // unbound callee. Keep that barrier in every expression position: later
++        // passes may move the expression into an initializer or default value.
++        let preserve_name = super::util::anonymous_name_is_observable(last, self.options);
+         let can_change_this =
+-            !self.ctx.contains(Ctx::IS_CALLEE) || !e.exprs.last().unwrap().directness_matters();
++            !preserve_name && (!self.ctx.contains(Ctx::IS_CALLEE) || !last.directness_matters());
+ 
+         let len = e.exprs.len();
+         for (idx, e) in e.exprs.iter_mut().enumerate() {
+diff -ruN a/crates/swc_ecma_minifier/src/compress/util/mod.rs b/crates/swc_ecma_minifier/src/compress/util/mod.rs
+--- a/crates/swc_ecma_minifier/src/compress/util/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/compress/util/mod.rs	2026-11-14 08:32:03.439841772 +0000
+@@ -14,6 +14,21 @@
+ #[cfg(test)]
+ mod tests;
+ 
++/// Whether exposing this expression directly to NamedEvaluation would change a
++/// name that the compressor is required to preserve.
++pub(super) fn anonymous_name_is_observable(
++    e: &Expr,
++    options: &crate::option::CompressOptions,
++) -> bool {
++    match e {
++        Expr::Fn(f) => options.keep_fnames && f.ident.is_none(),
++        Expr::Arrow(_) => options.keep_fnames,
++        Expr::Class(c) => options.keep_classnames && c.ident.is_none(),
++        Expr::Paren(p) => anonymous_name_is_observable(&p.expr, options),
++        _ => false,
++    }
++}
++
+ /// Creates `!e` where e is the expression passed as an argument.
+ ///
+ /// Returns true if this modified ast.
+diff -ruN a/crates/swc_ecma_minifier/src/lib.rs b/crates/swc_ecma_minifier/src/lib.rs
+--- a/crates/swc_ecma_minifier/src/lib.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/lib.rs	2026-11-14 08:32:03.383706439 +0000
+@@ -74,6 +74,8 @@
+ pub mod option;
+ mod pass;
+ mod program_data;
++#[cfg(test)]
++mod regression;
+ mod size_hint;
+ pub mod timing;
+ mod usage_analyzer;
+diff -ruN a/crates/swc_ecma_minifier/src/program_data.rs b/crates/swc_ecma_minifier/src/program_data.rs
+--- a/crates/swc_ecma_minifier/src/program_data.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/program_data.rs	2026-11-14 08:32:03.383706439 +0000
+@@ -90,6 +90,9 @@
+ 
+         /// The variable is declared without initializer.
+         const LAZY_INIT                 = 1 << 25;
++        /// Writes can target an immutable binding. Class declarations share an
++        /// analyzed Id with their implicit, immutable inner name.
++        const HAS_IMMUTABLE_BINDING     = 1 << 26;
+     }
+ 
+     #[derive(Debug, Default, Clone, Copy)]
+@@ -155,6 +158,13 @@
+ }
+ 
+ impl VarUsageInfo {
++    pub(crate) fn may_throw_on_write(&self) -> bool {
++        self.var_kind == Some(VarDeclKind::Const)
++            || self
++                .flags
++                .contains(VarUsageInfoFlags::HAS_IMMUTABLE_BINDING)
++    }
++
+     pub(crate) fn is_infected(&self) -> bool {
+         !self.infects_to.is_empty()
+     }
+@@ -632,6 +642,21 @@
+ }
+ 
+ impl VarDataLike for VarUsageInfo {
++    fn mark_has_immutable_binding(&mut self) {
++        self.flags.insert(VarUsageInfoFlags::HAS_IMMUTABLE_BINDING);
++    }
++
++    fn mark_as_live_import(&mut self) {
++        self.mark_has_immutable_binding();
++        self.flags
++            .insert(VarUsageInfoFlags::REASSIGNED.union(VarUsageInfoFlags::INLINE_PREVENTED));
++        self.flags
++            .remove(VarUsageInfoFlags::ASSIGNED_FN_LOCAL.union(VarUsageInfoFlags::VAR_INITIALIZED));
++        // Consumers of mutation information also use the assignment count.
++        // Model external writes conservatively, even if no local write exists.
++        self.assign_count = self.assign_count.max(2);
++    }
++
+     fn mark_declared_as_fn_param(&mut self) {
+         self.flags.insert(VarUsageInfoFlags::DECLARED_AS_FN_PARAM);
+     }
+diff -ruN a/crates/swc_ecma_minifier/src/regression.rs b/crates/swc_ecma_minifier/src/regression.rs
+--- a/crates/swc_ecma_minifier/src/regression.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/regression.rs	2026-11-14 08:32:03.383706439 +0000
+@@ -0,0 +1,318 @@
++//! Execution regressions for transformations whose syntax carries semantics.
++
++use std::process::Command;
++
++use swc_common::{sync::Lrc, FileName, Globals, Mark, SourceMap, GLOBALS};
++use swc_ecma_ast::Program;
++use swc_ecma_codegen::{text_writer::JsWriter, Emitter};
++use swc_ecma_parser::parse_file_as_module;
++use swc_ecma_transforms_base::{
++    fixer::{fixer, paren_remover},
++    resolver,
++};
++
++use crate::{
++    optimize,
++    option::{CompressOptions, ExtraOptions, MangleOptions, MinifyOptions},
++};
++
++fn minify(source: &str, options: &MinifyOptions) -> String {
++    GLOBALS.set(&Globals::new(), || {
++        let cm = Lrc::<SourceMap>::default();
++        let file = cm.new_source_file(FileName::Anon.into(), source.to_owned());
++        let unresolved_mark = Mark::new();
++        let top_level_mark = Mark::new();
++        let program = Program::Module(
++            parse_file_as_module(
++                &file,
++                Default::default(),
++                Default::default(),
++                None,
++                &mut Vec::new(),
++            )
++            .unwrap(),
++        )
++        .apply(resolver(unresolved_mark, top_level_mark, false))
++        .apply(paren_remover(None));
++        let program = optimize(
++            program,
++            cm.clone(),
++            None,
++            None,
++            options,
++            &ExtraOptions {
++                unresolved_mark,
++                top_level_mark,
++                mangle_name_cache: None,
++            },
++        )
++        .apply(fixer(None));
++        let mut output = Vec::new();
++        Emitter {
++            cfg: swc_ecma_codegen::Config::default().with_minify(true),
++            cm: cm.clone(),
++            comments: None,
++            wr: JsWriter::new(cm, "\n", &mut output, None),
++        }
++        .emit_program(&program)
++        .unwrap();
++        String::from_utf8(output).unwrap()
++    })
++}
++
++fn run(source: &str) -> Vec<u8> {
++    let output = Command::new("node")
++        .args(["--input-type=module", "--eval", source])
++        .output()
++        .expect("node is required for execution regressions");
++    assert!(
++        output.status.success(),
++        "{source}\n{}",
++        String::from_utf8_lossy(&output.stderr)
++    );
++    output.stdout
++}
++
++/// Check both optimization and parsing of the resulting syntax on a second run.
++fn equivalent(source: &str, keep_names: bool) {
++    let expected = run(source);
++    for mode in 0..6 {
++        let options = MinifyOptions {
++            compress: (mode != 5).then(|| CompressOptions {
++                keep_fnames: keep_names,
++                keep_classnames: keep_names,
++                passes: if mode == 1 { 1 } else { 0 },
++                reduce_vars: mode != 2,
++                collapse_vars: mode != 3,
++                sequences: if mode == 4 { 0 } else { 3 },
++                ..Default::default()
++            }),
++            mangle: (mode != 0).then(|| MangleOptions {
++                keep_fn_names: keep_names,
++                keep_class_names: true,
++                top_level: Some(true),
++                ..Default::default()
++            }),
++            ..Default::default()
++        };
++        let mut code = source.to_owned();
++        for _ in 0..2 {
++            code = minify(&code, &options);
++            assert_eq!(run(&code), expected, "mode {mode}: {code}");
++        }
++    }
++}
++
++#[test]
++fn live_imports() {
++    equivalent(
++        r#"
++import {count, bump} from "data:text/javascript,export let count=0;export function bump(){count++}";
++export function changed(f) { const before = count; f(); return before !== count; }
++console.log(changed(bump), changed(() => {}));
++"#,
++        false,
++    );
++    equivalent(
++        r#"
++import count, {bump} from "data:text/javascript,let count=0;export{count as default};export function bump(){count++}";
++function changed(f) { const before = count; f(); return [before, count]; }
++console.log(changed(bump), changed(() => {}));
++"#,
++        false,
++    );
++    equivalent(
++        r#"
++import * as counter from "data:text/javascript,export let count=0;export function bump(){count++}";
++function changed(f) { const before = counter.count; f(); return before !== counter.count; }
++console.log(changed(counter.bump), changed(() => {}));
++"#,
++        false,
++    );
++}
++
++#[test]
++fn parameter_default_identity() {
++    equivalent(
++        r#"
++(function () {
++    function load(value) { return value + 1; }
++    const object = {};
++    function hook([callback = load, value = object] = []) { return [callback, value]; }
++    globalThis.render = function (callbacks) { return hook(callbacks); };
++})();
++console.log(render()[0] === render([])[0], render()[1] === render([])[1]);
++"#,
++        false,
++    );
++    equivalent(
++        r#"
++(() => {
++    const value = {};
++    const load = () => 1;
++    const hook = ({callback = load, object = value} = {}) => [callback, object];
++    globalThis.render = hook;
++})();
++console.log(render()[0] === render({})[0], render()[1] === render({})[1]);
++"#,
++        false,
++    );
++    equivalent(
++        r#"
++(() => {
++    function load() {}
++    const object = {};
++    function hook({callback = load, value = object} = {}) { return [callback, value]; }
++    function direct(callback = load) { return callback; }
++    globalThis.render = hook;
++    globalThis.direct = direct;
++})();
++console.log(render()[0] === render({})[0], render()[1] === render({})[1], direct() === direct());
++"#,
++        false,
++    );
++}
++
++#[test]
++fn unbound_super_calls() {
++    equivalent(
++        r#"
++class Base { method() { return this; } }
++class Derived extends Base {
++    test() {
++        console.log((0, super.method)() === undefined);
++        console.log((0, super["method"])?.() === undefined);
++        console.log(super.method() === this);
++    }
++}
++new Derived().test();
++const object = {
++    __proto__: {method() { return this; }},
++    test() { console.log((0, super.method)() === undefined, super.method() === this); }
++};
++object.test();
++class Throws extends Base {
++    method() { return this.value; }
++}
++class Calls extends Throws {
++    test() {
++        try { (0, super.method)(); } catch (error) { console.log(error.name); }
++    }
++}
++new Calls().test();
++"#,
++        false,
++    );
++}
++
++#[test]
++fn anonymous_sequence_names() {
++    equivalent(
++        r#"
++var f = (0, function () {}), a = (0, () => {}), c = (0, class {});
++console.log(f.name, a.name, c.name);
++let assigned;
++assigned = (0, function () {});
++console.log(assigned.name);
++const object = { f: (0, function () {}), a: (0, () => {}), c: (0, class {}) };
++console.log(object.f.name, object.a.name, object.c.name);
++function defaults(f = (0, function () {}), a = (0, () => {}), c = (0, class {})) {
++    console.log(f.name, a.name, c.name);
++}
++defaults();
++const { p = (0, function () {}) } = {};
++const [q = (0, class {})] = [];
++console.log(p.name, q.name);
++class Fields {
++    f = (0, function () {});
++    static a = (0, () => {});
++    static c = (0, class {});
++}
++console.log(new Fields().f.name, Fields.a.name, Fields.c.name);
++let logical;
++logical ||= (0, function () {});
++console.log(logical.name);
++let destructured;
++({destructured = (0, () => {})} = {});
++console.log(destructured.name);
++export default (0, class { static { console.log(this.name); } });
++"#,
++        true,
++    );
++}
++
++#[test]
++fn class_inner_binding() {
++    equivalent(
++        r#"
++(() => {
++    class Foo { static self = Foo; }
++    console.log(Foo.self === Foo);
++})();
++try {
++    class Foo { static { Foo = 1; } }
++    console.log(Foo);
++} catch (error) { console.log(error.name, error.message); }
++try {
++    class Foo { static { Foo = Foo; } }
++    console.log(Foo);
++} catch (error) { console.log(error.name, error.message); }
++try {
++    class Foo { static { Foo += 1; } }
++    console.log(Foo);
++} catch (error) { console.log(error.name, error.message); }
++try {
++    class Foo { static { Foo++; } }
++    console.log(Foo);
++} catch (error) { console.log(error.name, error.message); }
++try {
++    class Foo { static { Foo = (console.log("first"), 0); Foo = (console.log("second"), 1); } }
++} catch (error) { console.log(error.name, error.message); }
++try {
++    class Foo extends Foo {}
++    console.log(Foo);
++} catch (error) { console.log(error.name, error.message); }
++try {
++    class Foo { [Foo]() {} }
++    console.log(Foo);
++} catch (error) { console.log(error.name, error.message); }
++let Bar = Object;
++try {
++    const Other = class Bar extends Bar {};
++    console.log(Other);
++} catch (error) { console.log(error.name, error.message); }
++"#,
++        false,
++    );
++    equivalent(
++        r#"
++(() => {
++    class Foo { static self = Foo; method() { return Foo; } }
++    console.log(Foo.self === Foo, new Foo().method() === Foo);
++    const Original = Foo;
++    Foo = 1;
++    console.log(new Original().method() === Original);
++    const Named = class Bar { static self = Bar; };
++    console.log(Named.self === Named, Named.name);
++})();
++"#,
++        true,
++    );
++}
++
++#[test]
++fn floating_point_factors() {
++    equivalent(
++        r#"
++function product(x) { return x * 24 * 60 * 60; }
++for (const x of [365.2425, 1e307, 5e-324, -0, Infinity, NaN]) {
++    console.log(product(x), Object.is(product(x), -0));
++}
++let calls = 0;
++const value = {valueOf() { calls++; return 365.2425; }};
++console.log(product(value), calls);
++try { console.log(product(1n)); } catch (error) { console.log(error.name); }
++"#,
++        false,
++    );
++}
+diff -ruN a/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/mod.rs b/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/mod.rs
+--- a/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/mod.rs	2026-11-14 08:32:03.462113931 +0000
+@@ -666,7 +666,8 @@
+         tracing::instrument(level = "debug", skip_all)
+     )]
+     fn visit_class_decl(&mut self, n: &ClassDecl) {
+-        self.declare_decl(&n.ident, Some(Value::Unknown), None, false);
++        self.declare_decl(&n.ident, Some(Value::Unknown), None, false)
++            .mark_has_immutable_binding();
+ 
+         let id = n.ident.to_id();
+         self.used_recursively
+@@ -684,7 +685,8 @@
+     )]
+     fn visit_class_expr(&mut self, n: &ClassExpr) {
+         if let Some(id) = &n.ident {
+-            self.declare_decl(id, Some(Value::Unknown), None, false);
++            self.declare_decl(id, Some(Value::Unknown), None, false)
++                .mark_has_immutable_binding();
+ 
+             let id = id.to_id();
+             self.used_recursively
+@@ -1092,10 +1094,16 @@
+ 
+     fn visit_import_default_specifier(&mut self, n: &ImportDefaultSpecifier) {
+         self.declare_decl(&n.local, Some(Value::Unknown), None, false);
++        self.data
++            .var_or_default(n.local.to_id())
++            .mark_as_live_import();
+     }
+ 
+     fn visit_import_named_specifier(&mut self, n: &ImportNamedSpecifier) {
+         self.declare_decl(&n.local, Some(Value::Unknown), None, false);
++        self.data
++            .var_or_default(n.local.to_id())
++            .mark_as_live_import();
+     }
+ 
+     fn visit_import_star_as_specifier(&mut self, n: &ImportStarAsSpecifier) {
+@@ -1254,6 +1262,9 @@
+                 .ctx
+                 .bit_ctx
+                 .with(BitContext::InPatOfParam, true)
++                // Defaults run on each invocation, not where the function is
++                // created. Moving an outer allocation here changes identity.
++                .with(BitContext::InlinePrevented, true)
+                 .with(BitContext::IsIdRef, true),
+             var_decl_kind_of_pat: None,
+             ..self.ctx
+diff -ruN a/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/storage.rs b/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/storage.rs
+--- a/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/storage.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_minifier/src/usage_analyzer/analyzer/storage.rs	2026-11-14 08:32:03.462113931 +0000
+@@ -60,6 +60,13 @@
+ }
+ 
+ pub trait VarDataLike: Sized {
++    /// Writes may target an immutable binding even when the value is unused.
++    fn mark_has_immutable_binding(&mut self);
++
++    /// The binding can be updated by another module, outside the analyzed
++    /// program.
++    fn mark_as_live_import(&mut self);
++
+     /// See `declared_as_fn_param` of
+     /// [crate::usage_analyzer::analyzer::VarUsageInfo].
+     fn mark_declared_as_fn_param(&mut self);
+diff -ruN a/crates/swc_ecma_ast/src/expr.rs b/crates/swc_ecma_ast/src/expr.rs
+--- a/crates/swc_ecma_ast/src/expr.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_ast/src/expr.rs	2026-11-14 08:32:03.472132562 +0000
+@@ -364,9 +364,10 @@
+         self.directness_matters()
+     }
+ 
+-    /// Returns true for `eval` and member expressions.
++    /// Whether turning a value into a direct callee changes its receiver or
++    /// eval semantics.
+     pub fn directness_matters(&self) -> bool {
+-        self.is_ident_ref_to("eval") || matches!(self, Expr::Member(..))
++        self.is_ident_ref_to("eval") || matches!(self, Expr::Member(..) | Expr::SuperProp(..))
+     }
+ 
+     pub fn with_span(mut self, span: Span) -> Expr {
+diff -ruN a/crates/swc_ecma_transforms_base/src/rename/ops.rs b/crates/swc_ecma_transforms_base/src/rename/ops.rs
+--- a/crates/swc_ecma_transforms_base/src/rename/ops.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_base/src/rename/ops.rs	2026-11-14 08:32:03.605156319 +0000
+@@ -4,7 +4,7 @@
+     Spanned, SyntaxContext, DUMMY_SP,
+ };
+ use swc_ecma_ast::*;
+-use swc_ecma_utils::{prop_name_from_ident, stack_size::maybe_grow_default};
++use swc_ecma_utils::{prop_name_from_ident, stack_size::maybe_grow_default, Remapper};
+ use swc_ecma_visit::{noop_visit_mut_type, VisitMut, VisitMutWith};
+ 
+ use crate::{
+@@ -33,21 +33,16 @@
+         }
+ 
+         let mut orig_name = ident.clone();
+-        orig_name.ctxt = SyntaxContext::empty();
++        let inner_name = V::new_private(ident.sym.clone());
++        orig_name.ctxt = inner_name.ctxt();
+ 
+         {
+-            // Remove span hygiene of the class.
+-            let mut rename = FxHashMap::<Id, V>::default();
+-
+-            rename.insert(ident.to_id(), V::new_private(ident.sym.clone()));
+-
+-            let mut operator = Operator {
+-                rename: &rename,
+-                config: self.config.clone(),
+-                extra: Default::default(),
+-            };
+-
+-            class.visit_mut_with(&mut operator);
++            // Detach self-references from the outer binding before renaming it.
++            // This must update contexts even though the spelling stays the
++            // same; the ordinary rename operator skips identical symbols.
++            let mut rename = FxHashMap::default();
++            rename.insert(ident.to_id(), inner_name.ctxt());
++            class.visit_mut_with(&mut Remapper::new(&rename));
+         }
+ 
+         let _ = self.rename_ident(ident);
+diff -ruN a/crates/swc_ecma_transforms_base/src/resolver/mod.rs b/crates/swc_ecma_transforms_base/src/resolver/mod.rs
+--- a/crates/swc_ecma_transforms_base/src/resolver/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_base/src/resolver/mod.rs	2026-11-14 08:32:03.611875053 +0000
+@@ -661,10 +661,9 @@
+     }
+ 
+     fn visit_mut_class_expr(&mut self, n: &mut ClassExpr) {
+-        // Create a child scope. The class name is only accessible within the class.
+-
+-        n.class.super_class.visit_mut_with(self);
+-
++        // The inner name is in scope (but uninitialized) while evaluating
++        // heritage as well as the body. Resolving heritage first in the outer
++        // scope loses self-references when a named class is minified again.
+         self.with_child(ScopeKind::Fn, |child| {
+             child.ident_type = IdentType::Binding;
+             n.ident.visit_mut_with(child);
+diff -ruN a/crates/swc_ecma_transforms_optimization/src/simplify/dce/mod.rs b/crates/swc_ecma_transforms_optimization/src/simplify/dce/mod.rs
+--- a/crates/swc_ecma_transforms_optimization/src/simplify/dce/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_optimization/src/simplify/dce/mod.rs	2026-11-14 08:32:03.625074466 +0000
+@@ -110,6 +110,8 @@
+     initialized: bool,
+ 
+     used_names: FxHashMap<Id, VarInfo>,
++    /// A class declaration's outer Id also denotes its immutable self-binding.
++    class_bindings: FxHashSet<Id>,
+ 
+     /// Variable usage graph
+     ///
+@@ -629,6 +631,7 @@
+     }
+ 
+     fn visit_class_decl(&mut self, n: &ClassDecl) {
++        self.data.class_bindings.insert(n.ident.to_id());
+         // A superclass that is a backward reference to an already-initialized
+         // class can be attributed as a normal dependency edge, letting an
+         // unreachable `extends` cycle collapse. A forward reference, a
+@@ -708,6 +711,7 @@
+ 
+     fn visit_class_expr(&mut self, n: &ClassExpr) {
+         if let Some(ident) = &n.ident {
++            self.data.class_bindings.insert(ident.to_id());
+             // ClassDefinitionEvaluation creates a lexical binding for a named
+             // class expression that is visible only inside the class definition.
+             let old = self.cur_class_id.replace(ident.to_id());
+@@ -973,6 +977,10 @@
+     }
+ 
+     fn can_drop_assignment_to(&self, name: Id, is_var: bool) -> bool {
++        // Class self-writes must still throw even when their value is unused.
++        if !is_var && self.data.class_bindings.contains(&name) {
++            return false;
++        }
+         if !self.config.top_level {
+             if is_var {
+                 if !self.in_fn {
+diff -ruN a/crates/swc_ecma_transforms_optimization/src/simplify/expr/mod.rs b/crates/swc_ecma_transforms_optimization/src/simplify/expr/mod.rs
+--- a/crates/swc_ecma_transforms_optimization/src/simplify/expr/mod.rs	2026-10-31 03:41:17.000000000 +0000
++++ b/crates/swc_ecma_transforms_optimization/src/simplify/expr/mod.rs	2026-11-14 08:32:03.626380575 +0000
+@@ -1208,7 +1208,7 @@
+         }
+ 
+         // Arithmetic operations
+-        op!(bin, "-") | op!("/") | op!("%") | op!("**") => {
++        op!(bin, "-") | op!("*") | op!("/") | op!("%") | op!("**") => {
+             try_replace!(number, perform_arithmetic_op(expr_ctx, op, left, right))
+         }
+ 
+@@ -1236,10 +1236,9 @@
+             try_replace!(number, try_fold_shift(expr_ctx, op, left, right))
+         }
+ 
+-        // These needs one more check.
+-        //
+-        // (a * 1) * 2 --> a * (1 * 2) --> a * 2
+-        op!("*") | op!("&") | op!("|") | op!("^") => {
++        // Only bitwise operations may regroup constant operands. Floating-point
++        // arithmetic must retain each intermediate rounding (and overflow).
++        op!("&") | op!("|") | op!("^") => {
+             try_replace!(number, perform_arithmetic_op(expr_ctx, op, left, right));
+ 
+             // Try left.rhs * right

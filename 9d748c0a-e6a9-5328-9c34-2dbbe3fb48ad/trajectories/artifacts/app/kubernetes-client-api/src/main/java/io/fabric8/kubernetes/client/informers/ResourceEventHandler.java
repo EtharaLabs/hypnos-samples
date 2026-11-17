@@ -1,0 +1,125 @@
+/*
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.fabric8.kubernetes.client.informers;
+
+import io.fabric8.kubernetes.client.informers.cache.Store;
+
+/**
+ * ResourceEventHandler can handle notifications for events that
+ * happen to a resource. The events are information only, so you can't
+ * return an error.
+ *
+ * @param <T> resource
+ */
+public interface ResourceEventHandler<T> {
+
+  /**
+   * Called after an empty list is retrieved on start or after an HTTP GONE when the {@link Store} is empty
+   * <p>
+   * Should not be implemented with long-running logic as that may lead to memory issues.
+   * 
+   * @deprecated - use {@link #onList(String, boolean)} and check if the cache remained empty
+   */
+  @Deprecated
+  default void onNothing() {
+
+  }
+
+  /**
+   * Called once per list/watch cycle, before the list operation is initiated. This fires for the
+   * initial list and for every fresh re-list — whether triggered by an HTTP GONE or by any other
+   * watch failure that goes through the reconnect path — but not for retry attempts that follow a
+   * transient failure within the same cycle (i.e. before the matching {@link #onList(String, boolean)}
+   * has been delivered).
+   *
+   * <p>
+   * In the window between this callback and the matching {@link #onList(String, boolean)}:
+   * <ul>
+   * <li>resources already deleted on the server may still be present in the cache — deletions
+   * detected by the list are not reconciled into the cache until just before {@code onList} is
+   * called.</li>
+   * <li>the last sync resource version reported here remains frozen for the duration of the
+   * list. On a re-list, {@code onAdd} / {@code onUpdate} events can still be emitted from the
+   * in-flight list pages with resource versions newer than {@code lastSyncResourceVersion}; on
+   * the initial list the additions are instead deferred and delivered as a single batch just
+   * before {@link #onList(String, boolean)}.</li>
+   * </ul>
+   *
+   * <p>
+   * Should not be implemented with long-running logic as that may lead to memory issues.
+   * <p>
+   * This method is not called for re-sync.
+   *
+   * @param lastSyncResourceVersion the latest resource version known prior to the list operation, or
+   *        {@code null} if no list has completed yet
+   */
+  default void onBeforeList(String lastSyncResourceVersion) {
+  }
+
+  /**
+   * Called after a listing is completed. By default calls {@link #onNothing()} when remainedEmpty is true.
+   * <p>
+   * Should not be implemented with long-running logic as that may lead to memory issues.
+   * <p>
+   * This method is not called for re-sync.
+   *
+   * @param resourceVersion the latest resource version known to the list operation
+   * @param remainedEmpty will be true if the cache remained empty prior to and after the list operation meaning no
+   *        other events would have been emitted as part of the relist
+   */
+  default void onList(String resourceVersion, boolean remainedEmpty) {
+    if (remainedEmpty) {
+      onNothing();
+    }
+  }
+
+  /**
+   * Called when an object is added.
+   * <p>
+   * Should not be implemented with long-running logic as that may lead to memory issues.
+   *
+   * @param obj object
+   */
+  void onAdd(T obj);
+
+  /**
+   * Called when an object is modified. Note that oldObj is the last
+   * known state of the object -- it is possible that several changes
+   * were combined together, so you can't use this to see every single
+   * change. It is also called when a sync happens - oldObj will be
+   * the same as newObj.
+   * <p>
+   * Should not be implemented with long-running logic as that may lead to memory issues.
+   *
+   * @param oldObj old object
+   * @param newObj new object
+   */
+  void onUpdate(T oldObj, T newObj);
+
+  /**
+   * Gets the final state of the item if it is known, otherwise
+   * it would get an object of the DeletedFinalStateUnknown. This can
+   * happen if the watch is closed and misses the delete event and
+   * we don't notice the deletion until the subsequent re-list.
+   * <p>
+   * Should not be implemented with long-running logic as that may lead to memory issues.
+   *
+   * @param obj object to delete
+   * @param deletedFinalStateUnknown get final state of item if it is known or not.
+   */
+  void onDelete(T obj, boolean deletedFinalStateUnknown);
+
+}

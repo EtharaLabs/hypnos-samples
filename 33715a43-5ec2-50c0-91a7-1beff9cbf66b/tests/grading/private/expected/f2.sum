@@ -1,0 +1,4 @@
+a.ts:17:3 lint/nursery/useExhaustiveSwitchCases ["medium"]
+a.ts:27:3 lint/nursery/useExhaustiveSwitchCases [8]
+a.ts:9:3 lint/nursery/useExhaustiveSwitchCases ["green"] ["blue"]
+rc=1
