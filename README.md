@@ -51,7 +51,7 @@ Every task also requires that everything that works at the base commit keeps wor
 
 ## Rollouts
 
-Each task carries one rollout under `trajectories/`. The rollouts were recorded with Harbor on 13 and 14 November 2026, using the agent described in [Agent](#agent).
+Each task carries one rollout under `rollouts/`. The rollouts were recorded with Harbor on 13 and 14 November 2026, using the agent described in [Agent](#agent).
 
 | # | Task | Reward |
 | --- | --- | --- |
@@ -78,7 +78,7 @@ Once the gate opens, Reward Kit computes the reward as a weighted mean of two ki
 - **Compiled items** (`tests/test_output.py`). Each item is a named group of tests that must all pass. A task has 6 to 10 of these, with a total weight of 29 to 35.
 - **One judged item** (`tests/judge.toml`), with weight 3. `anthropic/claude-sonnet-5-5` reads `submission.diff` and checks that the fix is general rather than special-cased to the issue's example or the test inputs.
 
-If no judge is reachable, the reward is computed from the compiled items alone. The weights for each task are in `tests/reward.toml`. A scored rollout's breakdown, item by item, is in `trajectories/verifier/reward-details.json`.
+If no judge is reachable, the reward is computed from the compiled items alone. The weights for each task are in `tests/reward.toml`. A scored rollout's breakdown, item by item, is in `rollouts/verifier/reward-details.json`.
 
 ## Agent
 
@@ -91,7 +91,7 @@ If no judge is reachable, the reward is computed from the compiled items alone. 
 | Agent user | uid 20001, non-root |
 | Network | Allowlist only: `api.openai.com`, `api.anthropic.com`, plus `chatgpt.com` and `auth.openai.com` for Codex sign-in. The task environment itself has no network. |
 
-The Codex CLI is preinstalled in each task image from checksum-verified release binaries, because the environment cannot download anything. `trajectories/result.json` records the agent and model versions, token counts and timings for each rollout.
+The Codex CLI is preinstalled in each task image from checksum-verified release binaries, because the environment cannot download anything. `rollouts/result.json` records the agent and model versions, token counts and timings for each rollout.
 
 ## Dataset structure
 
@@ -113,7 +113,7 @@ hypnos-samples/
     │   ├── judge.toml                judged rubric item
     │   ├── reward.toml               reward weights
     │   └── rewardkit.lock
-    └── trajectories/                 the recorded rollout
+    └── rollouts/                 the recorded rollout
         ├── config.json               trial configuration
         ├── lock.json                 resolved task digest and run settings
         ├── result.json               agent, model, tokens, timings, reward
