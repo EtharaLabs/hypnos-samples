@@ -39,9 +39,11 @@ Hypnos keeps that task shape but changes how tasks are built and scored:
 | Property | Value |
 | --- | --- |
 | Tasks | 5 |
+| Domain | Software engineering (issue resolution) |
 | Upstream repositories | 4: `biomejs/biome`, `fabric8io/kubernetes-client`, `oxc-project/oxc`, `swc-project/swc` |
 | Languages | Rust (4 tasks), Java (1 task) |
 | Task format | Harbor task, schema 1.4 |
+| Platforms | linux/amd64, linux/arm64 |
 | Target benchmark | [Multi-SWE-bench](https://arxiv.org/abs/2504.02605) (arXiv:2504.02605) |
 | Score type | Bounded continuous, 0.0 to 1.0 |
 | Rollouts | 5 (one per task) |
@@ -162,3 +164,5 @@ Tasks 3 and 5 (SWC) also carry an `exec-tools/` directory in `environment/` and 
 ## Contact
 
 The organization page is [Ethara AI on GitHub](https://github.com/Ethara-Ai).
+
+Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
