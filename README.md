@@ -154,10 +154,8 @@ Tasks 3 and 5 (SWC) also carry an `exec-tools/` directory in `environment/` and 
 ```bibtex
 @misc{hypnos2026,
   title        = {Hypnos: Multilingual Issue-Resolving Terminal Tasks Replayed Before the Fix},
-  author       = {Ethara AI},
-  year         = {2026},
-  howpublished = {\url{https://github.com/EtharaOrion/hypnos}},
-  note         = {Corpus in preparation; no measured difficulty published at the time of writing}
+  author       = {{Ethara.AI}},
+  year         = {2026}
 }
 ```
 
